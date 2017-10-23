@@ -1,0 +1,229 @@
+#include "SchemeTree.h"
+#include "Helper.h"
+#include <QJsonDocument>
+#include <QFile>
+#include <QHeaderView>
+#include <QStyledItemDelegate>
+#include <QItemSelectionModel>
+#include <QPainter>
+#include <QMouseEvent>
+
+class IconDelegate : public QStyledItemDelegate
+{
+public:
+	IconDelegate(QObject *parent = 0)
+		: QStyledItemDelegate(parent)
+	{}
+	void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const override
+	{
+		QStyledItemDelegate::paint(painter, option, index);
+		QStyleOptionViewItem opt = option;
+		initStyleOption(&opt, index);
+		auto r = option.widget->style()->subElementRect(QStyle::SE_ItemViewItemDecoration, &opt, opt.widget);
+		opt.icon.paint(painter, r, opt.decorationAlignment);
+	}
+};
+
+class SeectionModel : public QItemSelectionModel
+{
+public:
+	SeectionModel(QAbstractItemModel *model, QObject* parent = 0)
+		: QItemSelectionModel(model, parent)
+	{}
+	void select(const QItemSelection &selection, QItemSelectionModel::SelectionFlags command) override
+	{
+		if (command & Select) {
+			for (auto& r : selection) {
+				if (r.top() == 0)
+					break;
+				if (r.right() >= 2 && r.left() <= 3)
+					return;
+			}
+		}
+		QItemSelectionModel::select(selection, command);
+	}
+};
+
+SchemeTree::SchemeTree(QWidget *parent)
+	: QTreeWidget(parent)
+{
+	eraserCategory_.reset(new Category);
+	eraserCategory_->setName("Eraser");
+
+	statePixmaps_[0] = QIcon(":/image/icons/lock.svg").pixmap(QSize(13,13));
+	statePixmaps_[1] = help::lightenPixmap(statePixmaps_[0], 0.2);
+	statePixmaps_[2] = QIcon(":/image/icons/eye.svg").pixmap(QSize(13,13));
+	statePixmaps_[3] = help::lightenPixmap(statePixmaps_[2], 0.2);
+
+	setMouseTracking(true);
+	connect(this, &QTreeWidget::itemClicked, this, &SchemeTree::itemClicked);
+}
+
+bool SchemeTree::open(const QString &path)
+{
+	bool had = !scheme_.isNull();
+	scheme_.reset();
+	QTreeWidget::clear();
+
+	bool failed = false;
+	for (;;) {
+		QFile file(path);
+		if (!file.open(QFile::ReadOnly)) {
+			errorString_ = QString("Can't open the file '%1': %2").arg(path).arg(file.errorString());
+			failed = true;
+			break;
+		}
+		QJsonParseError error;
+		auto json = QJsonDocument::fromJson(file.readAll(), &error);
+		if (error.error != QJsonParseError::NoError) {
+			errorString_ = QString("Invalid json file '%1': %2").arg(path).arg(error.errorString());
+			failed = true;
+			break;
+		}
+		scheme_.reset(Scheme::fromJson(json.object()));
+		if (scheme_->name().isEmpty()) {
+			errorString_ = "The scheme has no name";
+			failed = true;
+			break;
+		}
+		if (!scheme_->categoryCount()) {
+			errorString_ = "The scheme is empty";
+			failed = true;
+			break;
+		}
+		break;
+	}
+	if (failed) {
+		if (had) {
+			emit schemeChanged(0);
+		}
+		scheme_.reset();
+		return false;
+	}
+	addCategory(eraserCategory_.data());
+	for (auto& c : scheme_->categories()) {
+		addCategory(c);
+	}
+	setCurrentItem(invisibleRootItem()->child(1));
+	emit schemeChanged(scheme_.data());
+	return true;
+}
+
+void SchemeTree::clear()
+{
+	bool had = !scheme_.isNull();
+	scheme_.reset();
+	QTreeWidget::clear();
+	if (had) {
+		emit schemeChanged(scheme_.data());
+	}
+}
+
+void SchemeTree::resetCategoryStates()
+{
+	for (int i = 1; i < invisibleRootItem()->childCount(); i++) {
+		auto item = invisibleRootItem()->child(i);
+		auto c = itemCategory(item);
+		c->setVisible(true);
+		c->setLocked(false);
+		item->setIcon(2, statePixmaps_[c->isLocked() ? 0 : 1]);
+		item->setIcon(3, statePixmaps_[c->isVisible() ? 2 : 3]);
+	}
+}
+
+Category *SchemeTree::currentCategory() const
+{
+	auto c = currentItem();
+	return c ? itemCategory(c) : 0;
+}
+
+void SchemeTree::itemClicked(QTreeWidgetItem *item, int column)
+{
+	auto c = itemCategory(item);
+	if (c->index() >= 0) {
+		if (column == 2) {
+			c->setLocked(!c->isLocked());
+			item->setIcon(2, statePixmaps_[c->isLocked() ? 0 : 1]);
+			emit lockedChanged(c);
+		}
+		else if (column == 3) {
+			c->setVisible(!c->isVisible());
+			item->setIcon(3, statePixmaps_[c->isVisible() ? 2 : 3]);
+			emit visibilityChanged(c);
+		}
+	}
+}
+
+void SchemeTree::selectionChanged(const QItemSelection& selected, const QItemSelection& deselected)
+{
+	auto indexes = deselected.indexes();
+	if (!indexes.empty()) {
+		auto prev = itemFromIndex(indexes[0]);
+		if (prev) {
+			prev->setFont(1, QFont());
+		}
+	}
+	indexes = selected.indexes();
+	if (!indexes.empty()) {
+		auto cur = itemFromIndex(indexes[0]);
+		if (cur) {
+			QFont f;
+			f.setBold(true);
+			cur->setFont(1, f);
+			emit this->selected(itemCategory(cur));
+		} else {
+			emit this->selected(0);
+		}
+	} else {
+		emit this->selected(0);
+	}
+	QTreeWidget::selectionChanged(selected, deselected);
+}
+
+void SchemeTree::addCategory(Category* cat)
+{
+	auto item = new QTreeWidgetItem(invisibleRootItem());
+	item->setText(1, cat->name());
+	item->setData(1, Qt::UserRole, reinterpret_cast<qlonglong>(cat));
+	if (cat->index() < 0) {
+		item->setIcon(0, QIcon(":/image/icons/eraser.svg").pixmap(QSize(13,13)));
+	} else {
+		item->setIcon(0, help::colorIcon(QSize(13,13), cat->color()));
+		item->setIcon(2, statePixmaps_[cat->isLocked() ? 0 : 1]);
+		item->setIcon(3, statePixmaps_[cat->isVisible() ? 2 : 3]);
+	}
+}
+
+Category *SchemeTree::itemCategory(QTreeWidgetItem *item) const
+{
+	return reinterpret_cast<Category*>(item->data(1, Qt::UserRole).toULongLong());
+}
+
+void SchemeTree::setup()
+{
+	auto oldSelectionModel = selectionModel();
+	setSelectionModel(new SeectionModel(model(), this));
+	delete oldSelectionModel;
+
+	setItemDelegateForColumn(0, new IconDelegate(this));
+	int widths[] = { 24, 100, 24, 24 };
+	for (int i = 0; i < columnCount(); i++) {
+		setColumnWidth(i, abs(widths[i]));
+	}
+	header()->setSectionResizeMode(0, QHeaderView::Fixed);
+	header()->setSectionResizeMode(1, QHeaderView::Stretch);
+	header()->setSectionResizeMode(2, QHeaderView::Fixed);
+	header()->setSectionResizeMode(3, QHeaderView::Fixed);
+}
+
+void SchemeTree::mouseMoveEvent(QMouseEvent* event)
+{
+	QTreeWidget::mouseMoveEvent(event);
+	setCursor(QCursor(itemAt(event->pos()) ? Qt::PointingHandCursor : Qt::ArrowCursor));
+}
+
+void SchemeTree::leaveEvent(QEvent* event)
+{
+	QTreeWidget::leaveEvent(event);
+	setCursor(QCursor());
+}

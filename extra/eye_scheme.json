@@ -1,0 +1,17 @@
+{
+	"Name": "Eye",
+	"Categories": [
+		{
+			"Name": "Sclera",
+			"Color": "white"
+		},
+		{
+			"Name": "Iris",
+			"Color": "blue"
+		},
+		{
+			"Name": "Pupil",
+			"Color": "darkgray"
+		}
+	]
+}
