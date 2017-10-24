@@ -1,5 +1,6 @@
 #include "BrushToolBar.h"
 #include "SegmentationScene.h"
+#include <QApplication>
 
 BrushToolBar::BrushToolBar(QWidget *parent)
     : ToolToolBar(parent)
@@ -28,11 +29,11 @@ BrushToolBar::BrushToolBar(QWidget *parent)
     actionIncreaseWidth = new QAction("Increase brush width", this);
 	actionIncreaseWidth->setIcon(QIcon(":/image/icons/rounded_plus.svg"));
 	actionIncreaseWidth->setObjectName("actionIncreaseWidth");
-    actionIncreaseWidth->setShortcut(QKeySequence("Ctrl+]"));
+    actionIncreaseWidth->setShortcuts({QKeySequence("]"), QKeySequence("Ctrl+]"), QKeySequence("Shift+]")});
 	actionDecreaseWidth = new QAction("Decrease brush width", this);
 	actionDecreaseWidth->setIcon(QIcon(":/image/icons/rounded_minus.svg"));
 	actionDecreaseWidth->setObjectName("actionDecreaseWidth");
-    actionDecreaseWidth->setShortcut(QKeySequence("Ctrl+["));
+    actionDecreaseWidth->setShortcuts({QKeySequence("["), QKeySequence("Ctrl+["), QKeySequence("Shift+[")});
 
 	addWidget(widthLabel);
 	addAction(actionDecreaseWidth);
@@ -54,12 +55,17 @@ void BrushToolBar::incWidth()
 {
 	int v = widthCombo->currentText().toInt();
 	if (v < 1000) {
-		for (int i = 0; i < widthCombo->count(); i++) {
-			if (widthCombo->itemText(i).toInt() > v) {
-				widthCombo->setCurrentIndex(i);
-				return;
-			}
-		}
+        if (QApplication::keyboardModifiers() & Qt::ShiftModifier) {
+            for (int i = 0; i < widthCombo->count(); i++) {
+                if (widthCombo->itemText(i).toInt() > v) {
+                    widthCombo->setCurrentIndex(i);
+                    return;
+                }
+            }
+        } else {
+            auto inc = QApplication::keyboardModifiers() & Qt::ControlModifier ? 5 : 1;
+            widthCombo->setCurrentText(QString::number(qMin(v + inc, 1000)));
+        }
 	}
 }
 
@@ -67,11 +73,16 @@ void BrushToolBar::decWidth()
 {
 	int v = widthCombo->currentText().toInt();
 	if (v > 1) {
-		for (int i = 0; i < widthCombo->count(); i++) {
-			if (widthCombo->itemText(i).toInt() >= v) {
-				widthCombo->setCurrentIndex(i-1);
-				return;
-			}
-		}
+        if (QApplication::keyboardModifiers() & Qt::ShiftModifier) {
+            for (int i = 0; i < widthCombo->count(); i++) {
+                if (widthCombo->itemText(i).toInt() >= v) {
+                    widthCombo->setCurrentIndex(i-1);
+                    return;
+                }
+            }
+        } else {
+            auto inc = QApplication::keyboardModifiers() & Qt::ControlModifier ? 5 : 1;
+            widthCombo->setCurrentText(QString::number(qMax(v - inc, 1)));
+        }
 	}
 }
