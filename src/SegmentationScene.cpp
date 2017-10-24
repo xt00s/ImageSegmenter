@@ -88,6 +88,17 @@ void SegmentationScene::keyPressEvent(QKeyEvent *event)
 		case Qt::Key_Escape:
 			clearToolState();
 			break;
+		case Qt::Key_Backspace: {
+				if (tool_ == Tool::Polygon) {
+					if (polyItem_->isVisible()) {
+						polyItem_->removeLastCommittedPoint();
+						if (polyItem_->empty()) {
+							clearToolState();
+						}
+					}
+				}
+				break;
+			}
 		}
 	}
 }

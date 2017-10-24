@@ -290,6 +290,14 @@ void PolylineItem::setLastPoint(const QPointF& p)
 	}
 }
 
+void PolylineItem::removeLastCommittedPoint()
+{
+	if (polygon_.count() > 1) {
+		prepareGeometryChange();
+		polygon_.remove(polygon_.count()-2);
+	}
+}
+
 void PolylineItem::commitPoint(const QPointF& p)
 {
 	if (polygon_.count() >= 2 && polygon_[polygon_.count()-2] != p) {
@@ -316,6 +324,11 @@ void PolylineItem::clear()
 bool PolylineItem::canClose() const
 {
 	return polygon_.count() > 3;
+}
+
+bool PolylineItem::empty() const
+{
+	return polygon_.count() < 2;
 }
 
 QRectF PolylineItem::boundingRect() const

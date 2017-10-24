@@ -84,10 +84,12 @@ public:
 
 	void begin();
 	void setLastPoint(const QPointF& p);
+	void removeLastCommittedPoint();
 	void commitPoint(const QPointF& p);
 	void commit();
 	void clear();
 	bool canClose() const;
+	bool empty() const;
 	QPolygonF polygon() const;
 
 	QRectF boundingRect() const override;
