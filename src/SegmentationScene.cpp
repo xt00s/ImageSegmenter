@@ -45,21 +45,14 @@ void SegmentationScene::setTool(SegmentationScene::Tool tool)
 	if (tool == tool_)
 		return;
 
-	switch (tool_) {
-	case Tool::Polygon:
-		markerItem_->hide();
-		markerItem_->clear();
-		polyItem_->hide();
-		polyItem_->clear();
-		break;
-	case Tool::Brush:
+	clearToolState();
+	if (tool_ == Tool::Brush) {
 		for (auto& v : views()) {
 			v->viewport()->unsetCursor();
 		}
 		brushCursorItem_->hide();
 	}
-	switch (tool) {
-	case Tool::Brush:
+	if (tool == Tool::Brush) {
 		for (auto& v : views()) {
 			v->viewport()->setCursor(Qt::BlankCursor);
 		}
@@ -74,13 +67,11 @@ void SegmentationScene::setBrushWidth(qreal width)
 
 void SegmentationScene::clearToolState()
 {
-	switch (tool_) {
-	case Tool::Polygon:
+	if (tool_ == Tool::Polygon) {
 		markerItem_->hide();
 		markerItem_->clear();
 		polyItem_->hide();
 		polyItem_->clear();
-		break;
 	}
 }
 
@@ -163,9 +154,9 @@ void SegmentationScene::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 			break;
 		}
 	case Tool::Brush:
-		if (!brushCursorItem_->isVisible())
+		if (!brushCursorItem_->isVisible()) {
 			brushCursorItem_->show();
-		if (pressed_) {
+		} else if (pressed_) {
 			auto start = canvasItem_->mapFromScene(brushCursorItem_->pos());
 			auto end = canvasItem_->mapFromScene(event->scenePos());
 			Line line(QLineF(start, end), brushCursorItem_->width());
@@ -183,23 +174,21 @@ void SegmentationScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 	QGraphicsScene::mouseReleaseEvent(event);
 
 	if (pressed_) {
-		pressed_ = false;
-		switch (tool_) {
-		case Tool::Brush:
-			emit newCommand(new DrawFragmentCommand(canvasItem_, canvasCopy_->extract(pressedRect_)));
-			canvasCopy_.reset();
-			break;
+		if (tool_ == Tool::Brush) {
+			if (brushCursorItem_->isVisible()) {
+				emit newCommand(new DrawFragmentCommand(canvasItem_, canvasCopy_->extract(pressedRect_)));
+				canvasCopy_.reset();
+			}
 		}
+		pressed_ = false;
 	}
 }
 
 bool SegmentationScene::eventFilter(QObject* watched, QEvent* event)
 {
 	if (event->type() == QEvent::Leave) {
-		switch (tool_) {
-		case Tool::Brush:
+		if (tool_ == Tool::Brush) {
 			brushCursorItem_->hide();
-			break;
 		}
 	}
 	return QGraphicsScene::eventFilter(watched, event);
