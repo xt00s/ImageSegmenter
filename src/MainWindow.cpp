@@ -123,8 +123,8 @@ void MainWindow::setupStatusBar()
 	zoomSlider_ = new ZoomSlider(this);
 	zoomSlider_->setObjectName("zoomSlider");
 	zoomSlider_->setFixedSize(105, 18);
-	zoomSlider_->setRange(0.1, 32);
-	zoomSlider_->setTicks({.1, .25, .33, .5, .66, .75, 1, 1.25, 1.5, 2, 3, 4, 6, 8, 12, 16, 24, 32});
+	zoomSlider_->setZoomRange(0.1, 32);
+	zoomSlider_->setZoomTicks({.1, .25, .33, .5, .66, .75, 1, 1.25, 1.5, 2, 3, 4, 6, 8, 12, 16, 24, 32});
 
 	zoomLabel_ = new QLabel("100%", this);
 	zoomLabel_->setAlignment(Qt::AlignRight | Qt::AlignVCenter);

@@ -1,56 +1,38 @@
 #include "ZoomSlider.h"
-#include <QPainter>
-#include <QMouseEvent>
-
-#define W 8
 
 ZoomSlider::ZoomSlider(QWidget *parent)
-	: QWidget(parent)
-	, mouseOverHandle_(false)
-	, pressed_(false)
+	: Slider(parent)
 	, zoom_(1)
 	, min_(1)
 	, max_(1)
 {
-	setMouseTracking(true);
+	connect(this, &Slider::valueChanged, this, &ZoomSlider::valueChanged);
 }
 
-void ZoomSlider::setRange(double min, double max)
+void ZoomSlider::setZoomRange(double min, double max)
 {
 	min_ = min;
 	max_ = max;
+	setRange(int(min*100), int(max*100));
 	setZoom(zoom_);
 }
 
-void ZoomSlider::setTicks(const QVector<double>& ticks)
+void ZoomSlider::setZoomTicks(const QVector<double>& ticks)
 {
 	ticks_ = ticks;
 }
 
 void ZoomSlider::setZoom(double zoom)
 {
-	auto v = boundZoom(zoom);
-	if (v != zoom_) {
-		zoom_ = v;
-		updatePos();
-		update();
-		emit zoomChanged(zoom_);
-	}
-}
-
-void ZoomSlider::setGrooveColor(const QColor& grooveColor)
-{
-	if (grooveColor != grooveColor_) {
-		grooveColor_ = grooveColor;
-		update();
-	}
-}
-
-void ZoomSlider::setHandleColor(const QColor& handleColor)
-{
-	if (handleColor != handleColor_) {
-		handleColor_ = handleColor;
-		update();
+	auto z = boundZoom(zoom);
+	if (z != zoom_) {
+		auto v = int(z*100);
+		if (v != value()) {
+			setValue(v);
+		} else {
+			zoom_ = z;
+			emit zoomChanged(zoom_);
+		}
 	}
 }
 
@@ -76,61 +58,33 @@ void ZoomSlider::zoomOut()
 	setZoom((i-1) >= 0 ? ticks_[i-1] : zoom_ / 1.2);
 }
 
-void ZoomSlider::paintEvent(QPaintEvent* event)
+int ZoomSlider::valueFromPos(int pos, int minPos, int maxPos)
 {
-	QPainter p(this);
-	p.setRenderHint(QPainter::Antialiasing);
-	auto r = contentsRect();
-	p.setPen(Qt::NoPen);
-	p.setBrush(grooveColor_);
-	p.drawRect(r.left(), r.center().y(), r.width(), 2);
-	p.setBrush(handleColor_.darker(mouseOverHandle_ ? 200 : 100));
-	p.drawRoundedRect(pos_, r.top(), W, r.height(), W/2, W/2);
-}
-
-void ZoomSlider::mousePressEvent(QMouseEvent* event)
-{
-	if (mouseOverHandle_) {
-		pressed_ = true;
+	int center = (maxPos + minPos) / 2;
+	if (pos >= center) {
+		return (pos - center) * (maximum() - 100) / (maxPos - center) + 100;
 	} else {
-		pos_ = boundPos(event->pos().x() - W/2);
-		updateZoom();
-		update();
+		return pos * (100 - minimum()) / center + minimum();
 	}
 }
 
-void ZoomSlider::mouseReleaseEvent(QMouseEvent* event)
+int ZoomSlider::posFromValue(int value, int minPos, int maxPos)
 {
-	pressed_ = false;
-}
-
-void ZoomSlider::mouseMoveEvent(QMouseEvent* event)
-{
-	if (pressed_) {
-		pos_ = boundPos(event->pos().x() - W/2);
-		updateZoom();
-		update();
-	}
-	else {
-		bool over = overHandle(event->pos());
-		if (over != mouseOverHandle_) {
-			mouseOverHandle_ = over;
-			update();
-		}
+	int center = (maxPos + minPos) / 2;
+	if (value >= 100) {
+		return center + (value - 100) * (maxPos - center) / (maximum() - 100);
+	} else {
+		return (value - minimum()) * center / (100 - minimum());
 	}
 }
 
-void ZoomSlider::leaveEvent(QEvent* event)
+void ZoomSlider::valueChanged(int value)
 {
-	if (mouseOverHandle_) {
-		mouseOverHandle_ = false;
-		update();
+	auto z = boundZoom(value == 100 ? 1 : double(value) / 100);
+	if (zoom_ != z) {
+		zoom_ = z;
+		emit zoomChanged(zoom_);
 	}
-}
-
-void ZoomSlider::resizeEvent(QResizeEvent* event)
-{
-	updatePos();
 }
 
 double ZoomSlider::boundZoom(double zoom) const
@@ -138,43 +92,3 @@ double ZoomSlider::boundZoom(double zoom) const
 	return qBound(min_, zoom, max_);
 }
 
-int ZoomSlider::boundPos(int pos) const
-{
-	auto r = contentsRect().adjusted(0,0,-W+1,0);
-	return qBound(r.left(), pos, r.right());
-}
-
-void ZoomSlider::updateZoom()
-{
-	auto r = contentsRect().adjusted(0,0,-W+1,0);
-	double zoom;
-	if (pos_ == r.center().x()) {
-		zoom = 1;
-	} else if (pos_ == r.right()) {
-		zoom = max_;
-	} else if (pos_ == 0) {
-		zoom = min_;
-	} else if (pos_ > r.center().x()) {
-		zoom = double(pos_ - r.center().x()) / (r.right() - r.center().x()) * (max_ - 1) + 1;
-	} else {
-		zoom = double(pos_) / r.center().x() * (1-min_) + min_;
-	}
-	setZoom(zoom);
-}
-
-void ZoomSlider::updatePos()
-{
-	auto r = contentsRect().adjusted(0,0,-W+1,0);
-	if (zoom_ >= 1) {
-		pos_ = r.center().x() + int((zoom_-1) / (max_-1) * (r.right() - r.center().x()));
-	} else {
-		pos_ = int((zoom_-min_) / (1-min_) * r.center().x());
-	}
-	pos_ = boundPos(pos_);
-}
-
-bool ZoomSlider::overHandle(const QPoint& pos) const
-{
-	auto r = contentsRect();
-	return QRect(pos_, r.top(), W, r.height()).contains(pos);
-}

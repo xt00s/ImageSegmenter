@@ -23,7 +23,8 @@ HEADERS += \
     src/ImageList.h \
     src/NewSchemeDialog.h \
     src/SegmentationProgressBar.h \
-    src/AboutDialog.h
+    src/AboutDialog.h \
+    src/Slider.h
 
 SOURCES += \
     src/Category.cpp \
@@ -44,7 +45,8 @@ SOURCES += \
     src/ImageList.cpp \
     src/NewSchemeDialog.cpp \
     src/SegmentationProgressBar.cpp \
-    src/AboutDialog.cpp
+    src/AboutDialog.cpp \
+    src/Slider.cpp
 
 FORMS += \
     ui/MainWindow.ui \
