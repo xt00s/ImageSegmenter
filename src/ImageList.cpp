@@ -57,12 +57,24 @@ void ImageList::clear()
 
 void ImageList::next()
 {
-	select(selected_ + 1);
+	int n;
+	for (n = qMax(0, selected_ + 1); n < count(); n++) {
+		if (!markedAsSegmented(item(n))) {
+			break;
+		}
+	}
+	select(n < count() ? n : selected_ + 1);
 }
 
 void ImageList::prev()
 {
-	select(selected_ - 1);
+	int n;
+	for (n = selected_ - 1; n >= 0; n--) {
+		if (!markedAsSegmented(item(n))) {
+			break;
+		}
+	}
+	select(n >= 0 ? n : selected_ - 1);
 }
 
 bool ImageList::isPrevAvailable() const
