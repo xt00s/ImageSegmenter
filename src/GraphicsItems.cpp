@@ -8,7 +8,8 @@
 CanvasItem::CanvasItem(QGraphicsItem* parent)
 	: QGraphicsItem(parent)
 	, scheme_(0), category_(0)
-	, pixmapVisible_(true), pixmapBright_(false)
+	, pixmapVisible_(true), pixmapGray_(false)
+	, pixmapOpacity_(1)
 {
 }
 
@@ -16,6 +17,7 @@ void CanvasItem::setPixmap(const QPixmap& pixmap, const QPixmap& mask)
 {
 	prepareGeometryChange();
 	pixmap_ = pixmap;
+	pixmapG_ = pixmapGray_ ? help::rgb2gray(pixmap) : QPixmap();
 	shape_ = QPainterPath();
 	shape_.addRect(QRectF(QPointF(), pixmap.size()));
 	initLayers(mask);
@@ -143,10 +145,8 @@ void CanvasItem::paint(QPainter* painter, const QStyleOptionGraphicsItem* option
 {
 	painter->setRenderHint(QPainter::SmoothPixmapTransform, false);
 	if (pixmapVisible_) {
-		if (pixmapBright_) {
-			painter->setOpacity(0.7);
-		}
-		painter->drawPixmap(QPointF(), pixmap_);
+		painter->setOpacity(pixmapOpacity_);
+		painter->drawPixmap(QPointF(), pixmapGray_ ? pixmapG_ : pixmap_);
 		painter->setOpacity(0.4);
 	}
 	if (scheme_ && !layers_.empty()) {
@@ -223,14 +223,6 @@ void CanvasItem::erase(const Drawable& shape)
 	update(shape.rect());
 }
 
-void CanvasItem::setPixmapBright(bool bright)
-{
-	if (pixmapBright_ != bright) {
-		pixmapBright_ = bright;
-		update();
-	}
-}
-
 QPixmap CanvasItem::mask(const QColor& background) const
 {
 	QPixmap m(pixmap_.size());
@@ -246,6 +238,25 @@ void CanvasItem::setPixmapVisible(bool visible)
 {
 	if (pixmapVisible_ != visible) {
 		pixmapVisible_ = visible;
+		update();
+	}
+}
+
+void CanvasItem::setPixmapGray(bool gray)
+{
+	if (pixmapGray_ != gray) {
+		pixmapGray_ = gray;
+		if (pixmapGray_ && pixmapG_.isNull()) {
+			pixmapG_ = help::rgb2gray(pixmap_);
+		}
+		update();
+	}
+}
+
+void CanvasItem::setPixmapOpacity(double opacity)
+{
+	if (pixmapOpacity_ != opacity) {
+		pixmapOpacity_ = opacity;
 		update();
 	}
 }

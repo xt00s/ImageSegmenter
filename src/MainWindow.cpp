@@ -49,7 +49,7 @@ MainWindow::MainWindow(QWidget *parent)
 	connect(ui->actionBrush, &QAction::triggered, this, &MainWindow::toolChanged);
 	connect(ui->actionOpenFolder, &QAction::triggered, this, &MainWindow::openFolder);
 	connect(ui->actionShowImage, &QAction::triggered, [this] (bool checked) { scene_.canvasItem()->setPixmapVisible(checked); });
-	connect(ui->actionBrightenImage, &QAction::triggered, [this] (bool checked) { scene_.canvasItem()->setPixmapBright(checked); });
+	connect(ui->actionGrayscaleImage, &QAction::triggered, [this] (bool checked) { scene_.canvasItem()->setPixmapGray(checked); });
 	connect(ui->actionAbout, &QAction::triggered, [this] () { AboutDialog().exec(); });
 	connect(zoomSlider_, &ZoomSlider::zoomChanged, this, &MainWindow::zoomChanged);
 	connect(&scene_, &SegmentationScene::mousePosChanged, this, &MainWindow::mousePosChanged);
@@ -81,12 +81,12 @@ void MainWindow::setup()
 	scene_.setup();
 	ui->vSplitter->setStretchFactor(1, 1);
 	ui->actionShowImage->setChecked(scene_.canvasItem()->isPixmapVisible());
-	ui->actionBrightenImage->setChecked(scene_.canvasItem()->isPixmapBright());
+	ui->actionGrayscaleImage->setChecked(scene_.canvasItem()->isPixmapGray());
 
 	setupTools();
 	setupStatusBar();
 	setupUndoRedo();
-	setupAbout();
+	setupOtherActions();
 	setupStyle();
 	QApplication::setOrganizationName("Ruslan Rumiantsau");
 	QApplication::setApplicationName(windowTitle());
@@ -207,11 +207,24 @@ void MainWindow::setupUndoRedo()
 	ui->toolBar->insertActions(sep, QList<QAction*>() << undoAction << redoAction);
 }
 
-void MainWindow::setupAbout()
+void MainWindow::setupOtherActions()
 {
 	auto spacer = new QWidget(this);
 	spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+
+	auto opacitySlider = new Slider(this);
+	opacitySlider->setObjectName("opacitySlider");
+	opacitySlider->setFixedSize(105, 18);
+	opacitySlider->setRange(0, 100);
+	opacitySlider->setValue(100);
+	connect(opacitySlider, &Slider::valueChanged, [this] (int value) { scene_.canvasItem()->setPixmapOpacity(double(value)/100); });
+
 	ui->toolBar->addWidget(spacer);
+	ui->toolBar->addAction(ui->actionShowImage);
+	ui->toolBar->addAction(ui->actionGrayscaleImage);
+	ui->toolBar->addWidget(new QLabel("Opacity: ", this));
+	ui->toolBar->addWidget(opacitySlider);
+	ui->toolBar->addSeparator();
 	ui->toolBar->addAction(ui->actionAbout);
 }
 

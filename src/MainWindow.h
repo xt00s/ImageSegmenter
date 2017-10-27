@@ -37,7 +37,7 @@ private:
 	void setupStatusBar();
 	void setupTools();
 	void setupUndoRedo();
-	void setupAbout();
+	void setupOtherActions();
 	void updateSizeLabel();
 	void updateTitle();
 	void updateZoomFromView();

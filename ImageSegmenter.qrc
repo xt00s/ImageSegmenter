@@ -20,9 +20,9 @@
         <file>icons/eraser.svg</file>
         <file>icons/rounded_minus.svg</file>
         <file>icons/rounded_plus.svg</file>
-        <file>icons/bright_light_bulb.svg</file>
         <file>icons/image.svg</file>
         <file>icons/information.svg</file>
         <file>icons/app.png</file>
+        <file>icons/black_and_white.svg</file>
     </qresource>
 </RCC>

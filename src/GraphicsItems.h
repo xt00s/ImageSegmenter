@@ -26,8 +26,11 @@ public:
 	bool isPixmapVisible() const;
 	void setPixmapVisible(bool visible);
 
-	bool isPixmapBright() const;
-	void setPixmapBright(bool bright);
+	bool isPixmapGray() const;
+	void setPixmapGray(bool gray);
+
+	double pixmapOpacity() const;
+	void setPixmapOpacity(double opacity);
 
 	void drawPolygon(const QPolygon& polygon);
 	void drawLine(const QLineF& line, qreal width);
@@ -63,19 +66,22 @@ private:
 
 private:
 	QPixmap pixmap_;
+	QPixmap pixmapG_;
 	QPainterPath shape_;
 	QVector<QPixmap> layers_;
 	const Scheme* scheme_;
 	const Category* category_;
 	bool pixmapVisible_;
-	bool pixmapBright_;
+	bool pixmapGray_;
+	double pixmapOpacity_;
 };
 
 inline QRect CanvasItem::pixmapRect() const { return pixmap_.rect(); }
 inline QSize CanvasItem::pixmapSize() const { return pixmap_.size(); }
 inline const Category* CanvasItem::category() const { return category_; }
-inline bool CanvasItem::isPixmapBright() const { return pixmapBright_; }
+inline bool CanvasItem::isPixmapGray() const { return pixmapGray_; }
 inline bool CanvasItem::isPixmapVisible() const { return pixmapVisible_; }
+inline double CanvasItem::pixmapOpacity() const { return pixmapOpacity_; }
 
 class PolylineItem : public QGraphicsItem
 {

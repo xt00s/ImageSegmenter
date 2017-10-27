@@ -63,13 +63,14 @@ void Slider::paintEvent(QPaintEvent* event)
 
 void Slider::mousePressEvent(QMouseEvent* event)
 {
-	if (overHandle(event->pos())) {
-		pressed_ = true;
-	} else {
+	if (!overHandle(event->pos())) {
 		pos_ = boundPos(event->pos().x() - W/2);
 		updateValue();
 		update();
 	}
+	pressed_ = true;
+	pressedPos_ = pos_;
+	pressedMousePos_ = event->pos();
 }
 
 void Slider::mouseReleaseEvent(QMouseEvent* event)
@@ -80,7 +81,7 @@ void Slider::mouseReleaseEvent(QMouseEvent* event)
 void Slider::mouseMoveEvent(QMouseEvent* event)
 {
 	if (pressed_) {
-		pos_ = boundPos(event->pos().x() - W/2);
+		pos_ = boundPos(pressedPos_ + event->pos().x() - pressedMousePos_.x());
 		updateValue();
 		update();
 	}
@@ -150,5 +151,5 @@ bool Slider::overHandle(const QPoint& pos) const
 
 QSize Slider::sizeHint() const
 {
-	return QSize(16,70);
+	return QSize(16,100);
 }

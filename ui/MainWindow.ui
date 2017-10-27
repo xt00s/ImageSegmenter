@@ -269,9 +269,6 @@
    <addaction name="separator"/>
    <addaction name="actionPolygon"/>
    <addaction name="actionBrush"/>
-   <addaction name="separator"/>
-   <addaction name="actionShowImage"/>
-   <addaction name="actionBrightenImage"/>
   </widget>
   <widget class="QStatusBar" name="statusBar">
    <property name="minimumSize">
@@ -377,19 +374,19 @@
     <string>Show Image</string>
    </property>
   </action>
-  <action name="actionBrightenImage">
+  <action name="actionGrayscaleImage">
    <property name="checkable">
     <bool>true</bool>
    </property>
    <property name="icon">
     <iconset resource="../ImageSegmenter.qrc">
-     <normaloff>:/image/icons/bright_light_bulb.svg</normaloff>:/image/icons/bright_light_bulb.svg</iconset>
+     <normaloff>:/image/icons/black_and_white.svg</normaloff>:/image/icons/black_and_white.svg</iconset>
    </property>
    <property name="text">
-    <string>Brighten Image</string>
+    <string>Grayscale Image</string>
    </property>
    <property name="toolTip">
-    <string>Brighten Image</string>
+    <string>Grayscale Image</string>
    </property>
   </action>
   <action name="actionAbout">

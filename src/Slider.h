@@ -52,7 +52,9 @@ private:
 private:
 	QColor handleColor_;
 	QColor grooveColor_;
+	QPoint pressedMousePos_;
 	bool pressed_;
+	int pressedPos_;
 	int pos_;
 	int min_;
 	int max_;

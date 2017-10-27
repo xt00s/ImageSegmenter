@@ -63,4 +63,34 @@ namespace help
 		QFileInfo info(imagePath);
 		return QFileInfo(outputPath, info.baseName() + "_" + corrected + ".png").filePath();
 	}
+
+	QPixmap rgb2gray(const QPixmap& pixmap)
+	{
+		if (pixmap.isNull())
+			return QPixmap();
+
+		auto image = pixmap.toImage();
+		auto w = image.width(), h = image.height();
+		if (image.format() == QImage::Format_RGB32 ||
+			image.format() == QImage::Format_ARGB32 ||
+			image.format() == QImage::Format_ARGB32_Premultiplied) {
+			for (int i = 0; i < h; i++) {
+				auto r = (uint*)image.scanLine(i), end = r + w;
+				while (r < end) {
+					auto gray = qGray(*r);
+					*r++ = qRgba(gray, gray, gray, qAlpha(*r));
+				}
+			}
+		} else {
+			for (int i = 0; i < w; i++) {
+				for (int j = 0; j < h; j++) {
+					auto p = image.pixel(i, j);
+					auto gray = qGray(p);
+					image.setPixel(i, j, qRgba(gray, gray, gray, qAlpha(p)));
+				}
+			}
+		}
+		return QPixmap::fromImage(image);
+	}
+
 }
