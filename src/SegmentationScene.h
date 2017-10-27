@@ -3,6 +3,7 @@
 
 #include <QGraphicsScene>
 #include <QScopedPointer>
+#include <QCursor>
 #include "GraphicsItems.h"
 
 class QUndoCommand;
@@ -32,6 +33,8 @@ signals:
 
 private:
 	QPoint pixmapPosFromScene(const QPointF& scenePos) const;
+	void setViewCursor(const QCursor& cursor);
+	void unsetViewCursor();
 
 protected:
 	void keyPressEvent(QKeyEvent *event) override;
@@ -45,6 +48,7 @@ private:
 	PolylineItem* polyItem_;
 	StartMarkerItem* markerItem_;
 	BrushCursorItem* brushCursorItem_;
+	QCursor crossCursor_;
 	QScopedPointer<CanvasItem::Fragment> canvasCopy_;
 	QPoint polyPixmapPos_;
 	Tool tool_;

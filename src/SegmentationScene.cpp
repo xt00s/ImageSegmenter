@@ -8,7 +8,10 @@
 #include <QKeyEvent>
 
 SegmentationScene::SegmentationScene(QObject *parent)
-	: QGraphicsScene(parent), tool_(Tool::Polygon), pressed_(false)
+	: QGraphicsScene(parent)
+	, tool_(Tool::Polygon)
+	, pressed_(false)
+	, crossCursor_(QPixmap(":/image/icons/cross_cursor.png"))
 {
 	canvasItem_ = new CanvasItem;
 	markerItem_ = new StartMarkerItem(canvasItem_);
@@ -47,15 +50,11 @@ void SegmentationScene::setTool(SegmentationScene::Tool tool)
 
 	clearToolState();
 	if (tool_ == Tool::Brush) {
-		for (auto& v : views()) {
-			v->viewport()->unsetCursor();
-		}
+		unsetViewCursor();
 		brushCursorItem_->hide();
 	}
 	if (tool == Tool::Brush) {
-		for (auto& v : views()) {
-			v->viewport()->setCursor(Qt::BlankCursor);
-		}
+		setViewCursor(crossCursor_);
 	}
 	tool_ = tool;
 }
@@ -78,6 +77,20 @@ void SegmentationScene::clearToolState()
 QPoint SegmentationScene::pixmapPosFromScene(const QPointF& scenePos) const
 {
 	return help::floor(canvasItem_->mapFromScene(scenePos)).toPoint();
+}
+
+void SegmentationScene::setViewCursor(const QCursor& cursor)
+{
+	for (auto& v : views()) {
+		v->viewport()->setCursor(cursor);
+	}
+}
+
+void SegmentationScene::unsetViewCursor()
+{
+	for (auto& v : views()) {
+		v->viewport()->unsetCursor();
+	}
 }
 
 void SegmentationScene::keyPressEvent(QKeyEvent *event)
@@ -147,6 +160,7 @@ void SegmentationScene::mousePressEvent(QGraphicsSceneMouseEvent *event)
 			pressedRect_ = circle.rect();
 			canvasCopy_.reset(canvasItem_->extractFragment(QRect()));
 			canvasItem_->draw(circle);
+			setViewCursor(Qt::BlankCursor);
 		}
 		break;
 	}
@@ -189,6 +203,7 @@ void SegmentationScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 			if (brushCursorItem_->isVisible()) {
 				emit newCommand(new DrawFragmentCommand(canvasItem_, canvasCopy_->extract(pressedRect_)));
 				canvasCopy_.reset();
+				setViewCursor(crossCursor_);
 			}
 		}
 		pressed_ = false;
