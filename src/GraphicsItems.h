@@ -26,6 +26,9 @@ public:
 	bool isPixmapVisible() const;
 	void setPixmapVisible(bool visible);
 
+	bool isMaskVisible() const;
+	void setMaskVisible(bool visible);
+
 	bool isPixmapGray() const;
 	void setPixmapGray(bool gray);
 
@@ -71,6 +74,7 @@ private:
 	QVector<QPixmap> layers_;
 	const Scheme* scheme_;
 	const Category* category_;
+	bool maskVisible_;
 	bool pixmapVisible_;
 	bool pixmapGray_;
 	double pixmapOpacity_;
@@ -81,6 +85,7 @@ inline QSize CanvasItem::pixmapSize() const { return pixmap_.size(); }
 inline const Category* CanvasItem::category() const { return category_; }
 inline bool CanvasItem::isPixmapGray() const { return pixmapGray_; }
 inline bool CanvasItem::isPixmapVisible() const { return pixmapVisible_; }
+inline bool CanvasItem::isMaskVisible() const { return maskVisible_; }
 inline double CanvasItem::pixmapOpacity() const { return pixmapOpacity_; }
 
 class PolylineItem : public QGraphicsItem

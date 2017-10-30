@@ -25,5 +25,6 @@
         <file>icons/app.png</file>
         <file>icons/black_and_white.svg</file>
         <file>icons/cross_cursor.png</file>
+        <file>icons/eye_mask.svg</file>
     </qresource>
 </RCC>

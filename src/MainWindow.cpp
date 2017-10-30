@@ -49,6 +49,7 @@ MainWindow::MainWindow(QWidget *parent)
 	connect(ui->actionBrush, &QAction::triggered, this, &MainWindow::toolChanged);
 	connect(ui->actionOpenFolder, &QAction::triggered, this, &MainWindow::openFolder);
 	connect(ui->actionShowImage, &QAction::triggered, [this] (bool checked) { scene_.canvasItem()->setPixmapVisible(checked); });
+	connect(ui->actionShowSegmentationMask, &QAction::triggered, [this] (bool checked) { scene_.canvasItem()->setMaskVisible(checked); });
 	connect(ui->actionGrayscaleImage, &QAction::triggered, [this] (bool checked) { scene_.canvasItem()->setPixmapGray(checked); });
 	connect(ui->actionAbout, &QAction::triggered, [this] () { AboutDialog().exec(); });
 	connect(zoomSlider_, &ZoomSlider::zoomChanged, this, &MainWindow::zoomChanged);
@@ -81,6 +82,7 @@ void MainWindow::setup()
 	scene_.setup();
 	ui->vSplitter->setStretchFactor(1, 1);
 	ui->actionShowImage->setChecked(scene_.canvasItem()->isPixmapVisible());
+	ui->actionShowSegmentationMask->setChecked(scene_.canvasItem()->isMaskVisible());
 	ui->actionGrayscaleImage->setChecked(scene_.canvasItem()->isPixmapGray());
 
 	setupTools();
@@ -221,6 +223,7 @@ void MainWindow::setupOtherActions()
 
 	ui->toolBar->addWidget(spacer);
 	ui->toolBar->addAction(ui->actionShowImage);
+	ui->toolBar->addAction(ui->actionShowSegmentationMask);
 	ui->toolBar->addAction(ui->actionGrayscaleImage);
 	ui->toolBar->addWidget(new QLabel("Opacity: ", this));
 	ui->toolBar->addWidget(opacitySlider);

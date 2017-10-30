@@ -8,7 +8,7 @@
 CanvasItem::CanvasItem(QGraphicsItem* parent)
 	: QGraphicsItem(parent)
 	, scheme_(0), category_(0)
-	, pixmapVisible_(true), pixmapGray_(false)
+	, maskVisible_(true), pixmapVisible_(true), pixmapGray_(false)
 	, pixmapOpacity_(1)
 {
 }
@@ -149,7 +149,7 @@ void CanvasItem::paint(QPainter* painter, const QStyleOptionGraphicsItem* option
 		painter->drawPixmap(QPointF(), pixmapGray_ ? pixmapG_ : pixmap_);
 		painter->setOpacity(0.4);
 	}
-	if (scheme_ && !layers_.empty()) {
+	if (maskVisible_ && scheme_ && !layers_.empty()) {
 		for (int i = 0; i < scheme_->categoryCount(); i++) {
 			if (scheme_->categoryAt(i)->isVisible()) {
 				painter->drawPixmap(QPointF(), layers_[i]);
@@ -238,6 +238,14 @@ void CanvasItem::setPixmapVisible(bool visible)
 {
 	if (pixmapVisible_ != visible) {
 		pixmapVisible_ = visible;
+		update();
+	}
+}
+
+void CanvasItem::setMaskVisible(bool visible)
+{
+	if (maskVisible_ != visible) {
+		maskVisible_ = visible;
 		update();
 	}
 }

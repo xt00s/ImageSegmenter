@@ -343,6 +343,9 @@
    <property name="text">
     <string>Polygon</string>
    </property>
+   <property name="shortcut">
+    <string>P</string>
+   </property>
   </action>
   <action name="actionBrush">
    <property name="checkable">
@@ -357,6 +360,9 @@
    </property>
    <property name="toolTip">
     <string>Brush</string>
+   </property>
+   <property name="shortcut">
+    <string>B</string>
    </property>
   </action>
   <action name="actionShowImage">
@@ -373,6 +379,9 @@
    <property name="toolTip">
     <string>Show Image</string>
    </property>
+   <property name="shortcut">
+    <string>I</string>
+   </property>
   </action>
   <action name="actionGrayscaleImage">
    <property name="checkable">
@@ -388,6 +397,9 @@
    <property name="toolTip">
     <string>Grayscale Image</string>
    </property>
+   <property name="shortcut">
+    <string>G</string>
+   </property>
   </action>
   <action name="actionAbout">
    <property name="icon">
@@ -399,6 +411,24 @@
    </property>
    <property name="toolTip">
     <string>About</string>
+   </property>
+  </action>
+  <action name="actionShowSegmentationMask">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../ImageSegmenter.qrc">
+     <normaloff>:/image/icons/eye_mask.svg</normaloff>:/image/icons/eye_mask.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Show Segmentation Mask</string>
+   </property>
+   <property name="toolTip">
+    <string>Show Segmentation Mask</string>
+   </property>
+   <property name="shortcut">
+    <string>M</string>
    </property>
   </action>
  </widget>
