@@ -24,15 +24,15 @@ namespace help
 		return QIcon(empty);
 	}
 
-	QIcon colorIcon(QSize size, QColor color)
+	QPixmap colorPixmap(QSize size, QColor color)
 	{
-		QPixmap image(size);
-		image.fill(Qt::transparent);
-		QPainter p(&image);
+		QPixmap pixmap(size);
+		pixmap.fill(Qt::transparent);
+		QPainter p(&pixmap);
 		p.setPen(QColor(color).darker(200));
 		p.setBrush(color);
-		p.drawRect(image.rect().adjusted(0, 0, -1, -1));
-		return QIcon(image);
+		p.drawRect(pixmap.rect().adjusted(0, 0, -1, -1));
+		return pixmap;
 	}
 
 	QPixmap lightenPixmap(const QPixmap& pixmap, qreal factor)

@@ -25,6 +25,7 @@ signals:
 	void selected(Category* cat);
 	void visibilityChanged(Category* cat);
 	void lockedChanged(Category* cat);
+	void clipChanged(Category* cat);
 
 private slots:
 	void itemClicked(QTreeWidgetItem *item, int column);

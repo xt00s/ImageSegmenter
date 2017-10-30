@@ -8,6 +8,15 @@
 #include <QPainter>
 #include <QMouseEvent>
 
+#define COLOR_ICON_SIZE QSize(20,20)
+#define STATE_ICON_SIZE QSize(13,13)
+
+enum SchemeTreeRole {
+	PixmapRole = Qt::UserRole,
+	ColorRole,
+	ClipperRole
+};
+
 class IconDelegate : public QStyledItemDelegate
 {
 public:
@@ -17,17 +26,34 @@ public:
 	void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const override
 	{
 		QStyledItemDelegate::paint(painter, option, index);
-		QStyleOptionViewItem opt = option;
-		initStyleOption(&opt, index);
-		auto r = option.widget->style()->subElementRect(QStyle::SE_ItemViewItemDecoration, &opt, opt.widget);
-		opt.icon.paint(painter, r, opt.decorationAlignment);
+
+		auto pixmap = index.data(PixmapRole).value<QPixmap>();
+		auto x = (option.rect.width() - pixmap.width()) / 2;
+		auto y = (option.rect.height() - pixmap.height()) / 2;
+		QRect r(option.rect.topLeft() + QPoint(x,y), pixmap.size());
+		painter->drawPixmap(r, pixmap);
+
+		if (index.data(ClipperRole).toBool()) {
+			int m = 3;
+			auto color = index.data(ColorRole).value<QColor>();
+			painter->save();
+			painter->setRenderHint(QPainter::Antialiasing, true);
+			painter->setBrush(Qt::NoBrush);
+			painter->setPen(QPen(qGray(color.rgb()) > 127 ? Qt::black : Qt::white, 1.5, Qt::DotLine));
+			painter->drawEllipse(r.adjusted(m,m,-m,-m));
+			painter->restore();
+		}
+	}
+	QSize sizeHint(const QStyleOptionViewItem& option, const QModelIndex& index) const override
+	{
+		return COLOR_ICON_SIZE + QSize(0,2);
 	}
 };
 
-class SeectionModel : public QItemSelectionModel
+class SelectionModel : public QItemSelectionModel
 {
 public:
-	SeectionModel(QAbstractItemModel *model, QObject* parent = 0)
+	SelectionModel(QAbstractItemModel *model, QObject* parent = 0)
 		: QItemSelectionModel(model, parent)
 	{}
 	void select(const QItemSelection &selection, QItemSelectionModel::SelectionFlags command) override
@@ -36,7 +62,7 @@ public:
 			for (auto& r : selection) {
 				if (r.top() == 0)
 					break;
-				if (r.right() >= 2 && r.left() <= 3)
+				if (r.right() == 0 || (r.right() >= 2 && r.left() <= 3))
 					return;
 			}
 		}
@@ -50,9 +76,9 @@ SchemeTree::SchemeTree(QWidget *parent)
 	eraserCategory_.reset(new Category);
 	eraserCategory_->setName("Eraser");
 
-	statePixmaps_[0] = QIcon(":/image/icons/lock.svg").pixmap(QSize(13,13));
+	statePixmaps_[0] = QIcon(":/image/icons/lock.svg").pixmap(STATE_ICON_SIZE);
 	statePixmaps_[1] = help::lightenPixmap(statePixmaps_[0], 0.2);
-	statePixmaps_[2] = QIcon(":/image/icons/eye.svg").pixmap(QSize(13,13));
+	statePixmaps_[2] = QIcon(":/image/icons/eye.svg").pixmap(STATE_ICON_SIZE);
 	statePixmaps_[3] = help::lightenPixmap(statePixmaps_[2], 0.2);
 
 	setMouseTracking(true);
@@ -104,7 +130,7 @@ bool SchemeTree::open(const QString &path)
 	for (auto& c : scheme_->categories()) {
 		addCategory(c);
 	}
-	setCurrentItem(invisibleRootItem()->child(1));
+	setCurrentItem(invisibleRootItem()->child(1), 1);
 	emit schemeChanged(scheme_.data());
 	return true;
 }
@@ -128,6 +154,7 @@ void SchemeTree::resetCategoryStates()
 		c->setLocked(false);
 		item->setIcon(2, statePixmaps_[c->isLocked() ? 0 : 1]);
 		item->setIcon(3, statePixmaps_[c->isVisible() ? 2 : 3]);
+		item->setData(0, ClipperRole, false);
 	}
 }
 
@@ -141,15 +168,28 @@ void SchemeTree::itemClicked(QTreeWidgetItem *item, int column)
 {
 	auto c = itemCategory(item);
 	if (c->index() >= 0) {
-		if (column == 2) {
+		switch (column) {
+		case 0: {
+				auto clipper = item->data(0, ClipperRole).toBool();
+				if (!clipper) {
+					for (int i = 1; i < invisibleRootItem()->childCount(); i++) {
+						invisibleRootItem()->child(i)->setData(0, ClipperRole, false);
+					}
+				}
+				item->setData(0, ClipperRole, !clipper);
+				emit clipChanged(clipper ? 0 : c);
+				break;
+			}
+		case 2:
 			c->setLocked(!c->isLocked());
 			item->setIcon(2, statePixmaps_[c->isLocked() ? 0 : 1]);
 			emit lockedChanged(c);
-		}
-		else if (column == 3) {
+			break;
+		case 3:
 			c->setVisible(!c->isVisible());
 			item->setIcon(3, statePixmaps_[c->isVisible() ? 2 : 3]);
 			emit visibilityChanged(c);
+			break;
 		}
 	}
 }
@@ -186,9 +226,11 @@ void SchemeTree::addCategory(Category* cat)
 	item->setText(1, cat->name());
 	item->setData(1, Qt::UserRole, reinterpret_cast<qlonglong>(cat));
 	if (cat->index() < 0) {
-		item->setIcon(0, QIcon(":/image/icons/eraser.svg").pixmap(QSize(13,13)));
+		item->setData(0, PixmapRole, QIcon(":/image/icons/eraser.svg").pixmap(COLOR_ICON_SIZE));
 	} else {
-		item->setIcon(0, help::colorIcon(QSize(13,13), cat->color()));
+		item->setData(0, ColorRole, cat->color());
+		item->setData(0, PixmapRole, help::colorPixmap(COLOR_ICON_SIZE, cat->color()));
+		item->setData(0, ClipperRole, false);
 		item->setIcon(2, statePixmaps_[cat->isLocked() ? 0 : 1]);
 		item->setIcon(3, statePixmaps_[cat->isVisible() ? 2 : 3]);
 	}
@@ -202,7 +244,7 @@ Category *SchemeTree::itemCategory(QTreeWidgetItem *item) const
 void SchemeTree::setup()
 {
 	auto oldSelectionModel = selectionModel();
-	setSelectionModel(new SeectionModel(model(), this));
+	setSelectionModel(new SelectionModel(model(), this));
 	delete oldSelectionModel;
 
 	setItemDelegateForColumn(0, new IconDelegate(this));

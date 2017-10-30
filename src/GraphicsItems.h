@@ -23,6 +23,8 @@ public:
 	const Category* category() const;
 	void setCategory(const Category* cat);
 
+	void setClipRegion(const Category* cat);
+
 	bool isPixmapVisible() const;
 	void setPixmapVisible(bool visible);
 
@@ -72,6 +74,7 @@ private:
 	QPixmap pixmapG_;
 	QPainterPath shape_;
 	QVector<QPixmap> layers_;
+	QRegion clipRegion_;
 	const Scheme* scheme_;
 	const Category* category_;
 	bool maskVisible_;

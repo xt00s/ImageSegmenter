@@ -7,10 +7,28 @@
 
 CanvasItem::CanvasItem(QGraphicsItem* parent)
 	: QGraphicsItem(parent)
-	, scheme_(0), category_(0)
-	, maskVisible_(true), pixmapVisible_(true), pixmapGray_(false)
+	, scheme_(0)
+	, category_(0)
+	, maskVisible_(true)
+	, pixmapVisible_(true)
+	, pixmapGray_(false)
 	, pixmapOpacity_(1)
 {
+}
+
+QRectF CanvasItem::boundingRect() const
+{
+	return QRectF(QPointF(), pixmap_.size());
+}
+
+QPainterPath CanvasItem::shape() const
+{
+	return shape_;
+}
+
+QPainterPath CanvasItem::opaqueArea() const
+{
+	return shape();
 }
 
 void CanvasItem::setPixmap(const QPixmap& pixmap, const QPixmap& mask)
@@ -20,6 +38,7 @@ void CanvasItem::setPixmap(const QPixmap& pixmap, const QPixmap& mask)
 	pixmapG_ = pixmapGray_ ? help::rgb2gray(pixmap) : QPixmap();
 	shape_ = QPainterPath();
 	shape_.addRect(QRectF(QPointF(), pixmap.size()));
+	clipRegion_ = QRegion();
 	initLayers(mask);
 }
 
@@ -31,6 +50,13 @@ void CanvasItem::setScheme(const Scheme* scheme)
 void CanvasItem::setCategory(const Category* category)
 {
 	category_ = category;
+}
+
+void CanvasItem::setClipRegion(const Category* cat)
+{
+	clipRegion_ = !cat || cat->index() < 0 || layers_.empty() ?
+				QRegion() :
+				QRegion(layers_[cat->index()].createMaskFromColor(cat->color(), Qt::MaskOutColor));
 }
 
 void CanvasItem::drawPolygon(const QPolygon& polygon)
@@ -126,21 +152,6 @@ void CanvasItem::restoreFragment(const Fragment& fragment)
 	}
 }
 
-QRectF CanvasItem::boundingRect() const
-{
-	return QRectF(QPointF(), pixmap_.size());
-}
-
-QPainterPath CanvasItem::shape() const
-{
-	return shape_;
-}
-
-QPainterPath CanvasItem::opaqueArea() const
-{
-	return shape();
-}
-
 void CanvasItem::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget)
 {
 	painter->setRenderHint(QPainter::SmoothPixmapTransform, false);
@@ -187,6 +198,9 @@ void CanvasItem::drawColored(const Drawable& shape)
 	auto r = shape.rect();
 	QPainter p(&layers_[category_->index()]);
 	p.setRenderHint(QPainter::Antialiasing, false);
+	if (!clipRegion_.isEmpty()) {
+		p.setClipRegion(clipRegion_);
+	}
 	shape.draw(p, category_->color());
 	p.setCompositionMode(QPainter::CompositionMode_DestinationOut);
 
@@ -196,6 +210,9 @@ void CanvasItem::drawColored(const Drawable& shape)
 			if (!c->isLocked()) {
 				QPainter p2(&layers_[c->index()]);
 				p2.setRenderHint(QPainter::Antialiasing, false);
+				if (!clipRegion_.isEmpty()) {
+					p2.setClipRegion(clipRegion_);
+				}
 				p2.setCompositionMode(QPainter::CompositionMode_Source);
 				shape.draw(p2, Qt::transparent);
 			} else {
@@ -216,6 +233,9 @@ void CanvasItem::erase(const Drawable& shape)
 		if (!c->isLocked()) {
 			QPainter p(&layers_[c->index()]);
 			p.setRenderHint(QPainter::Antialiasing, false);
+			if (!clipRegion_.isEmpty()) {
+				p.setClipRegion(clipRegion_);
+			}
 			p.setCompositionMode(QPainter::CompositionMode_Source);
 			shape.draw(p, Qt::transparent);
 		}

@@ -42,6 +42,7 @@ MainWindow::MainWindow(QWidget *parent)
 	connect(ui->actionZoomIn, &QAction::triggered, zoomSlider_, &ZoomSlider::zoomIn);
 	connect(ui->actionZoomOut, &QAction::triggered, zoomSlider_, &ZoomSlider::zoomOut);
 	connect(ui->schemeTree, &SchemeTree::selected, [this] (Category* category) { scene_.canvasItem()->setCategory(category); });
+	connect(ui->schemeTree, &SchemeTree::clipChanged, [this] (Category* category) { scene_.canvasItem()->setClipRegion(category); });
 	connect(ui->schemeTree, &SchemeTree::visibilityChanged, [this] (Category* category) { scene_.canvasItem()->update(); });
 	connect(ui->schemeTree, &SchemeTree::schemeChanged, [this] (Scheme* scheme) { scene_.canvasItem()->setScheme(scheme); });
 	connect(ui->segmentationView, &SegmentationView::zoomShifted, this, &MainWindow::zoomShifted);
