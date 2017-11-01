@@ -158,7 +158,7 @@ void CanvasItem::paint(QPainter* painter, const QStyleOptionGraphicsItem* option
 	if (pixmapVisible_) {
 		painter->setOpacity(pixmapOpacity_);
 		painter->drawPixmap(QPointF(), pixmapGray_ ? pixmapG_ : pixmap_);
-		painter->setOpacity(0.4);
+		painter->setOpacity(0.4 + 0.6 * (1 - pixmapOpacity_));
 	}
 	if (maskVisible_ && scheme_ && !layers_.empty()) {
 		for (int i = 0; i < scheme_->categoryCount(); i++) {
