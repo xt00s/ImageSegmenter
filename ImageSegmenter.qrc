@@ -3,28 +3,28 @@
         <file>ImageSegmenter.qss</file>
     </qresource>
     <qresource prefix="/image">
-        <file>icons/folder.svg</file>
         <file>icons/next.svg</file>
         <file>icons/previous.svg</file>
-        <file>icons/right_arrow.svg</file>
         <file>icons/eye.svg</file>
         <file>icons/polygon.svg</file>
-        <file>icons/zoom_in.png</file>
-        <file>icons/zoom_out.png</file>
-        <file>icons/image_size.png</file>
-        <file>icons/position.png</file>
         <file>icons/redo.svg</file>
         <file>icons/undo.svg</file>
         <file>icons/lock.svg</file>
-        <file>icons/paint_brush.svg</file>
         <file>icons/eraser.svg</file>
-        <file>icons/rounded_minus.svg</file>
-        <file>icons/rounded_plus.svg</file>
         <file>icons/image.svg</file>
-        <file>icons/information.svg</file>
         <file>icons/app.png</file>
-        <file>icons/black_and_white.svg</file>
         <file>icons/cross_cursor.png</file>
-        <file>icons/eye_mask.svg</file>
+        <file>icons/brush.svg</file>
+        <file>icons/image-bw.svg</file>
+        <file>icons/mask.svg</file>
+        <file>icons/info.svg</file>
+        <file>icons/images-folder.svg</file>
+        <file>icons/zoom-in.svg</file>
+        <file>icons/zoom-out.svg</file>
+        <file>icons/image-size.svg</file>
+        <file>icons/position.svg</file>
+        <file>icons/image-cursor.svg</file>
+        <file>icons/minus-in-circle.svg</file>
+        <file>icons/plus-in-circle.svg</file>
     </qresource>
 </RCC>

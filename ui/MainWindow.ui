@@ -281,7 +281,7 @@
   <action name="actionOpenFolder">
    <property name="icon">
     <iconset resource="../ImageSegmenter.qrc">
-     <normaloff>:/image/icons/folder.svg</normaloff>:/image/icons/folder.svg</iconset>
+     <normaloff>:/image/icons/images-folder.svg</normaloff>:/image/icons/images-folder.svg</iconset>
    </property>
    <property name="text">
     <string>Open Folder</string>
@@ -317,7 +317,7 @@
   <action name="actionZoomIn">
    <property name="icon">
     <iconset resource="../ImageSegmenter.qrc">
-     <normaloff>:/image/icons/zoom_in.png</normaloff>:/image/icons/zoom_in.png</iconset>
+     <normaloff>:/image/icons/zoom-in.svg</normaloff>:/image/icons/zoom-in.svg</iconset>
    </property>
    <property name="text">
     <string>Zoom in</string>
@@ -326,7 +326,7 @@
   <action name="actionZoomOut">
    <property name="icon">
     <iconset resource="../ImageSegmenter.qrc">
-     <normaloff>:/image/icons/zoom_out.png</normaloff>:/image/icons/zoom_out.png</iconset>
+     <normaloff>:/image/icons/zoom-out.svg</normaloff>:/image/icons/zoom-out.svg</iconset>
    </property>
    <property name="text">
     <string>Zoom out</string>
@@ -353,7 +353,7 @@
    </property>
    <property name="icon">
     <iconset resource="../ImageSegmenter.qrc">
-     <normaloff>:/image/icons/paint_brush.svg</normaloff>:/image/icons/paint_brush.svg</iconset>
+     <normaloff>:/image/icons/brush.svg</normaloff>:/image/icons/brush.svg</iconset>
    </property>
    <property name="text">
     <string>Brush</string>
@@ -389,7 +389,7 @@
    </property>
    <property name="icon">
     <iconset resource="../ImageSegmenter.qrc">
-     <normaloff>:/image/icons/black_and_white.svg</normaloff>:/image/icons/black_and_white.svg</iconset>
+     <normaloff>:/image/icons/image-bw.svg</normaloff>:/image/icons/image-bw.svg</iconset>
    </property>
    <property name="text">
     <string>Grayscale Image</string>
@@ -404,7 +404,7 @@
   <action name="actionAbout">
    <property name="icon">
     <iconset resource="../ImageSegmenter.qrc">
-     <normaloff>:/image/icons/information.svg</normaloff>:/image/icons/information.svg</iconset>
+     <normaloff>:/image/icons/info.svg</normaloff>:/image/icons/info.svg</iconset>
    </property>
    <property name="text">
     <string>About</string>
@@ -419,7 +419,7 @@
    </property>
    <property name="icon">
     <iconset resource="../ImageSegmenter.qrc">
-     <normaloff>:/image/icons/eye_mask.svg</normaloff>:/image/icons/eye_mask.svg</iconset>
+     <normaloff>:/image/icons/mask.svg</normaloff>:/image/icons/mask.svg</iconset>
    </property>
    <property name="text">
     <string>Show Segmentation Mask</string>

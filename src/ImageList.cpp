@@ -6,7 +6,7 @@
 ImageList::ImageList(QWidget *parent)
 	: QListWidget(parent)
 	, emptyIcon_(help::emptyIcon(QSize(16, 16)))
-	, selectedIcon_(":/image/icons/right_arrow.svg")
+	, selectedIcon_(":/image/icons/image-cursor.svg")
 	, selected_(-1)
 	, segmented_(0)
 {

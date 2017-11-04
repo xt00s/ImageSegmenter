@@ -138,10 +138,10 @@ void MainWindow::setupStatusBar()
 	spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
 
 	auto sizeImage = new QLabel(this);
-	sizeImage->setPixmap(QPixmap(":/image/icons/image_size.png"));
+	sizeImage->setPixmap(QIcon(":/image/icons/image-size.svg").pixmap(16,16));
 
 	auto posImage = new QLabel(this);
-	posImage->setPixmap(QPixmap(":/image/icons/position.png"));
+	posImage->setPixmap(QIcon(":/image/icons/position.svg").pixmap(16,16));
 
 	sizeLabel_ = new QLabel(this);
 	sizeLabel_->setFixedWidth(90);
@@ -226,7 +226,7 @@ void MainWindow::setupOtherActions()
 	ui->toolBar->addAction(ui->actionShowImage);
 	ui->toolBar->addAction(ui->actionShowSegmentationMask);
 	ui->toolBar->addAction(ui->actionGrayscaleImage);
-	ui->toolBar->addWidget(new QLabel("Opacity: ", this));
+	ui->toolBar->addWidget(new QLabel(" Opacity: ", this));
 	ui->toolBar->addWidget(opacitySlider);
 	ui->toolBar->addSeparator();
 	ui->toolBar->addAction(ui->actionAbout);
