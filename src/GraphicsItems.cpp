@@ -4,9 +4,10 @@
 #include "Drawables.h"
 #include <QPainter>
 #include <QBitmap>
+#include <QGraphicsScene>
 
 CanvasItem::CanvasItem(QGraphicsItem* parent)
-	: QGraphicsItem(parent)
+	: QGraphicsObject(parent)
 	, scheme_(0)
 	, category_(0)
 	, maskVisible_(true)
@@ -14,6 +15,11 @@ CanvasItem::CanvasItem(QGraphicsItem* parent)
 	, pixmapGray_(false)
 	, pixmapOpacity_(1)
 {
+	outlineAnimation_ = new QPropertyAnimation(this, "outlineDashOffset", this);
+	outlineAnimation_->setDuration(1000);
+	outlineAnimation_->setStartValue(0);
+	outlineAnimation_->setEndValue(-10);
+	outlineAnimation_->setLoopCount(-1);
 }
 
 QRectF CanvasItem::boundingRect() const
@@ -54,9 +60,56 @@ void CanvasItem::setCategory(const Category* category)
 
 void CanvasItem::setClipRegion(const Category* cat)
 {
-	clipRegion_ = !cat || cat->index() < 0 || layers_.empty() ?
-				QRegion() :
-				QRegion(layers_[cat->index()].createMaskFromColor(cat->color(), Qt::MaskOutColor));
+	qDeleteAll(outlines_);
+	outlines_.clear();
+	outlineAnimation_->stop();
+	clipRegion_ = QRegion();
+
+	if (cat && cat->index() >= 0 && !layers_.empty()) {
+		auto mask = layers_[cat->index()].createMaskFromColor(cat->color(), Qt::MaskOutColor);
+		auto bmp = mask.toImage().convertToFormat(QImage::Format_MonoLSB);
+		auto sz = bmp.size();
+		QImage obmp(sz, QImage::Format_MonoLSB);
+		obmp.fill(0);
+		for (int y = 0; y < sz.height(); y++) {
+			auto sl = bmp.scanLine(y), osl = obmp.scanLine(y);
+			uchar last = 0;
+			for (int x = 0; x < sz.width(); x++) {
+				uchar bit = qLsbBit(sl, x);
+				if (bit) {
+					if (!last && !qLsbBit(osl, x)) {
+						addOutline(obmp, help::traceBoundary(bmp, QPoint(x,y), QPoint(x-1,y), true, false));
+					}
+				}/* else {
+					if (last && !qLsbBit(osl, x)) {
+						addOutline(obmp, help::traceBoundary(bmp, QPoint(x,y), QPoint(x-1,y), false, true));
+					}
+				}*/
+				last = bit;
+			}
+		}
+		if (!outlines_.empty()) {
+			for (auto& l : outlines_) {
+				scene()->addItem(l);
+			}
+			clipRegion_ = QRegion(mask);
+			outlineAnimation_->start();
+		}
+	}
+}
+
+void CanvasItem::addOutline(QImage& bmp, const QVector<QPoint>& boundary)
+{
+	for (auto& p : boundary) {
+		qLsbSet(bmp.scanLine(p.y()), p.x());
+	}
+	auto outline = help::outlineFromBoundary(boundary);
+	QVector<QPointF> outlineF;
+	outlineF.reserve(outline.size());
+	for (auto& p : outline) {
+		outlineF << p;
+	}
+	outlines_ << new OutlineItem(outlineF);
 }
 
 void CanvasItem::drawPolygon(const QPolygon& polygon)
@@ -243,6 +296,16 @@ void CanvasItem::erase(const Drawable& shape)
 	update(shape.rect());
 }
 
+void CanvasItem::setOutlineDashOffset(int offset)
+{
+	if (outlineDashOffset_ != offset) {
+		outlineDashOffset_ = offset;
+		for (auto& l : outlines_) {
+			l->setDashOffset(offset);
+		}
+	}
+}
+
 QPixmap CanvasItem::mask(const QColor& background) const
 {
 	QPixmap m(pixmap_.size());
@@ -296,13 +359,26 @@ struct TransformHolder
     TransformHolder(QPainter* painter_) {
         painter = painter_;
 		orig = painter->transform();
-		painter->setTransform(QTransform());
 	}
 	~TransformHolder() {
 		painter->setTransform(orig);
 	}
 	QPainter* painter;
 	QTransform orig;
+};
+
+struct RenderHintsHolder
+{
+	RenderHintsHolder(QPainter* painter_) {
+		painter = painter_;
+		orig = painter->renderHints();
+	}
+	~RenderHintsHolder() {
+		painter->setRenderHints(~orig, false);
+		painter->setRenderHints(orig, true);
+	}
+	QPainter* painter;
+	QPainter::RenderHints orig;
 };
 
 //-----------------------------------------------------------------------------------
@@ -379,11 +455,62 @@ void PolylineItem::paint(QPainter* painter, const QStyleOptionGraphicsItem* opti
 {
 	TransformHolder holder(painter);
 	auto maped = holder.orig.map(polygon_);
+	painter->setTransform(QTransform());
 	painter->setBrush(Qt::NoBrush);
 	painter->setPen(lightPen_);
 	painter->drawPolyline(maped);
 	painter->setPen(darkPen_);
 	painter->drawPolyline(maped);
+}
+
+//-----------------------------------------------------------------------------------
+
+OutlineItem::OutlineItem(const QVector<QPointF>& outline, QGraphicsItem* parent)
+	: QGraphicsItem(parent)
+	, outline_(outline)
+	, darkPen_(QColor(0, 0, 0), 1, Qt::DashLine)
+	, lightPen_(QColor(255, 255, 255), 1)
+	, dashOffset_(0)
+{
+	darkPen_.setDashPattern({4,6});
+}
+
+OutlineItem::OutlineItem(const QPolygonF& outline, QGraphicsItem* parent)
+	: QGraphicsItem(parent)
+	, outline_(outline)
+	, darkPen_(QColor(0, 0, 0), 1, Qt::DashLine)
+	, lightPen_(QColor(255, 255, 255), 1)
+	, dashOffset_(0)
+{
+	darkPen_.setDashPattern({4,6});
+}
+
+QRectF OutlineItem::boundingRect() const
+{
+	return outline_.boundingRect().adjusted(-1,-1,1,1);
+}
+
+void OutlineItem::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget)
+{
+	TransformHolder holder(painter);
+	RenderHintsHolder holder2(painter);
+	auto maped = holder.orig.map(outline_);
+	painter->setTransform(QTransform());
+	painter->setRenderHint(QPainter::Antialiasing, false);
+	painter->setBrush(Qt::NoBrush);
+	painter->setPen(lightPen_);
+	painter->drawPolyline(maped);
+	painter->setPen(darkPen_);
+	painter->drawPolyline(maped);
+}
+
+void OutlineItem::setDashOffset(int offset)
+{
+	if (offset != dashOffset_) {
+		dashOffset_ = offset;
+		darkPen_.setDashOffset(offset);
+		update();
+	}
 }
 
 //-----------------------------------------------------------------------------------
@@ -454,6 +581,7 @@ void BrushCursorItem::paint(QPainter* painter, const QStyleOptionGraphicsItem* o
 {
 	TransformHolder holder(painter);
 	auto maped = holder.orig.mapRect(QRectF(0, 0, width_, width_));
+	painter->setTransform(QTransform());
 	painter->setBrush(Qt::NoBrush);
 	painter->setPen(Qt::white);
 	painter->drawEllipse(maped.topLeft(), maped.width()/2, maped.height()/2);

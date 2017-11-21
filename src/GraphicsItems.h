@@ -3,13 +3,17 @@
 
 #include <QGraphicsItem>
 #include <QPen>
+#include <QPropertyAnimation>
 
 class Scheme;
 class Category;
 class Drawable;
+class OutlineItem;
 
-class CanvasItem : public QGraphicsItem
+class CanvasItem : public QGraphicsObject
 {
+	Q_OBJECT
+	Q_PROPERTY(int outlineDashOffset READ outlineDashOffset  WRITE setOutlineDashOffset)
 public:
 	CanvasItem(QGraphicsItem* parent = 0);
 
@@ -36,6 +40,9 @@ public:
 
 	double pixmapOpacity() const;
 	void setPixmapOpacity(double opacity);
+
+	int outlineDashOffset() const;
+	void setOutlineDashOffset(int outlineDashOffset);
 
 	void drawPolygon(const QPolygon& polygon);
 	void drawLine(const QLineF& line, qreal width);
@@ -68,6 +75,7 @@ private:
 	void initLayers(const QPixmap& mask);
 	void drawColored(const Drawable& shape);
 	void erase(const Drawable& shape);
+	void addOutline(QImage& bmp, const QVector<QPoint>& boundary);
 
 private:
 	QPixmap pixmap_;
@@ -81,6 +89,9 @@ private:
 	bool pixmapVisible_;
 	bool pixmapGray_;
 	double pixmapOpacity_;
+	int outlineDashOffset_;
+	QList<OutlineItem*> outlines_;
+	QPropertyAnimation* outlineAnimation_;
 };
 
 inline QRect CanvasItem::pixmapRect() const { return pixmap_.rect(); }
@@ -90,6 +101,7 @@ inline bool CanvasItem::isPixmapGray() const { return pixmapGray_; }
 inline bool CanvasItem::isPixmapVisible() const { return pixmapVisible_; }
 inline bool CanvasItem::isMaskVisible() const { return maskVisible_; }
 inline double CanvasItem::pixmapOpacity() const { return pixmapOpacity_; }
+inline int CanvasItem::outlineDashOffset() const { return outlineDashOffset_; }
 
 class PolylineItem : public QGraphicsItem
 {
@@ -116,6 +128,27 @@ private:
 };
 
 inline QPolygonF PolylineItem::polygon() const { return polygon_; }
+
+class OutlineItem : public QGraphicsItem
+{
+public:
+	OutlineItem(const QVector<QPointF>& outline, QGraphicsItem *parent = 0);
+	OutlineItem(const QPolygonF& outline, QGraphicsItem *parent = 0);
+
+	QRectF boundingRect() const override;
+	void paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget) override;
+
+	int dashOffset() const;
+	void setDashOffset(int offset);
+
+private:
+	QPen darkPen_;
+	QPen lightPen_;
+	QPolygonF outline_;
+	int dashOffset_;
+};
+
+inline int OutlineItem::dashOffset() const { return dashOffset_; }
 
 class StartMarkerItem : public QGraphicsItem
 {
