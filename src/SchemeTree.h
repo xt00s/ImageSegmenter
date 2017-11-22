@@ -29,6 +29,7 @@ signals:
 
 private slots:
 	void itemClicked(QTreeWidgetItem *item, int column);
+	void selectItem(int index);
 
 protected:
 	void selectionChanged(const QItemSelection &selected, const QItemSelection &deselected) override;

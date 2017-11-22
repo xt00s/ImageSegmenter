@@ -7,6 +7,7 @@
 #include <QItemSelectionModel>
 #include <QPainter>
 #include <QMouseEvent>
+#include <QShortcut>
 
 #define COLOR_ICON_SIZE QSize(20,20)
 #define STATE_ICON_SIZE QSize(13,13)
@@ -83,6 +84,11 @@ SchemeTree::SchemeTree(QWidget *parent)
 
 	setMouseTracking(true);
 	connect(this, &QTreeWidget::itemClicked, this, &SchemeTree::itemClicked);
+
+	for (int i = 0; i < 10; i++) {
+		auto shortcut = new QShortcut(i ? QString::number(i) : "`", this);
+		connect(shortcut, &QShortcut::activated, [this,i]{ selectItem(i); });
+	}
 }
 
 bool SchemeTree::open(const QString &path)
@@ -191,6 +197,13 @@ void SchemeTree::itemClicked(QTreeWidgetItem *item, int column)
 			emit visibilityChanged(c);
 			break;
 		}
+	}
+}
+
+void SchemeTree::selectItem(int index)
+{
+	if (index >= 0 && index < invisibleRootItem()->childCount()) {
+		setCurrentItem(invisibleRootItem()->child(index), 1);
 	}
 }
 
