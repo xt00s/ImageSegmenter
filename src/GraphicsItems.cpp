@@ -44,7 +44,7 @@ void CanvasItem::setPixmap(const QPixmap& pixmap, const QPixmap& mask)
 	pixmapG_ = pixmapGray_ ? help::rgb2gray(pixmap) : QPixmap();
 	shape_ = QPainterPath();
 	shape_.addRect(QRectF(QPointF(), pixmap.size()));
-	clipRegion_ = QRegion();
+	setClipRegion(0);
 	initLayers(mask);
 }
 
