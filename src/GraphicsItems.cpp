@@ -76,15 +76,9 @@ void CanvasItem::setClipRegion(const Category* cat)
 			uchar last = 0;
 			for (int x = 0; x < sz.width(); x++) {
 				uchar bit = qLsbBit(sl, x);
-				if (bit) {
-					if (!last && !qLsbBit(osl, x)) {
-						addOutline(obmp, help::traceBoundary(bmp, QPoint(x,y), QPoint(x-1,y), true, false));
-					}
-				}/* else {
-					if (last && !qLsbBit(osl, x)) {
-						addOutline(obmp, help::traceBoundary(bmp, QPoint(x,y), QPoint(x-1,y), false, true));
-					}
-				}*/
+				if (bit && !last && !qLsbBit(osl, x)) {
+					addOutline(obmp, help::traceBoundary(bmp, QPoint(x,y), QPoint(x-1,y), false));
+				}
 				last = bit;
 			}
 		}
