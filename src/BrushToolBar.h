@@ -1,14 +1,12 @@
 #ifndef BRUSHTOOLBAR_H
 #define BRUSHTOOLBAR_H
 
-#include "ToolToolBar.h"
-#include <QLabel>
-#include <QComboBox>
-#include <QAction>
+#include <QToolBar>
 
-class SegmentationScene;
+class QLabel;
+class QComboBox;
 
-class BrushToolBar : public ToolToolBar
+class BrushToolBar : public QToolBar
 {
 	Q_OBJECT
 public:
@@ -18,8 +16,6 @@ public:
 	QComboBox* widthCombo;
 	QAction* actionIncreaseWidth;
 	QAction* actionDecreaseWidth;
-
-	void activate(SegmentationScene& scene) override;
 
 private:
 	void incWidth();

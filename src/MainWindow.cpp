@@ -1,9 +1,11 @@
 #include "MainWindow.h"
 #include "ui_mainwindow.h"
-#include "BrushToolBar.h"
 #include "OpenFolderDialog.h"
 #include "SegmentationProgressBar.h"
 #include "AboutDialog.h"
+#include "PolygonTool.h"
+#include "BrushTool.h"
+#include "MagicWandTool.h"
 #include "Helper.h"
 #include <QApplication>
 #include <QFile>
@@ -30,7 +32,6 @@ MainWindow::MainWindow(QWidget *parent)
 	, progressLabel_(0)
 	, progressBar_(0)
 	, posLabel_(0)
-	, currentTool_(0)
 	, toolToolbarsSeparator_(0)
 {
 	setup();
@@ -46,8 +47,6 @@ MainWindow::MainWindow(QWidget *parent)
 	connect(ui->schemeTree, &SchemeTree::visibilityChanged, [this] (Category* category) { scene_.canvasItem()->update(); });
 	connect(ui->schemeTree, &SchemeTree::schemeChanged, [this] (Scheme* scheme) { scene_.canvasItem()->setScheme(scheme); });
 	connect(ui->segmentationView, &SegmentationView::zoomShifted, this, &MainWindow::zoomShifted);
-	connect(ui->actionPolygon, &QAction::triggered, this, &MainWindow::toolChanged);
-	connect(ui->actionBrush, &QAction::triggered, this, &MainWindow::toolChanged);
 	connect(ui->actionOpenFolder, &QAction::triggered, this, &MainWindow::openFolder);
 	connect(ui->actionShowImage, &QAction::triggered, [this] (bool checked) { scene_.canvasItem()->setPixmapVisible(checked); });
 	connect(ui->actionShowSegmentationMask, &QAction::triggered, [this] (bool checked) { scene_.canvasItem()->setMaskVisible(checked); });
@@ -175,27 +174,26 @@ void MainWindow::setupTools()
 	toolToolbarsSeparator_ = ui->toolBar->addSeparator();
 	toolToolbarsSeparator_->setVisible(false);
 
-	BrushToolBar* brushToolbar = new BrushToolBar(this);
-	connect(brushToolbar->widthCombo, &QComboBox::currentTextChanged, [this] (const QString& width) { scene_.setBrushWidth(width.toInt()); });
-
-	auto brushToolbarAction = ui->toolBar->addWidget(brushToolbar);
-	brushToolbarAction->setVisible(false);
-	brushToolbarAction->setData(qVariantFromValue(static_cast<void*>(brushToolbar)));
-	toolToolbarActions_[ui->actionBrush] = brushToolbarAction;
-
-	ui->actionPolygon->setData(int(SegmentationScene::Tool::Polygon));
-	ui->actionBrush->setData(int(SegmentationScene::Tool::Brush));
-
-	tools_ << ui->actionPolygon
-		   << ui->actionBrush;
+	tools_ << new PolygonTool(ui->actionPolygon, &scene_, this);
+	tools_ << new BrushTool(ui->actionBrush, &scene_, this);
+	tools_ << new MagicWandTool(ui->actionMagicWand, &scene_, this);
 
 	for (auto& t : tools_) {
-		if (t->data().toInt() == int(scene_.tool())) {
-			t->setChecked(true);
-			currentTool_ = t;
-			break;
+		if (t->toolbar()) {
+			auto action = ui->toolBar->addWidget(t->toolbar());
+			action->setVisible(false);
+			connect(t, &Tool::activated, [this, action]{
+				toolToolbarsSeparator_->setVisible(true);
+				action->setVisible(true);
+			});
+			connect(t, &Tool::deactivated, [this, action]{
+				toolToolbarsSeparator_->setVisible(false);
+				action->setVisible(false);
+			});
+			toolToolbarActions_[t] = action;
 		}
 	}
+	tools_[0]->activate();
 }
 
 void MainWindow::setupUndoRedo()
@@ -320,7 +318,9 @@ void MainWindow::imageSelected(const QString &imagePath)
 		}
 	}
 	scene_.canvasItem()->setPixmap(QPixmap::fromImage(image), QPixmap::fromImage(mask));
-	scene_.clearToolState();
+	if (scene_.tool()) {
+		scene_.tool()->clear();
+	}
 	scene_.updateSceneRect();
 	if (!image.isNull()) {
 		if (ui->segmentationView->viewport()->rect().contains(image.rect())) {
@@ -365,40 +365,14 @@ void MainWindow::mousePosChanged(const QPoint& pos)
 	posLabel_->setText(QString("%1, %2").arg(pos.x()).arg(pos.y()));
 }
 
-void MainWindow::toolChanged()
-{
-	auto action = qobject_cast<QAction*>(sender());
-	if (currentTool_ == action) {
-		action->setChecked(true);
-		return;
-	}
-	if (currentTool_) {
-		currentTool_->setChecked(false);
-		if (toolToolbarActions_.contains(currentTool_)) {
-			toolToolbarsSeparator_->setVisible(false);
-			toolToolbarActions_[currentTool_]->setVisible(false);
-		}
-	}
-	scene_.setTool(static_cast<SegmentationScene::Tool>(action->data().toInt()));
-	if (toolToolbarActions_.contains(action)) {
-		toolToolbarsSeparator_->setVisible(true);
-		auto toolbarAction = toolToolbarActions_[action];
-		toolbarAction->setVisible(true);
-		static_cast<ToolToolBar*>(toolbarAction->data().value<void*>())->activate(scene_);
-	}
-	currentTool_ = action;
-}
-
 void MainWindow::setToolsEnabled(bool enabled)
 {
-	if (tools_[0]->isEnabled() == enabled)
-		return;
 	for (auto& t : tools_) {
-		t->setEnabled(enabled);
+		t->action()->setEnabled(enabled);
 	}
-	if (toolToolbarActions_.contains(currentTool_)) {
+	if (toolToolbarActions_.contains(scene_.tool())) {
 		toolToolbarsSeparator_->setVisible(enabled);
-		toolToolbarActions_[currentTool_]->setVisible(enabled);
+		toolToolbarActions_[scene_.tool()]->setVisible(enabled);
 	}
 }
 

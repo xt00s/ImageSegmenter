@@ -83,11 +83,19 @@ SchemeTree::SchemeTree(QWidget *parent)
 	statePixmaps_[3] = help::lightenPixmap(statePixmaps_[2], 0.2);
 
 	setMouseTracking(true);
+	setupShortcuts();
 	connect(this, &QTreeWidget::itemClicked, this, &SchemeTree::itemClicked);
+}
 
+void SchemeTree::setupShortcuts()
+{
 	for (int i = 0; i < 10; i++) {
 		auto shortcut = new QShortcut(i ? QString::number(i) : "`", this);
-		connect(shortcut, &QShortcut::activated, [this,i]{ selectItem(i); });
+		connect(shortcut, &QShortcut::activated, [this,i]{
+			if (i >= 0 && i < invisibleRootItem()->childCount()) {
+				setCurrentItem(invisibleRootItem()->child(i), 1);
+			}
+		});
 	}
 }
 
@@ -197,13 +205,6 @@ void SchemeTree::itemClicked(QTreeWidgetItem *item, int column)
 			emit visibilityChanged(c);
 			break;
 		}
-	}
-}
-
-void SchemeTree::selectItem(int index)
-{
-	if (index >= 0 && index < invisibleRootItem()->childCount()) {
-		setCurrentItem(invisibleRootItem()->child(index), 1);
 	}
 }
 

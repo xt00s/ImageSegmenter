@@ -8,7 +8,7 @@
 #include <QMap>
 #include "SegmentationScene.h"
 #include "ZoomSlider.h"
-#include "ToolToolBar.h"
+#include "Tool.h"
 
 namespace Ui {
 class MainWindow;
@@ -27,7 +27,6 @@ private slots:
 	void zoomChanged(double value);
 	void zoomShifted(int delta);
 	void mousePosChanged(const QPoint& pos);
-	void toolChanged();
 	void openFolder();
 	void progressChanged();
 
@@ -59,9 +58,8 @@ private:
 	QString imagePath_;
 	QString outputPath_;
 	SegmentationScene scene_;
-	QList<QAction*> tools_;
-	QMap<QAction*, QAction*> toolToolbarActions_;
-	QAction* currentTool_;
+	QList<Tool*> tools_;
+	QMap<Tool*, QAction*> toolToolbarActions_;
 	QAction* toolToolbarsSeparator_;
 };
 

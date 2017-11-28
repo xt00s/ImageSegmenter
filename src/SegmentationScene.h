@@ -2,39 +2,30 @@
 #define SEGMENTATIONSCENE_H
 
 #include <QGraphicsScene>
-#include <QScopedPointer>
-#include <QCursor>
-#include "GraphicsItems.h"
 
 class QUndoCommand;
+class CanvasItem;
+class Tool;
 
 class SegmentationScene : public QGraphicsScene
 {
 	Q_OBJECT
 public:
-	enum class Tool { Polygon, Brush };
-
-public:
 	SegmentationScene(QObject *parent = 0);
 
 	void setup();
 	void updateSceneRect();
-	void setBrushWidth(qreal width);
-	void clearToolState();
 
 	CanvasItem* canvasItem() const;
+	Tool* tool() const;
 
-	Tool tool() const;
-	void setTool(Tool tool);
+	QPoint pixmapPosFromScene(const QPointF& scenePos) const;
+	void setViewCursor(const QCursor& cursor);
+	void unsetViewCursor();
 
 signals:
 	void mousePosChanged(const QPoint& pos);
 	void newCommand(QUndoCommand* command);
-
-private:
-	QPoint pixmapPosFromScene(const QPointF& scenePos) const;
-	void setViewCursor(const QCursor& cursor);
-	void unsetViewCursor();
 
 protected:
 	void keyPressEvent(QKeyEvent *event) override;
@@ -44,19 +35,12 @@ protected:
 	bool eventFilter(QObject* watched, QEvent* event) override;
 
 private:
+	friend class Tool;
 	CanvasItem* canvasItem_;
-	PolylineItem* polyItem_;
-	StartMarkerItem* markerItem_;
-	BrushCursorItem* brushCursorItem_;
-	QCursor crossCursor_;
-	QScopedPointer<CanvasItem::Fragment> canvasCopy_;
-	QPoint polyPixmapPos_;
-	Tool tool_;
-	bool pressed_;
-	QRect pressedRect_;
+	Tool* tool_;
 };
 
 inline CanvasItem* SegmentationScene::canvasItem() const { return canvasItem_; }
-inline SegmentationScene::Tool SegmentationScene::tool() const { return tool_; }
+inline Tool* SegmentationScene::tool() const { return tool_; }
 
 #endif // SEGMENTATIONSCENE_H

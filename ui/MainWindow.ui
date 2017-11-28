@@ -269,6 +269,7 @@
    <addaction name="separator"/>
    <addaction name="actionPolygon"/>
    <addaction name="actionBrush"/>
+   <addaction name="actionMagicWand"/>
   </widget>
   <widget class="QStatusBar" name="statusBar">
    <property name="minimumSize">
@@ -429,6 +430,24 @@
    </property>
    <property name="shortcut">
     <string>M</string>
+   </property>
+  </action>
+  <action name="actionMagicWand">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../ImageSegmenter.qrc">
+     <normaloff>:/image/icons/magic-wand.svg</normaloff>:/image/icons/magic-wand.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Magic Wand</string>
+   </property>
+   <property name="toolTip">
+    <string>Magic Wand</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+W</string>
    </property>
   </action>
  </widget>

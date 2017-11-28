@@ -2,12 +2,13 @@
 #include "Helper.h"
 #include "Scheme.h"
 #include "Drawables.h"
+#include "Selection.h"
 #include <QPainter>
 #include <QBitmap>
 #include <QGraphicsScene>
 
 CanvasItem::CanvasItem(QGraphicsItem* parent)
-	: QGraphicsObject(parent)
+	: QGraphicsItem(parent)
 	, scheme_(0)
 	, category_(0)
 	, maskVisible_(true)
@@ -15,11 +16,6 @@ CanvasItem::CanvasItem(QGraphicsItem* parent)
 	, pixmapGray_(false)
 	, pixmapOpacity_(1)
 {
-	outlineAnimation_ = new QPropertyAnimation(this, "outlineDashOffset", this);
-	outlineAnimation_->setDuration(1000);
-	outlineAnimation_->setStartValue(0);
-	outlineAnimation_->setEndValue(-10);
-	outlineAnimation_->setLoopCount(-1);
 }
 
 QRectF CanvasItem::boundingRect() const
@@ -60,50 +56,24 @@ void CanvasItem::setCategory(const Category* category)
 
 void CanvasItem::setClipRegion(const Category* cat)
 {
-	qDeleteAll(outlines_);
-	outlines_.clear();
-	outlineAnimation_->stop();
+	clipSelection_.reset();
 	clipRegion_ = QRegion();
 
 	if (cat && cat->index() >= 0 && !layers_.empty()) {
 		auto mask = layers_[cat->index()].createMaskFromColor(cat->color(), Qt::MaskOutColor);
 		auto bmp = mask.toImage().convertToFormat(QImage::Format_MonoLSB);
-		auto sz = bmp.size();
-		QImage obmp(sz, QImage::Format_MonoLSB);
-		obmp.fill(0);
-		for (int y = 0; y < sz.height(); y++) {
-			auto sl = bmp.scanLine(y), osl = obmp.scanLine(y);
-			uchar last = 0;
-			for (int x = 0; x < sz.width(); x++) {
-				uchar bit = qLsbBit(sl, x);
-				if (bit && !last && !qLsbBit(osl, x)) {
-					addOutline(obmp, help::traceBoundary(bmp, QPoint(x,y), QPoint(x-1,y), false));
-				}
-				last = bit;
-			}
-		}
-		if (!outlines_.empty()) {
-			for (auto& l : outlines_) {
-				scene()->addItem(l);
-			}
+		clipSelection_.reset(new Selection(bmp, false, scene()));
+		if (!clipSelection_->empty()) {
 			clipRegion_ = QRegion(mask);
-			outlineAnimation_->start();
 		}
 	}
 }
 
-void CanvasItem::addOutline(QImage& bmp, const QVector<QPoint>& boundary)
+void CanvasItem::setClipRegionVisible(bool visible)
 {
-	for (auto& p : boundary) {
-		qLsbSet(bmp.scanLine(p.y()), p.x());
+	if (!clipSelection_.isNull()) {
+		clipSelection_->setVisible(visible);
 	}
-	auto outline = help::outlineFromBoundary(boundary);
-	QVector<QPointF> outlineF;
-	outlineF.reserve(outline.size());
-	for (auto& p : outline) {
-		outlineF << p;
-	}
-	outlines_ << new OutlineItem(outlineF);
 }
 
 void CanvasItem::drawPolygon(const QPolygon& polygon)
@@ -205,7 +175,7 @@ void CanvasItem::paint(QPainter* painter, const QStyleOptionGraphicsItem* option
 	if (pixmapVisible_) {
 		painter->setOpacity(pixmapOpacity_);
 		painter->drawPixmap(QPointF(), pixmapGray_ ? pixmapG_ : pixmap_);
-		painter->setOpacity(0.4 + 0.6 * (1 - pixmapOpacity_));
+		painter->setOpacity(1 - 0.6 * pixmapOpacity_);
 	}
 	if (maskVisible_ && scheme_ && !layers_.empty()) {
 		for (int i = 0; i < scheme_->categoryCount(); i++) {
@@ -290,16 +260,6 @@ void CanvasItem::erase(const Drawable& shape)
 	update(shape.rect());
 }
 
-void CanvasItem::setOutlineDashOffset(int offset)
-{
-	if (outlineDashOffset_ != offset) {
-		outlineDashOffset_ = offset;
-		for (auto& l : outlines_) {
-			l->setDashOffset(offset);
-		}
-	}
-}
-
 QPixmap CanvasItem::mask(const QColor& background) const
 {
 	QPixmap m(pixmap_.size());
@@ -345,35 +305,6 @@ void CanvasItem::setPixmapOpacity(double opacity)
 		update();
 	}
 }
-
-//-----------------------------------------------------------------------------------
-
-struct TransformHolder
-{
-    TransformHolder(QPainter* painter_) {
-        painter = painter_;
-		orig = painter->transform();
-	}
-	~TransformHolder() {
-		painter->setTransform(orig);
-	}
-	QPainter* painter;
-	QTransform orig;
-};
-
-struct RenderHintsHolder
-{
-	RenderHintsHolder(QPainter* painter_) {
-		painter = painter_;
-		orig = painter->renderHints();
-	}
-	~RenderHintsHolder() {
-		painter->setRenderHints(~orig, false);
-		painter->setRenderHints(orig, true);
-	}
-	QPainter* painter;
-	QPainter::RenderHints orig;
-};
 
 //-----------------------------------------------------------------------------------
 
@@ -447,8 +378,7 @@ QRectF PolylineItem::boundingRect() const
 
 void PolylineItem::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget)
 {
-	TransformHolder holder(painter);
-	auto maped = holder.orig.map(polygon_);
+	auto maped = painter->transform().map(polygon_);
 	painter->setTransform(QTransform());
 	painter->setBrush(Qt::NoBrush);
 	painter->setPen(lightPen_);
@@ -486,9 +416,7 @@ QRectF OutlineItem::boundingRect() const
 
 void OutlineItem::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget)
 {
-	TransformHolder holder(painter);
-	RenderHintsHolder holder2(painter);
-	auto maped = holder.orig.map(outline_);
+	auto maped = painter->transform().map(outline_);
 	painter->setTransform(QTransform());
 	painter->setRenderHint(QPainter::Antialiasing, false);
 	painter->setBrush(Qt::NoBrush);
@@ -573,8 +501,7 @@ QRectF BrushCursorItem::boundingRect() const
 
 void BrushCursorItem::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget)
 {
-	TransformHolder holder(painter);
-	auto maped = holder.orig.mapRect(QRectF(0, 0, width_, width_));
+	auto maped = painter->transform().mapRect(QRectF(0, 0, width_, width_));
 	painter->setTransform(QTransform());
 	painter->setBrush(Qt::NoBrush);
 	painter->setPen(Qt::white);

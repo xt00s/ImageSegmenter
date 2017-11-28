@@ -17,14 +17,18 @@ HEADERS += \
     src/GraphicsItems.h \
     src/UndoCommands.h \
     src/BrushToolBar.h \
-    src/ToolToolBar.h \
     src/Drawables.h \
     src/OpenFolderDialog.h \
     src/ImageList.h \
     src/NewSchemeDialog.h \
     src/SegmentationProgressBar.h \
     src/AboutDialog.h \
-    src/Slider.h
+    src/Slider.h \
+    src/Selection.h \
+    src/Tool.h \
+    src/PolygonTool.h \
+    src/BrushTool.h \
+    src/MagicWandTool.h
 
 SOURCES += \
     src/Category.cpp \
@@ -39,14 +43,18 @@ SOURCES += \
     src/GraphicsItems.cpp \
     src/UndoCommands.cpp \
     src/BrushToolBar.cpp \
-    src/ToolToolBar.cpp \
     src/Drawables.cpp \
     src/OpenFolderDialog.cpp \
     src/ImageList.cpp \
     src/NewSchemeDialog.cpp \
     src/SegmentationProgressBar.cpp \
     src/AboutDialog.cpp \
-    src/Slider.cpp
+    src/Slider.cpp \
+    src/Selection.cpp \
+    src/Tool.cpp \
+    src/PolygonTool.cpp \
+    src/BrushTool.cpp \
+    src/MagicWandTool.cpp
 
 FORMS += \
     ui/MainWindow.ui \

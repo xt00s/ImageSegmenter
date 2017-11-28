@@ -1,9 +1,11 @@
 #include "BrushToolBar.h"
-#include "SegmentationScene.h"
 #include <QApplication>
+#include <QLabel>
+#include <QComboBox>
+#include <QAction>
 
 BrushToolBar::BrushToolBar(QWidget *parent)
-    : ToolToolBar(parent)
+    : QToolBar(parent)
 {
 	widthLabel = new QLabel("Brush width:", this);
 	widthLabel->setObjectName("brushWidthLabel");
@@ -23,16 +25,16 @@ BrushToolBar::BrushToolBar(QWidget *parent)
 		for (int i = ranges[r][0]; i < ranges[r][2]; i += ranges[r][1]) {
 			widths << QString::number(i);
 		}
-	}
-	widthCombo->addItems(widths << "1000");
+    }
+    widthCombo->addItems(widths << "1000");
     widthCombo->setEditText("20");
     actionIncreaseWidth = new QAction("Increase brush width", this);
     actionIncreaseWidth->setIcon(QIcon(":/image/icons/plus-in-circle.svg"));
-	actionIncreaseWidth->setObjectName("actionIncreaseWidth");
+    actionIncreaseWidth->setObjectName("actionIncreaseWidth");
     actionIncreaseWidth->setShortcuts({QKeySequence("]"), QKeySequence("Ctrl+]"), QKeySequence("Shift+]")});
-	actionDecreaseWidth = new QAction("Decrease brush width", this);
+    actionDecreaseWidth = new QAction("Decrease brush width", this);
     actionDecreaseWidth->setIcon(QIcon(":/image/icons/minus-in-circle.svg"));
-	actionDecreaseWidth->setObjectName("actionDecreaseWidth");
+    actionDecreaseWidth->setObjectName("actionDecreaseWidth");
     actionDecreaseWidth->setShortcuts({QKeySequence("["), QKeySequence("Ctrl+["), QKeySequence("Shift+[")});
 
 	addWidget(widthLabel);
@@ -44,11 +46,6 @@ BrushToolBar::BrushToolBar(QWidget *parent)
 
 	connect(actionIncreaseWidth, &QAction::triggered, this, &BrushToolBar::incWidth);
 	connect(actionDecreaseWidth, &QAction::triggered, this, &BrushToolBar::decWidth);
-}
-
-void BrushToolBar::activate(SegmentationScene& scene)
-{
-	scene.setBrushWidth(widthCombo->currentText().toInt());
 }
 
 void BrushToolBar::incWidth()

@@ -3,17 +3,14 @@
 
 #include <QGraphicsItem>
 #include <QPen>
-#include <QPropertyAnimation>
 
 class Scheme;
 class Category;
 class Drawable;
-class OutlineItem;
+class Selection;
 
-class CanvasItem : public QGraphicsObject
+class CanvasItem : public QGraphicsItem
 {
-	Q_OBJECT
-	Q_PROPERTY(int outlineDashOffset READ outlineDashOffset  WRITE setOutlineDashOffset)
 public:
 	CanvasItem(QGraphicsItem* parent = 0);
 
@@ -21,13 +18,15 @@ public:
 	QSize pixmapSize() const;
 	QPixmap mask(const QColor& background = Qt::black) const;
 
+	QPixmap pixmap() const;
 	void setPixmap(const QPixmap& pixmap, const QPixmap& mask = QPixmap());
-	void setScheme(const Scheme* scheme);
 
 	const Category* category() const;
 	void setCategory(const Category* cat);
 
+	void setScheme(const Scheme* scheme);
 	void setClipRegion(const Category* cat);
+	void setClipRegionVisible(bool visible);
 
 	bool isPixmapVisible() const;
 	void setPixmapVisible(bool visible);
@@ -40,9 +39,6 @@ public:
 
 	double pixmapOpacity() const;
 	void setPixmapOpacity(double opacity);
-
-	int outlineDashOffset() const;
-	void setOutlineDashOffset(int outlineDashOffset);
 
 	void drawPolygon(const QPolygon& polygon);
 	void drawLine(const QLineF& line, qreal width);
@@ -75,7 +71,6 @@ private:
 	void initLayers(const QPixmap& mask);
 	void drawColored(const Drawable& shape);
 	void erase(const Drawable& shape);
-	void addOutline(QImage& bmp, const QVector<QPoint>& boundary);
 
 private:
 	QPixmap pixmap_;
@@ -83,25 +78,23 @@ private:
 	QPainterPath shape_;
 	QVector<QPixmap> layers_;
 	QRegion clipRegion_;
+	QScopedPointer<Selection> clipSelection_;
 	const Scheme* scheme_;
 	const Category* category_;
 	bool maskVisible_;
 	bool pixmapVisible_;
 	bool pixmapGray_;
 	double pixmapOpacity_;
-	int outlineDashOffset_;
-	QList<OutlineItem*> outlines_;
-	QPropertyAnimation* outlineAnimation_;
 };
 
 inline QRect CanvasItem::pixmapRect() const { return pixmap_.rect(); }
 inline QSize CanvasItem::pixmapSize() const { return pixmap_.size(); }
+inline QPixmap CanvasItem::pixmap() const { return pixmap_; }
 inline const Category* CanvasItem::category() const { return category_; }
 inline bool CanvasItem::isPixmapGray() const { return pixmapGray_; }
 inline bool CanvasItem::isPixmapVisible() const { return pixmapVisible_; }
 inline bool CanvasItem::isMaskVisible() const { return maskVisible_; }
 inline double CanvasItem::pixmapOpacity() const { return pixmapOpacity_; }
-inline int CanvasItem::outlineDashOffset() const { return outlineDashOffset_; }
 
 class PolylineItem : public QGraphicsItem
 {

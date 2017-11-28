@@ -29,7 +29,6 @@ signals:
 
 private slots:
 	void itemClicked(QTreeWidgetItem *item, int column);
-	void selectItem(int index);
 
 protected:
 	void selectionChanged(const QItemSelection &selected, const QItemSelection &deselected) override;
@@ -37,6 +36,7 @@ protected:
 	void leaveEvent(QEvent* event) override;
 
 private:
+	void setupShortcuts();
 	void addCategory(Category* cat);
 	Category* itemCategory(QTreeWidgetItem* item) const;
 

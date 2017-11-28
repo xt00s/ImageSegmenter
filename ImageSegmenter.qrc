@@ -26,5 +26,6 @@
         <file>icons/image-cursor.svg</file>
         <file>icons/minus-in-circle.svg</file>
         <file>icons/plus-in-circle.svg</file>
+        <file>icons/magic-wand.svg</file>
     </qresource>
 </RCC>
