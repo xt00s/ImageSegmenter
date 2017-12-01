@@ -308,4 +308,93 @@ namespace help
 		return bmp;
 	}
 
+	QRect filledRect(const QImage& bmp)
+	{
+		if (bmp.format() != QImage::Format_MonoLSB) {
+			return QRect();
+		}
+		auto sz = bmp.size();
+		auto bitsInBlock = sizeof(quint64) * 8;
+		int blocks = sz.width() / bitsInBlock;
+		int l = sz.width(), r = -1, t = -1, b = -1, lb = blocks-1, rb = 0;
+		quint64 lastBlockMask = (1 << (sz.width() % bitsInBlock)) - 1;
+
+		for (int y = 0, i,j; y < sz.height(); y++) {
+			auto sl = reinterpret_cast<const quint64*>(bmp.scanLine(y));
+			for (i = 0; i <= lb && !sl[i]; i++);
+
+			j = -1;
+			if (i <= lb) {
+				j = scanBitForward(sl[i]);
+				lb = i;
+			} else if (i == blocks) {
+				j = scanBitForward(sl[blocks] & lastBlockMask);
+			}
+			if (j < 0) {
+				continue;
+			}
+			int newL = i * bitsInBlock + j;
+			if (newL < l) {
+				l = newL;
+				if (t < 0) {
+					t = y;
+				}
+			}
+			j = scanBitReverse(sl[i = blocks] & lastBlockMask);
+			if (j < 0) {
+				for (i = blocks-1; i >= rb && !sl[i]; i--);
+				if (i >= rb) {
+					j = scanBitReverse(sl[i]);
+					rb = i;
+				}
+			}
+			if (j >= 0) {
+				int newR = i * bitsInBlock + j;
+				if (newR > r) {
+					r = newR;
+				}
+			}
+			if (y > b) {
+				b = y;
+			}
+		}
+		return l < sz.width() ? QRect(QPoint(l,t), QPoint(r,b)) : QRect();
+	}
+
+	int scanBitForward(quint64 v)
+	{
+		if (!v) {
+			return -1;
+		}
+#if _MSC_VER
+		ulong i;
+		_BitScanForward64(&i, v);
+		return i;
+#elif __GNUC__
+		return __builtin_ctzll(v);
+#else
+		int i;
+		for (i = 0; !(v & 1); v>>=1, i++);
+		return i;
+#endif
+	}
+
+	int scanBitReverse(quint64 v)
+	{
+		if (!v) {
+			return -1;
+		}
+#if _MSC_VER
+		ulong i;
+		_BitScanReverse64(&i, v);
+		return i;
+#elif __GNUC__
+		return __builtin_clzll(v);
+#else
+		int i;
+		for (i = 0; v; v>>=1, i++);
+		return i-1;
+#endif
+	}
+
 }

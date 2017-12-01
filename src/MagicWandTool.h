@@ -2,6 +2,11 @@
 #define MAGICWANDTOOL_H
 
 #include "Tool.h"
+#include <QScopedPointer>
+#include <QPoint>
+
+class GuideLineItem;
+class Selection;
 
 class MagicWandTool : public Tool
 {
@@ -12,12 +17,22 @@ public:
 
 protected:
 	void onActivate() override;
-	void onDeactivate() override;
 	void keyPressEvent(QKeyEvent* event) override;
 	void mousePressEvent(QGraphicsSceneMouseEvent* event) override;
 	void mouseMoveEvent(QGraphicsSceneMouseEvent* event) override;
 	void mouseReleaseEvent(QGraphicsSceneMouseEvent* event) override;
-	void leaveEvent(QEvent* event) override;
+
+private:
+	void rebuildSelection(double tolerance);
+	void apply();
+
+private:
+	double maxToleranceScreenDistance_;
+	bool pressed_;
+	QPointF start_;
+	QPoint pixmapStartPos_;
+	QScopedPointer<Selection> selection_;
+	GuideLineItem* guideLine_;
 };
 
 #endif // MAGICWANDTOOL_H

@@ -50,3 +50,17 @@ void Circle::draw(QPainter& painter, const QColor& color) const
 	painter.setBrush(color);
 	painter.drawEllipse(center_, radius_, radius_);
 }
+
+//-----------------------------------------------------------------------------------
+
+Bitmap::Bitmap(const QPoint& topLeft, const QImage& bmp)
+	: Drawable(QRect(topLeft, bmp.size()))
+	, topLeft_(topLeft), bmp_(bmp)
+{}
+
+void Bitmap::draw(QPainter& painter, const QColor& color) const
+{
+	bmp_.setColor(0, QColor(Qt::transparent).rgba());
+	bmp_.setColor(1, color.rgba());
+	painter.drawImage(topLeft_, bmp_);
+}

@@ -26,6 +26,8 @@ public:
 
 	void setScheme(const Scheme* scheme);
 	void setClipRegion(const Category* cat);
+
+	bool clipRegionVisible() const;
 	void setClipRegionVisible(bool visible);
 
 	bool isPixmapVisible() const;
@@ -84,6 +86,7 @@ private:
 	bool maskVisible_;
 	bool pixmapVisible_;
 	bool pixmapGray_;
+	bool clipRegionVisible_;
 	double pixmapOpacity_;
 };
 
@@ -91,6 +94,7 @@ inline QRect CanvasItem::pixmapRect() const { return pixmap_.rect(); }
 inline QSize CanvasItem::pixmapSize() const { return pixmap_.size(); }
 inline QPixmap CanvasItem::pixmap() const { return pixmap_; }
 inline const Category* CanvasItem::category() const { return category_; }
+inline bool CanvasItem::clipRegionVisible() const { return clipRegionVisible_; }
 inline bool CanvasItem::isPixmapGray() const { return pixmapGray_; }
 inline bool CanvasItem::isPixmapVisible() const { return pixmapVisible_; }
 inline bool CanvasItem::isMaskVisible() const { return maskVisible_; }
@@ -181,5 +185,24 @@ private:
 };
 
 inline qreal BrushCursorItem::width() const { return width_; }
+
+class GuideLineItem : public QGraphicsItem
+{
+public:
+	GuideLineItem(QGraphicsItem *parent = 0);
+	GuideLineItem(const QLineF& line, QGraphicsItem *parent = 0);
+
+	QLineF line() const;
+	void setLine(const QLineF& line);
+
+	QRectF boundingRect() const override;
+	void paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget) override;
+
+private:
+	QLineF line_;
+	QPen pen_;
+};
+
+inline QLineF GuideLineItem::line() const { return line_; }
 
 #endif // POLYLINEITEM_H

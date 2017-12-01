@@ -15,10 +15,13 @@ class Selection : public QObject
 	Q_PROPERTY(int outlineDashOffset READ outlineDashOffset  WRITE setOutlineDashOffset)
 public:
 	Selection(QGraphicsScene* scene, QObject *parent = 0);
-	Selection(const QImage bmp, bool highlightVisible, QGraphicsScene* scene, QObject *parent = 0);
+	Selection(const QImage& bmp, bool highlightVisible, QGraphicsScene* scene, QObject *parent = 0);
 	~Selection();
 
 	void setArea(const QImage& bmp);
+
+	QImage filledArea() const;
+	QRect filledAreaRect() const;
 
 	bool visible() const;
 	void setVisible(bool visible);
@@ -42,6 +45,7 @@ private:
 	int outlineDashOffset_;
 	QGraphicsScene* scene_;
 	QImage bitmap_;
+	mutable QRect filledAreaRect_;
 	QScopedPointer<QGraphicsPixmapItem> highlight_;
 	QList<OutlineItem*> outlines_;
 	QPropertyAnimation outlineAnimation_;

@@ -4,8 +4,8 @@
 #include <QIcon>
 #include <functional>
 
-#define qLsbBit(line, x) ((*((line) + (x / 8)) >> (x & 7)) & 1)
-#define qLsbSet(line, x) (*((line) + x / 8) |= 1 << (x & 7))
+#define qLsbBit(line, x) ((*((line) + ((x) / 8)) >> ((x) & 7)) & 1)
+#define qLsbSet(line, x) (*((line) + (x) / 8) |= 1 << ((x) & 7))
 
 namespace help
 {
@@ -22,12 +22,17 @@ namespace help
 	QPixmap lightenPixmap(const QPixmap& pixmap, qreal factor);
 	QString correctFileName(const QString& name);
 	QString segmentationMaskFilePath(const QString& imagePath, const QString outputPath, const QString& scheme);
+
 	QPixmap rgb2gray(const QPixmap& pixmap);
 
 	QVector<QPoint> traceBoundary(const QImage& bmp, const QPoint& start, const QPoint& backtrace, bool mooreNeighborhood = true, bool invertColors = false, bool close = true);
 	QVector<QPoint> outlineFromBoundary(const QVector<QPoint>& boundary);
 
 	QImage flood(const QImage& src, const QPoint& start, const std::function<bool(QRgb)>& test);
+	QRect filledRect(const QImage& bmp);
+
+	int scanBitForward(quint64 v);
+	int scanBitReverse(quint64 v);
 }
 
 #endif // QTHELP_H

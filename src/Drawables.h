@@ -4,9 +4,11 @@
 #include <QRect>
 #include <QPolygon>
 #include <QLine>
+#include <QImage>
 
 class QPainter;
 class QColor;
+class QImage;
 
 class Drawable
 {
@@ -51,6 +53,16 @@ public:
 private:
 	QPointF center_;
 	qreal radius_;
+};
+
+class Bitmap : public Drawable
+{
+public:
+	Bitmap(const QPoint& topLeft, const QImage& bmp);
+	void draw(QPainter& painter, const QColor& color) const override;
+private:
+	QPoint topLeft_;
+	mutable QImage bmp_;
 };
 
 #endif // DRAWABLE_H

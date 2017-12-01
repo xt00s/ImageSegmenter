@@ -68,6 +68,10 @@ MainWindow::MainWindow(QWidget *parent)
 
 MainWindow::~MainWindow()
 {
+	if (scene_.tool()) {
+		scene_.tool()->deactivate();
+	}
+	qDeleteAll(tools_);
 	saveMask();
 	saveSettings();
 	delete ui;

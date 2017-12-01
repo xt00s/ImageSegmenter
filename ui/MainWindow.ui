@@ -447,7 +447,7 @@
     <string>Magic Wand</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+W</string>
+    <string>W</string>
    </property>
   </action>
  </widget>

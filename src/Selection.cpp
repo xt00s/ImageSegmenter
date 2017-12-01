@@ -17,7 +17,7 @@ Selection::Selection(QGraphicsScene* scene, QObject *parent)
 	outlineAnimation_.setLoopCount(-1);
 }
 
-Selection::Selection(const QImage bmp, bool highlightVisible, QGraphicsScene* scene, QObject* parent)
+Selection::Selection(const QImage& bmp, bool highlightVisible, QGraphicsScene* scene, QObject* parent)
 	: Selection(scene, parent)
 {
 	highlightVisible_ = highlightVisible;
@@ -48,10 +48,23 @@ void Selection::setArea(const QImage& bmp)
 	}
 }
 
+QImage Selection::filledArea() const
+{
+	return bitmap_.copy(filledAreaRect());
+}
+
+QRect Selection::filledAreaRect() const
+{
+	if (filledAreaRect_.isEmpty()) {
+		filledAreaRect_ = help::filledRect(bitmap_);
+	}
+	return filledAreaRect_;
+}
+
 void Selection::initHighlight()
 {
 	bitmap_.setColor(0, QColor(Qt::transparent).rgba());
-	bitmap_.setColor(1, QColor(255,0,0,100).rgba());
+	bitmap_.setColor(1, QColor(0,191,255,50).rgba());
 	highlight_.reset(new QGraphicsPixmapItem(QPixmap::fromImage(bitmap_)));
 	highlight_->setVisible(visible_);
 	scene_->addItem(highlight_.data());

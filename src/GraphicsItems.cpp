@@ -15,6 +15,7 @@ CanvasItem::CanvasItem(QGraphicsItem* parent)
 	, pixmapVisible_(true)
 	, pixmapGray_(false)
 	, pixmapOpacity_(1)
+	, clipRegionVisible_(true)
 {
 }
 
@@ -63,6 +64,7 @@ void CanvasItem::setClipRegion(const Category* cat)
 		auto mask = layers_[cat->index()].createMaskFromColor(cat->color(), Qt::MaskOutColor);
 		auto bmp = mask.toImage().convertToFormat(QImage::Format_MonoLSB);
 		clipSelection_.reset(new Selection(bmp, false, scene()));
+		clipSelection_->setVisible(clipRegionVisible_);
 		if (!clipSelection_->empty()) {
 			clipRegion_ = QRegion(mask);
 		}
@@ -71,8 +73,11 @@ void CanvasItem::setClipRegion(const Category* cat)
 
 void CanvasItem::setClipRegionVisible(bool visible)
 {
-	if (!clipSelection_.isNull()) {
-		clipSelection_->setVisible(visible);
+	if (clipRegionVisible_ != visible) {
+		clipRegionVisible_ = visible;
+		if (!clipSelection_.isNull()) {
+			clipSelection_->setVisible(visible);
+		}
 	}
 }
 
@@ -508,4 +513,39 @@ void BrushCursorItem::paint(QPainter* painter, const QStyleOptionGraphicsItem* o
 	painter->drawEllipse(maped.topLeft(), maped.width()/2, maped.height()/2);
 	painter->setPen(Qt::black);
 	painter->drawEllipse(maped.topLeft(), maped.width()/2 + 0.7, maped.height()/2 + 0.7);
+}
+
+//-----------------------------------------------------------------------------------
+
+GuideLineItem::GuideLineItem(QGraphicsItem* parent)
+	: QGraphicsItem(parent)
+	, pen_(Qt::red, 1.5)
+{
+}
+
+GuideLineItem::GuideLineItem(const QLineF& line, QGraphicsItem* parent)
+	: GuideLineItem(parent)
+{
+	line_ = line;
+}
+
+void GuideLineItem::setLine(const QLineF& line)
+{
+	if (line_ != line) {
+		prepareGeometryChange();
+		line_ = line;
+	}
+}
+
+QRectF GuideLineItem::boundingRect() const
+{
+	return QRectF(line_.p1(), line_.p2()).normalized().adjusted(-1,-1,1,1);
+}
+
+void GuideLineItem::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget)
+{
+	auto maped = painter->transform().map(line_);
+	painter->setTransform(QTransform());
+	painter->setPen(pen_);
+	painter->drawLine(maped);
 }
