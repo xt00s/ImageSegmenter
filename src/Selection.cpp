@@ -73,20 +73,17 @@ void Selection::initHighlight()
 void Selection::initOulines()
 {
 	auto sz = bitmap_.size();
-	QImage obmp(sz, QImage::Format_MonoLSB);
-	obmp.fill(0);
+	QImage map(sz, QImage::Format_MonoLSB);		// left outlines map
+	map.fill(0);
 	for (int y = 0; y < sz.height(); y++) {
 		auto sl = bitmap_.scanLine(y);
-		auto osl = obmp.scanLine(y);
+		auto osl = map.scanLine(y);
 		uchar last = 0;
 		for (int x = 0; x < sz.width(); x++) {
 			uchar bit = qLsbBit(sl, x);
 			if (bit && !last && !qLsbBit(osl, x)) {
 				auto boundary = help::traceBoundary(bitmap_, QPoint(x,y), QPoint(x-1,y), false);
-				for (auto& p : boundary) {
-					qLsbSet(obmp.scanLine(p.y()), p.x());
-				}
-				auto outline = outlineFromBoundary(boundary);
+				auto outline = outlineFromBoundary(boundary, map);
 				outlines_ << outline;
 				outline->setVisible(visible_);
 				scene_->addItem(outline);
@@ -96,14 +93,21 @@ void Selection::initOulines()
 	}
 }
 
-OutlineItem* Selection::outlineFromBoundary(const QVector<QPoint>& boundary)
+OutlineItem* Selection::outlineFromBoundary(const QVector<QPoint>& boundary, QImage& map)
 {
 	auto outline = help::outlineFromBoundary(boundary);
 	QVector<QPointF> outlineF;
 	outlineF.reserve(outline.size());
-	for (auto& p : outline) {
-		outlineF << p;
+	int c = outline.count() - 1;
+	const QPoint dir(0,1);
+	for (int i = 0; i < c; i++) {
+		outlineF << outline[i];
+		if ((outline[i] - outline[i+1]) == dir) {
+			auto& p = outline[i+1];
+			qLsbSet(map.scanLine(p.y()), p.x());
+		}
 	}
+	outlineF << outline.last();
 	return new OutlineItem(outlineF);
 }
 

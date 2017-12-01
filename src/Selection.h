@@ -37,7 +37,7 @@ public:
 private:
 	void initHighlight();
 	void initOulines();
-	OutlineItem* outlineFromBoundary(const QVector<QPoint>& boundary);
+	OutlineItem* outlineFromBoundary(const QVector<QPoint>& boundary, QImage& map);
 
 private:
 	bool visible_;
