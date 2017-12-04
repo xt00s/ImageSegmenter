@@ -15,6 +15,12 @@ namespace help
 		~WaitCursor();
 	};
 
+	struct DefaultCursor
+	{
+		DefaultCursor();
+		~DefaultCursor();
+	};
+
 	inline QPointF floor(const QPointF& p) { return QPointF(::floor(p.x()), ::floor(p.y())); }
 
 	QIcon emptyIcon(QSize size);

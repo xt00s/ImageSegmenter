@@ -298,13 +298,14 @@ void MainWindow::saveMask()
 
 void MainWindow::imageSelected(const QString &imagePath)
 {
-	help::WaitCursor waitCursor;
+	help::WaitCursor wait;
 	saveMask();
 
 	QImage image, mask;
 	if (!imagePath.isEmpty()) {
 		QImageReader reader(imagePath);
 		if (!reader.read(&image)) {
+			help::DefaultCursor noWait;
 			QMessageBox::warning(this, "",
 								 QString("Can't read image '%1': %2").arg(imagePath).arg(reader.errorString()),
 								 QMessageBox::Ok);
@@ -314,6 +315,7 @@ void MainWindow::imageSelected(const QString &imagePath)
 			if (QFileInfo::exists(maskPath)) {
 				reader.setFileName(maskPath);
 				if (!reader.read(&mask)) {
+					help::DefaultCursor noWait;
 					QMessageBox::warning(this, "",
 										 QString("Can't read mask '%1': %2").arg(imagePath).arg(reader.errorString()),
 										 QMessageBox::Ok);
@@ -412,11 +414,11 @@ void MainWindow::open(const QString& schemePath, const QString& folderPath, cons
 		ui->imageList->clear();
 	}
 	else {
+		help::WaitCursor wait;
 		if (!ui->schemeTree->open(schemePath)) {
 			ui->imageList->clear();
 			error = ui->schemeTree->errorString();
 		} else {
-			help::WaitCursor waitCursor;
 			ui->imageList->open(folderPath, outputPath, ui->schemeTree->scheme()->name());
 		}
 	}

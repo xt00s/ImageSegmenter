@@ -17,6 +17,16 @@ namespace help
 		QApplication::restoreOverrideCursor();
 	}
 
+	DefaultCursor::DefaultCursor()
+	{
+		QApplication::setOverrideCursor(QCursor());
+	}
+
+	DefaultCursor::~DefaultCursor()
+	{
+		QApplication::restoreOverrideCursor();
+	}
+
 	QIcon emptyIcon(QSize size)
 	{
 		QPixmap empty(size);
@@ -190,17 +200,20 @@ namespace help
 			{{1, 0},{0, 1},{-1,0},{-1,0}},
 		};
 
-		auto off = B[1] - B[0] + QPoint(1,1);
+		const QPoint p11(1,1);
+		const int diag[] = {136,34};
+
+		auto off = B[1] - B[0] + p11;
 		auto c = n2i[off.x()][off.y()]/2, start = c;
 		QVector<QPoint> L(1, B.first() + corners[c]);
 
 		for (int i = 1; i < B.count(); i++) {
-			off = B[i] - B[i-1] + QPoint(1,1);
+			off = B[i] - B[i-1] + p11;
 			int n = n2i[off.x()][off.y()];
 			if (n & 1 && i+1 < B.count() && B[i+1] != B[i-1]) { // go to diagonal pixel in case of 4-way boundary
-				auto off2 = B[i+1] - B[i-1] + QPoint(1,1);
+				auto off2 = B[i+1] - B[i] + p11;
 				int n2 = n2i[off2.x()][off2.y()];
-				if (n2+1 == n) {
+				if (diag[(n/2) & 1] & (1<<n2) && n2+1 == n) {
 					n = n2;
 					i++;
 				}

@@ -64,7 +64,7 @@ QRect Selection::filledAreaRect() const
 void Selection::initHighlight()
 {
 	bitmap_.setColor(0, QColor(Qt::transparent).rgba());
-	bitmap_.setColor(1, QColor(0,191,255,50).rgba());
+	bitmap_.setColor(1, QColor(0,191,255,30).rgba());
 	highlight_.reset(new QGraphicsPixmapItem(QPixmap::fromImage(bitmap_)));
 	highlight_->setVisible(visible_);
 	scene_->addItem(highlight_.data());
@@ -82,7 +82,7 @@ void Selection::initOulines()
 		for (int x = 0; x < sz.width(); x++) {
 			uchar bit = qLsbBit(sl, x);
 			if (bit && !last && !qLsbBit(osl, x)) {
-				auto boundary = help::traceBoundary(bitmap_, QPoint(x,y), QPoint(x-1,y), false);
+				auto boundary = help::traceBoundary(bitmap_, QPoint(x,y), QPoint(x-1,y));
 				auto outline = outlineFromBoundary(boundary, map);
 				outlines_ << outline;
 				outline->setVisible(visible_);
