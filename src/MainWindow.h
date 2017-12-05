@@ -3,7 +3,6 @@
 
 #include <QMainWindow>
 #include <QLabel>
-#include <QProgressBar>
 #include <QUndoStack>
 #include <QMap>
 #include "SegmentationScene.h"
@@ -53,7 +52,6 @@ private:
 	QLabel* sizeLabel_;
 	QLabel* posLabel_;
 	QLabel* progressLabel_;
-	QProgressBar* progressBar_;
 	QUndoStack undoStack_;
 	QString imagePath_;
 	QString outputPath_;

@@ -3,7 +3,7 @@
 #include <QFileInfo>
 #include <QDir>
 
-#define SEGM_COLOR QColor(221,255,221)
+#define SEGM_COLOR QColor(128,128,128)
 
 ImageList::ImageList(QWidget *parent)
 	: QListWidget(parent)
@@ -33,7 +33,7 @@ void ImageList::open(const QString &path, const QString& outputPath, const QStri
 		p->setData(Qt::UserRole, f.absoluteFilePath());
 		p->setToolTip(p->data(Qt::UserRole).toString());
 		if (segmented(p)) {
-			p->setBackgroundColor(SEGM_COLOR);
+			p->setTextColor(SEGM_COLOR);
 			segmented_++;
 		} else if (first < 0) {
 			first = row(p);
@@ -102,7 +102,7 @@ bool ImageList::segmented(QListWidgetItem *item)
 
 bool ImageList::markedAsSegmented(QListWidgetItem* item)
 {
-	return item->backgroundColor() == QColor(SEGM_COLOR);
+	return item->textColor() == SEGM_COLOR;
 }
 
 void ImageList::update(int index)
@@ -110,9 +110,9 @@ void ImageList::update(int index)
 	item(index)->setIcon(index == selected_ ? selectedIcon_ : emptyIcon_);
 	item(index)->setFont(index == selected_ ? boldFont_ : QFont());
 	if (segmented(item(index))) {
-		item(index)->setBackgroundColor(SEGM_COLOR);
+		item(index)->setTextColor(SEGM_COLOR);
 	} else {
-		item(index)->setData(Qt::BackgroundColorRole, QVariant());
+		item(index)->setData(Qt::TextColorRole, QVariant());
 	}
 }
 

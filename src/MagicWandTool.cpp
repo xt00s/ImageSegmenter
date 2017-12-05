@@ -8,6 +8,7 @@
 #include "UndoCommands.h"
 #include "Drawables.h"
 #include "HandlessSlider.h"
+#include <QToolButton>
 #include <QApplication>
 #include <QScreen>
 #include <QGraphicsSceneMouseEvent>
@@ -27,6 +28,8 @@ MagicWandTool::MagicWandTool(QAction* action, SegmentationScene* scene, QObject*
 
 	toolbar_ = new MagicWandToolBar;
 	connect(toolbar_->toleranceSlider, &Slider::valueChanged, this, &MagicWandTool::toleranceChanged);
+	connect(toolbar_->finishButton, &QToolButton::clicked, [this](bool){ apply(); });
+	toolbar_->finishButton->setEnabled(false);
 }
 
 QToolBar* MagicWandTool::toolbar() const
@@ -74,6 +77,7 @@ void MagicWandTool::mousePressEvent(QGraphicsSceneMouseEvent* event)
 		disconnect(toolbar_->toleranceSlider, &Slider::valueChanged, this, &MagicWandTool::toleranceChanged);
 		toolbar_->toleranceSlider->setValue(0);
 		connect(toolbar_->toleranceSlider, &Slider::valueChanged, this, &MagicWandTool::toleranceChanged);
+		toolbar_->finishButton->setEnabled(true);
 	}
 }
 
@@ -123,4 +127,5 @@ void MagicWandTool::apply()
 		}
 	}
 	clear();
+	toolbar_->finishButton->setEnabled(false);
 }

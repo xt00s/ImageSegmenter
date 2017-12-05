@@ -1,7 +1,6 @@
 #include "MainWindow.h"
 #include "ui_mainwindow.h"
 #include "OpenFolderDialog.h"
-#include "SegmentationProgressBar.h"
 #include "AboutDialog.h"
 #include "PolygonTool.h"
 #include "BrushTool.h"
@@ -30,7 +29,6 @@ MainWindow::MainWindow(QWidget *parent)
 	, zoomLabel_(0)
 	, sizeLabel_(0)
 	, progressLabel_(0)
-	, progressBar_(0)
 	, posLabel_(0)
 	, toolToolbarsSeparator_(0)
 {
@@ -110,22 +108,6 @@ void MainWindow::setupStyle()
 
 void MainWindow::setupStatusBar()
 {
-	auto segmentedLabel = new QLabel("Segmented: ", this);
-	segmentedLabel->setIndent(5);
-
-	progressBar_ = new SegmentationProgressBar(this);
-	progressBar_->setObjectName("progressBar");
-	progressBar_->setFixedSize(150, 15);
-	progressBar_->setTextVisible(false);
-
-	progressLabel_ = new QLabel(progressBar_);
-	progressLabel_->setObjectName("progressLabel");
-	progressLabel_->setAlignment(Qt::AlignCenter);
-
-	auto progressBarLayout = new QHBoxLayout(progressBar_);
-	progressBarLayout->setContentsMargins(0,0,0,0);
-	progressBarLayout->addWidget(progressLabel_);
-
 	zoomSlider_ = new ZoomSlider(this);
 	zoomSlider_->setObjectName("zoomSlider");
 	zoomSlider_->setFixedSize(105, 18);
@@ -140,11 +122,18 @@ void MainWindow::setupStatusBar()
 	auto spacer = new QWidget(this);
 	spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
 
+	auto progressImage = new QLabel(this);
+	progressImage->setPixmap(QIcon(":/image/icons/progress.svg").pixmap(16,16));
+
 	auto sizeImage = new QLabel(this);
 	sizeImage->setPixmap(QIcon(":/image/icons/image-size.svg").pixmap(16,16));
 
 	auto posImage = new QLabel(this);
 	posImage->setPixmap(QIcon(":/image/icons/position.svg").pixmap(16,16));
+
+	progressLabel_ = new QLabel(this);
+	progressLabel_->setFixedWidth(150);
+	progressLabel_->setIndent(5);
 
 	sizeLabel_ = new QLabel(this);
 	sizeLabel_->setFixedWidth(90);
@@ -156,9 +145,9 @@ void MainWindow::setupStatusBar()
 
 	auto statusToolBar = new QToolBar(this);
 	statusToolBar->setObjectName("statusToolBar");
-	statusToolBar->addWidget(segmentedLabel);
-	statusToolBar->addWidget(progressBar_);
 	statusToolBar->addWidget(spacer);
+	statusToolBar->addWidget(progressImage);
+	statusToolBar->addWidget(progressLabel_);
 	statusToolBar->addWidget(sizeImage);
 	statusToolBar->addWidget(sizeLabel_);
 	statusToolBar->addWidget(posImage);
@@ -391,12 +380,9 @@ void MainWindow::openFolder()
 
 void MainWindow::progressChanged()
 {
-	if (progressBar_->maximum() != ui->imageList->count()) {
-		progressBar_->setRange(0, ui->imageList->count());
-	}
-	progressBar_->setValue(ui->imageList->segmentedCount());
 	if (ui->imageList->count()) {
-		progressLabel_->setText(QString("%1 of %2")
+		progressLabel_->setText(QString("%1% (%2 of %3)")
+								.arg(double(ui->imageList->segmentedCount()) / ui->imageList->count() * 100, 0, 'f', 0)
 								.arg(ui->imageList->segmentedCount())
 								.arg(ui->imageList->count()));
 	} else {

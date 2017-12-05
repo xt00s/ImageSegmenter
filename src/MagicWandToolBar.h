@@ -5,6 +5,7 @@
 
 class QLabel;
 class HandlessSlider;
+class QToolButton;
 
 class MagicWandToolBar : public QToolBar
 {
@@ -14,6 +15,7 @@ public:
 
 	QLabel* toleranceLabel;
 	HandlessSlider* toleranceSlider;
+	QToolButton* finishButton;
 };
 
 #endif // MAGICWANDTOOLBAR_H

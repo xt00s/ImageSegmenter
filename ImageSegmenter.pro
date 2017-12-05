@@ -21,7 +21,6 @@ HEADERS += \
     src/OpenFolderDialog.h \
     src/ImageList.h \
     src/NewSchemeDialog.h \
-    src/SegmentationProgressBar.h \
     src/AboutDialog.h \
     src/Slider.h \
     src/Selection.h \
@@ -49,7 +48,6 @@ SOURCES += \
     src/OpenFolderDialog.cpp \
     src/ImageList.cpp \
     src/NewSchemeDialog.cpp \
-    src/SegmentationProgressBar.cpp \
     src/AboutDialog.cpp \
     src/Slider.cpp \
     src/Selection.cpp \

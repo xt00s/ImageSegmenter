@@ -9,7 +9,8 @@ BrushToolBar::BrushToolBar(QWidget *parent)
 {
 	widthLabel = new QLabel("Brush width:", this);
 	widthLabel->setObjectName("brushWidthLabel");
-	widthLabel->setIndent(7);
+    widthLabel->setIndent(5);
+
 	widthCombo = new QComboBox(this);
 	widthCombo->setObjectName("brushWidthCombo");
 	widthCombo->setEditable(true);
@@ -28,10 +29,12 @@ BrushToolBar::BrushToolBar(QWidget *parent)
     }
     widthCombo->addItems(widths << "1000");
     widthCombo->setEditText("20");
+
     actionIncreaseWidth = new QAction("Increase brush width", this);
     actionIncreaseWidth->setIcon(QIcon(":/image/icons/plus-in-circle.svg"));
     actionIncreaseWidth->setObjectName("actionIncreaseWidth");
     actionIncreaseWidth->setShortcuts({QKeySequence("]"), QKeySequence("Ctrl+]"), QKeySequence("Shift+]")});
+
     actionDecreaseWidth = new QAction("Decrease brush width", this);
     actionDecreaseWidth->setIcon(QIcon(":/image/icons/minus-in-circle.svg"));
     actionDecreaseWidth->setObjectName("actionDecreaseWidth");
