@@ -21,7 +21,7 @@ public:
 	virtual void clear() = 0;
 
 	QAction* action() const;
-	QToolBar* toolbar() const;
+	virtual QToolBar* toolbar() const;
 	SegmentationScene* scene() const;
 
 signals:
@@ -44,12 +44,10 @@ private:
 	friend class SegmentationScene;
 	QAction* action_;
 	SegmentationScene* scene_;
-protected:
-	QToolBar* toolbar_;
 };
 
 inline QAction* Tool::action() const { return action_; }
-inline QToolBar* Tool::toolbar() const { return toolbar_; }
+inline QToolBar* Tool::toolbar() const { return 0; }
 inline SegmentationScene* Tool::scene() const { return scene_; }
 
 #endif // TOOLS_H

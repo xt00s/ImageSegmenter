@@ -23,16 +23,17 @@ signals:
 	void zoomChanged(double zoom);
 
 protected:
-	int valueFromPos(int pos, int minPos, int maxPos) override;
-	int posFromValue(int value, int minPos, int maxPos) override;
+	double valueFromPos(int pos, int minPos, int maxPos) const override;
+	int posFromValue(double value, int minPos, int maxPos) const override;
 
 private slots:
-	void valueChanged(int value);
+	void valueChanged(double value);
 
 private:
 	double boundZoom(double zoom) const;
 
 private:
+	bool updateZoom_;
 	double zoom_;
 	double min_;
 	double max_;

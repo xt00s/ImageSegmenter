@@ -1,4 +1,5 @@
 #include "MagicWandTool.h"
+#include "MagicWandToolBar.h"
 #include "Selection.h"
 #include "SegmentationScene.h"
 #include "GraphicsItems.h"
@@ -6,6 +7,7 @@
 #include "Category.h"
 #include "UndoCommands.h"
 #include "Drawables.h"
+#include "HandlessSlider.h"
 #include <QApplication>
 #include <QScreen>
 #include <QGraphicsSceneMouseEvent>
@@ -22,6 +24,14 @@ MagicWandTool::MagicWandTool(QAction* action, SegmentationScene* scene, QObject*
 	guideLine_->hide();
 	guideLine_->setZValue(1);
 	scene->addItem(guideLine_);
+
+	toolbar_ = new MagicWandToolBar;
+	connect(toolbar_->toleranceSlider, &Slider::valueChanged, this, &MagicWandTool::toleranceChanged);
+}
+
+QToolBar* MagicWandTool::toolbar() const
+{
+	return toolbar_;
 }
 
 void MagicWandTool::clear()
@@ -60,6 +70,10 @@ void MagicWandTool::mousePressEvent(QGraphicsSceneMouseEvent* event)
 		guideLine_->show();
 		guideLine_->setLine(QLineF(event->scenePos(), event->scenePos()));
 		pressed_ = true;
+
+		disconnect(toolbar_->toleranceSlider, &Slider::valueChanged, this, &MagicWandTool::toleranceChanged);
+		toolbar_->toleranceSlider->setValue(0);
+		connect(toolbar_->toleranceSlider, &Slider::valueChanged, this, &MagicWandTool::toleranceChanged);
 	}
 }
 
@@ -67,7 +81,7 @@ void MagicWandTool::mouseMoveEvent(QGraphicsSceneMouseEvent* event)
 {
 	if (pressed_) {
 		guideLine_->setLine(QLineF(guideLine_->line().p1(), event->scenePos()));
-		rebuildSelection(QVector2D(event->scenePos() - start_).length() / maxToleranceScreenDistance_);
+		toolbar_->toleranceSlider->setValue(QVector2D(event->scenePos() - start_).length() / maxToleranceScreenDistance_);
 	}
 }
 
@@ -75,6 +89,13 @@ void MagicWandTool::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
 {
 	guideLine_->hide();
 	pressed_ = false;
+}
+
+void MagicWandTool::toleranceChanged(double tolerance)
+{
+	if (!selection_.isNull()) {
+		rebuildSelection(tolerance);
+	}
 }
 
 void MagicWandTool::rebuildSelection(double tolerance)

@@ -7,12 +7,14 @@
 
 class GuideLineItem;
 class Selection;
+class MagicWandToolBar;
 
 class MagicWandTool : public Tool
 {
 public:
 	MagicWandTool(QAction* action, SegmentationScene* scene, QObject *parent = 0);
 
+	QToolBar* toolbar() const override;
 	void clear() override;
 
 protected:
@@ -22,11 +24,15 @@ protected:
 	void mouseMoveEvent(QGraphicsSceneMouseEvent* event) override;
 	void mouseReleaseEvent(QGraphicsSceneMouseEvent* event) override;
 
+private slots:
+	void toleranceChanged(double tolerance);
+
 private:
 	void rebuildSelection(double tolerance);
 	void apply();
 
 private:
+	MagicWandToolBar* toolbar_;
 	double maxToleranceScreenDistance_;
 	bool pressed_;
 	QPointF start_;

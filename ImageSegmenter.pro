@@ -28,7 +28,9 @@ HEADERS += \
     src/Tool.h \
     src/PolygonTool.h \
     src/BrushTool.h \
-    src/MagicWandTool.h
+    src/MagicWandTool.h \
+    src/HandlessSlider.h \
+    src/MagicWandToolBar.h
 
 SOURCES += \
     src/Category.cpp \
@@ -54,7 +56,9 @@ SOURCES += \
     src/Tool.cpp \
     src/PolygonTool.cpp \
     src/BrushTool.cpp \
-    src/MagicWandTool.cpp
+    src/MagicWandTool.cpp \
+    src/HandlessSlider.cpp \
+    src/MagicWandToolBar.cpp
 
 FORMS += \
     ui/MainWindow.ui \

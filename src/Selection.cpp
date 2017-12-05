@@ -99,10 +99,10 @@ OutlineItem* Selection::outlineFromBoundary(const QVector<QPoint>& boundary, QIm
 	QVector<QPointF> outlineF;
 	outlineF.reserve(outline.size());
 	int c = outline.count() - 1;
-	const QPoint dir(0,1);
+	const QPoint up(0,1);
 	for (int i = 0; i < c; i++) {
 		outlineF << outline[i];
-		if ((outline[i] - outline[i+1]) == dir) {
+		if ((outline[i] - outline[i+1]) == up) {
 			auto& p = outline[i+1];
 			qLsbSet(map.scanLine(p.y()), p.x());
 		}

@@ -2,27 +2,16 @@
 #include <QPainter>
 #include <QMouseEvent>
 
-#define W 8
-
 Slider::Slider(QWidget *parent)
 	: QWidget(parent)
 	, pressed_(false)
 	, pos_(0)
-	, min_(0)
-	, max_(0)
 	, value_(0)
 {
 	setMouseTracking(true);
 }
 
-void Slider::setRange(int min, int max)
-{
-	min_ = min;
-	max_ = max;
-	setValue(value_);
-}
-
-void Slider::setValue(int value)
+void Slider::setValue(double value)
 {
 	auto v = boundValue(value);
 	if (v != value_) {
@@ -33,38 +22,54 @@ void Slider::setValue(int value)
 	}
 }
 
-void Slider::setGrooveColor(const QColor& grooveColor)
+void Slider::setGrooveColor(const QColor& color)
 {
-	if (grooveColor != grooveColor_) {
-		grooveColor_ = grooveColor;
+	if (color != grooveColor_) {
+		grooveColor_ = color;
 		update();
 	}
 }
 
-void Slider::setHandleColor(const QColor& handleColor)
+void Slider::setValueGrooveColor(const QColor& color)
 {
-	if (handleColor != handleColor_) {
-		handleColor_ = handleColor;
+	if (valueGrooveColor_ != color) {
+		valueGrooveColor_ = color;
+		update();
+	}
+}
+
+void Slider::setHandleColor(const QColor& color)
+{
+	if (color != handleColor_) {
+		handleColor_ = color;
 		update();
 	}
 }
 
 void Slider::paintEvent(QPaintEvent* event)
 {
-	auto r = contentsRect();
 	QPainter p(this);
 	p.setRenderHint(QPainter::Antialiasing);
+	paint(p);
+}
+
+void Slider::paint(QPainter& p)
+{
+	auto r = handleSpaceRect();
+	auto w = handleSize().width();
 	p.setPen(Qt::NoPen);
+	p.setBrush(valueGrooveColor_);
+	p.drawRect(r.left(), r.center().y(), pos_ - r.left(), 2);
 	p.setBrush(grooveColor_);
-	p.drawRect(r.left(), r.center().y(), r.width(), 2);
+	p.drawRect(pos_, r.center().y(), r.right() - pos_ + 1, 2);
 	p.setBrush(handleColor_.darker(underMouse() ? 200 : 100));
-	p.drawRoundedRect(pos_, r.top(), W, r.height(), W/2, W/2);
+	p.drawRoundedRect(pos_, r.top(), w, r.height(), w/2, w/2);
 }
 
 void Slider::mousePressEvent(QMouseEvent* event)
 {
 	if (!overHandle(event->pos())) {
-		pos_ = boundPos(event->pos().x() - W/2);
+		pos_ = boundPos(event->pos().x() - handleSize().width()/2);
 		updateValue();
 		update();
 	}
@@ -102,51 +107,58 @@ void Slider::resizeEvent(QResizeEvent* event)
 	updatePos();
 }
 
-int Slider::boundValue(int value) const
+double Slider::boundValue(double value) const
 {
-	return qBound(min_, value, max_);
+	return qBound(0., value, 1.);
 }
 
 int Slider::boundPos(int pos) const
 {
-	auto r = contentsRect().adjusted(0,0,-W+1,0);
+	auto r = handleSpaceRect().adjusted(0,0,-handleSize().width()+1,0);
 	return qBound(r.left(), pos, r.right());
 }
 
 void Slider::updateValue()
 {
-	auto r = contentsRect().adjusted(0,0,-W+1,0);
+	auto r = handleSpaceRect().adjusted(0,0,-handleSize().width()+1,0);
 	setValue(valueFromPos(pos_, r.left(), r.right()));
-}
-
-int Slider::valueFromPos(int pos, int minPos, int maxPos)
-{
-	if (pos == minPos) {
-		return min_;
-	} else if (pos == maxPos) {
-		return max_;
-	} else {
-		return minPos >= maxPos ? min_ :
-			(pos - minPos) * (max_ - min_) / (maxPos - minPos) + min_;
-	}
 }
 
 void Slider::updatePos()
 {
-	auto r = contentsRect().adjusted(0,0,-W+1,0);
+	auto r = handleSpaceRect().adjusted(0,0,-handleSize().width()+1,0);
 	pos_ = boundPos(posFromValue(value_, r.left(), r.right()));
 }
 
-int Slider::posFromValue(int value, int minPos, int maxPos)
+double Slider::valueFromPos(int pos, int minPos, int maxPos) const
 {
-	return min_ >= max_ ? minPos :
-		(value - min_) * (maxPos - minPos) / (max_ - min_) + minPos;
+	if (pos == minPos) {
+		return 0;
+	} else if (pos == maxPos) {
+		return 1;
+	} else {
+		return minPos >= maxPos ? 0 : double(pos - minPos) / (maxPos - minPos);
+	}
+}
+
+int Slider::posFromValue(double value, int minPos, int maxPos) const
+{
+	return value * (maxPos - minPos) + minPos;
+}
+
+QSize Slider::handleSize() const
+{
+	return QSize(8, contentsRect().height());
+}
+
+QRect Slider::handleSpaceRect() const
+{
+	return contentsRect();
 }
 
 bool Slider::overHandle(const QPoint& pos) const
 {
-	auto r = contentsRect();
-	return QRect(pos_, r.top(), W, r.height()).contains(pos);
+	return QRect(QPoint(pos_, handleSpaceRect().top()), handleSize()).contains(pos);
 }
 
 QSize Slider::sizeHint() const

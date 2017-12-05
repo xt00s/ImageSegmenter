@@ -8,15 +8,13 @@ class Slider : public QWidget
 	Q_OBJECT
 	Q_PROPERTY(QColor handleColor READ handleColor WRITE setHandleColor)
 	Q_PROPERTY(QColor grooveColor READ grooveColor WRITE setGrooveColor)
+	Q_PROPERTY(QColor valueGrooveColor READ valueGrooveColor WRITE setValueGrooveColor)
+
 public:
-	explicit Slider(QWidget *parent = 0);
+	Slider(QWidget *parent = 0);
 
-	void setRange(int min, int max);
-	int minimum() const;
-	int maximum() const;
-
-	void setValue(int value);
-	int value() const;
+	double value() const;
+	void setValue(double value);
 
 	QColor handleColor() const;
 	void setHandleColor(const QColor& handleColor);
@@ -24,14 +22,23 @@ public:
 	QColor grooveColor() const;
 	void setGrooveColor(const QColor& grooveColor);
 
+	QColor valueGrooveColor() const;
+	void setValueGrooveColor(const QColor& valueGrooveColor);
+
 	QSize sizeHint() const override;
 
 signals:
-	void valueChanged(int value);
+	void valueChanged(double value);
 
 protected:
-	virtual int valueFromPos(int pos, int minPos, int maxPos);
-	virtual int posFromValue(int value, int minPos, int maxPos);
+	int position() const;
+
+	virtual double valueFromPos(int pos, int minPos, int maxPos) const;
+	virtual int posFromValue(double value, int minPos, int maxPos) const;
+
+	virtual void paint(QPainter& p);
+	virtual QSize handleSize() const;
+	virtual QRect handleSpaceRect() const;
 
 protected:
 	void paintEvent(QPaintEvent *event) override;
@@ -43,7 +50,7 @@ protected:
 	void resizeEvent(QResizeEvent* event) override;
 
 private:
-	int boundValue(int value) const;
+	double boundValue(double value) const;
 	int boundPos(int pos) const;
 	void updateValue();
 	void updatePos();
@@ -52,19 +59,18 @@ private:
 private:
 	QColor handleColor_;
 	QColor grooveColor_;
+	QColor valueGrooveColor_;
 	QPoint pressedMousePos_;
 	bool pressed_;
 	int pressedPos_;
 	int pos_;
-	int min_;
-	int max_;
-	int value_;
+	double value_;
 };
 
-inline int Slider::minimum() const { return min_; }
-inline int Slider::maximum() const { return max_; }
-inline int Slider::value() const { return value_; }
 inline QColor Slider::handleColor() const { return handleColor_; }
 inline QColor Slider::grooveColor() const { return grooveColor_; }
+inline QColor Slider::valueGrooveColor() const { return valueGrooveColor_; }
+inline int Slider::position() const { return pos_; }
+inline double Slider::value() const { return value_; }
 
 #endif // SLIDER_H

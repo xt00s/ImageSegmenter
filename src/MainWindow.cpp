@@ -220,9 +220,8 @@ void MainWindow::setupOtherActions()
 	auto opacitySlider = new Slider(this);
 	opacitySlider->setObjectName("opacitySlider");
 	opacitySlider->setFixedSize(105, 18);
-	opacitySlider->setRange(0, 100);
-	opacitySlider->setValue(100);
-	connect(opacitySlider, &Slider::valueChanged, [this] (int value) { scene_.canvasItem()->setPixmapOpacity(double(value)/100); });
+	opacitySlider->setValue(1);
+	connect(opacitySlider, &Slider::valueChanged, [this] (double value) { scene_.canvasItem()->setPixmapOpacity(value); });
 
 	ui->toolBar->addWidget(spacer);
 	ui->toolBar->addAction(ui->actionShowImage);

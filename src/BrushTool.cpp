@@ -15,10 +15,14 @@ BrushTool::BrushTool(QAction* action, SegmentationScene* scene, QObject* parent)
 	brushCursorItem_->hide();
 	scene->addItem(brushCursorItem_);
 
-	auto toolbar = new BrushToolBar;
-	connect(toolbar->widthCombo, &QComboBox::currentTextChanged, this, &BrushTool::widthChanged);
-	brushCursorItem_->setWidth(toolbar->widthCombo->currentText().toInt());
-	toolbar_ = toolbar;
+	toolbar_ = new BrushToolBar;
+	connect(toolbar_->widthCombo, &QComboBox::currentTextChanged, this, &BrushTool::widthChanged);
+	brushCursorItem_->setWidth(toolbar_->widthCombo->currentText().toInt());
+}
+
+QToolBar* BrushTool::toolbar() const
+{
+	return toolbar_;
 }
 
 void BrushTool::clear()

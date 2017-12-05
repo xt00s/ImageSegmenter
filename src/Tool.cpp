@@ -6,7 +6,6 @@ Tool::Tool(QAction* action, SegmentationScene* scene, QObject *parent)
 	: QObject(parent)
 	, action_(action)
 	, scene_(scene)
-	, toolbar_(0)
 {
 	connect(action, &QAction::triggered, this, &Tool::actionTriggered);
 }

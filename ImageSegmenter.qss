@@ -19,8 +19,15 @@
 #zoomSlider {
     qproperty-handleColor: rgb(0, 99, 177);
     qproperty-grooveColor: rgb(30, 145, 234);
+    qproperty-valueGrooveColor: rgb(30, 145, 234);
 }
-#opacitySlider {
+#toolBar #opacitySlider {
     qproperty-handleColor: rgb(0, 99, 177);
-    qproperty-grooveColor: rgb(30, 145, 234);
+    qproperty-grooveColor: rgb(190, 190, 190);
+    qproperty-valueGrooveColor: rgb(30, 145, 234);
+}
+#magicWandToolbar #toleranceSlider {
+    qproperty-handleColor: rgb(0, 99, 177);
+    qproperty-grooveColor: rgb(255, 255, 255);
+    qproperty-valueGrooveColor: rgb(0, 99, 177);
 }

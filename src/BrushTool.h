@@ -5,12 +5,15 @@
 #include "GraphicsItems.h"
 #include <QCursor>
 
+class BrushToolBar;
+
 class BrushTool : public Tool
 {
 	Q_OBJECT
 public:
 	BrushTool(QAction* action, SegmentationScene* scene, QObject *parent = 0);
 
+	QToolBar* toolbar() const override;
 	void clear() override;
 
 protected:
@@ -25,6 +28,7 @@ private slots:
 	void widthChanged(const QString& width);
 
 private:
+	BrushToolBar* toolbar_;
 	bool pressed_;
 	QRect pressedRect_;
 	BrushCursorItem* brushCursorItem_;
