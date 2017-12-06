@@ -41,6 +41,7 @@ void MagicWandTool::clear()
 {
 	selection_.reset();
 	scene()->canvasItem()->setClipRegionVisible(true);
+	toolbar_->finishButton->setEnabled(false);
 }
 
 void MagicWandTool::onActivate()
@@ -127,5 +128,4 @@ void MagicWandTool::apply()
 		}
 	}
 	clear();
-	toolbar_->finishButton->setEnabled(false);
 }
