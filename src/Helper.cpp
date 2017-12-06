@@ -50,9 +50,6 @@ namespace help
 		QPixmap dark(pixmap.size());
 		dark.fill(Qt::transparent);
 		QPainter p(&dark);
-		p.setBackgroundMode(Qt::TransparentMode);
-		p.setBackground(QBrush(Qt::transparent));
-		p.eraseRect(pixmap.rect());
 		p.setOpacity(factor);
 		p.drawPixmap(0, 0, pixmap);
 		return dark;
