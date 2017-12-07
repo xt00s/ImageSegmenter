@@ -359,9 +359,6 @@
    <property name="text">
     <string>Brush</string>
    </property>
-   <property name="toolTip">
-    <string>Brush</string>
-   </property>
    <property name="shortcut">
     <string>B</string>
    </property>
@@ -375,9 +372,6 @@
      <normaloff>:/image/icons/image.svg</normaloff>:/image/icons/image.svg</iconset>
    </property>
    <property name="text">
-    <string>Show Image</string>
-   </property>
-   <property name="toolTip">
     <string>Show Image</string>
    </property>
    <property name="shortcut">
@@ -395,9 +389,6 @@
    <property name="text">
     <string>Grayscale Image</string>
    </property>
-   <property name="toolTip">
-    <string>Grayscale Image</string>
-   </property>
    <property name="shortcut">
     <string>G</string>
    </property>
@@ -410,9 +401,6 @@
    <property name="text">
     <string>About</string>
    </property>
-   <property name="toolTip">
-    <string>About</string>
-   </property>
   </action>
   <action name="actionShowSegmentationMask">
    <property name="checkable">
@@ -423,9 +411,6 @@
      <normaloff>:/image/icons/mask.svg</normaloff>:/image/icons/mask.svg</iconset>
    </property>
    <property name="text">
-    <string>Show Segmentation Mask</string>
-   </property>
-   <property name="toolTip">
     <string>Show Segmentation Mask</string>
    </property>
    <property name="shortcut">
@@ -441,9 +426,6 @@
      <normaloff>:/image/icons/magic-wand.svg</normaloff>:/image/icons/magic-wand.svg</iconset>
    </property>
    <property name="text">
-    <string>Magic Wand</string>
-   </property>
-   <property name="toolTip">
     <string>Magic Wand</string>
    </property>
    <property name="shortcut">

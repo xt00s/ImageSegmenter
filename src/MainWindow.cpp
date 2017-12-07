@@ -228,6 +228,9 @@ void MainWindow::setupTooltips()
 		if (!qobject_cast<QWidgetAction*>(a) && !a->isSeparator()) {
 			auto shortcuts = a->shortcuts();
 			auto tooltip = a->toolTip();
+			if (tooltip.isEmpty()) {
+				tooltip = a->text();
+			}
 			if (!shortcuts.empty() && !tooltip.isEmpty()) {
 				if (!tooltip[tooltip.count()-1].isSpace()) {
 					tooltip += ' ';
@@ -238,8 +241,8 @@ void MainWindow::setupTooltips()
 					}
 					tooltip += R"(<font color="#909090">)" + shortcuts[i].toString() + "</font>";
 				}
-				a->setToolTip(tooltip);
 			}
+			a->setToolTip(tooltip);
 		}
 	}
 }
