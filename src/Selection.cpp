@@ -39,10 +39,10 @@ void Selection::setArea(const QImage& bmp)
 	qDeleteAll(outlines_);
 	outlines_.clear();
 	outlineAnimation_.stop();
-	initOulines();
 	if (highlightVisible_) {
 		initHighlight();
 	}
+	initOulines();
 	if (visible_ && !outlines_.empty()) {
 		outlineAnimation_.start();
 	}
