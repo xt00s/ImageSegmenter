@@ -16,6 +16,7 @@
 #include <QImageWriter>
 #include <QSettings>
 #include <QDir>
+#include <QWidgetAction>
 
 #ifndef NO_VERSION_HEADER
 #include "version.h"
@@ -87,6 +88,7 @@ void MainWindow::setup()
 	setupUndoRedo();
 	setupOtherActions();
 	setupStyle();
+	setupTooltips();
 	QApplication::setOrganizationName("Ruslan Rumiantsau");
 	QApplication::setApplicationName(windowTitle());
 	QApplication::setApplicationVersion(BUILD_NUMBER);
@@ -218,6 +220,28 @@ void MainWindow::setupOtherActions()
 	ui->toolBar->addWidget(opacitySlider);
 	ui->toolBar->addSeparator();
 	ui->toolBar->addAction(ui->actionAbout);
+}
+
+void MainWindow::setupTooltips()
+{
+	for (auto& a : findChildren<QAction*>()) {
+		if (!qobject_cast<QWidgetAction*>(a) && !a->isSeparator()) {
+			auto shortcuts = a->shortcuts();
+			auto tooltip = a->toolTip();
+			if (!shortcuts.empty() && !tooltip.isEmpty()) {
+				if (!tooltip[tooltip.count()-1].isSpace()) {
+					tooltip += ' ';
+				}
+				for (int i = 0; i < shortcuts.count(); i++) {
+					if (i) {
+						tooltip += " or ";
+					}
+					tooltip += R"(<font color="#909090">)" + shortcuts[i].toString() + "</font>";
+				}
+				a->setToolTip(tooltip);
+			}
+		}
+	}
 }
 
 void MainWindow::updateSizeLabel()

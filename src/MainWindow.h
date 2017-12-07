@@ -36,6 +36,7 @@ private:
 	void setupTools();
 	void setupUndoRedo();
 	void setupOtherActions();
+	void setupTooltips();
 	void updateSizeLabel();
 	void updateTitle();
 	void updateZoomFromView();
