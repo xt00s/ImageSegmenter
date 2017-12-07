@@ -10,7 +10,6 @@
 #include <QFile>
 #include <QTextStream>
 #include <QDebug>
-//#include <QTimer>
 #include <QMessageBox>
 #include <QFileInfo>
 #include <QImageReader>
@@ -57,10 +56,6 @@ MainWindow::MainWindow(QWidget *parent)
 	imageSelected(QString());
 	ui->imageList->setEnabled(false);
 
-//	QTimer::singleShot(0, [this]
-//	{
-//		open(R"(d:\projects2\ImageSegmenter\extra\eye_scheme.json)", R"(d:\down\testdb\faces)", R"(d:\down\testdb\faces\output)");
-//	});
 	restoreSettings();
 }
 
