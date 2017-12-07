@@ -124,12 +124,15 @@ void MainWindow::setupStatusBar()
 
 	auto progressImage = new QLabel(this);
 	progressImage->setPixmap(QIcon(":/image/icons/progress.svg").pixmap(16,16));
+	progressImage->setToolTip("Segmentation progress");
 
 	auto sizeImage = new QLabel(this);
 	sizeImage->setPixmap(QIcon(":/image/icons/image-size.svg").pixmap(16,16));
+	sizeImage->setToolTip("Image size");
 
 	auto posImage = new QLabel(this);
 	posImage->setPixmap(QIcon(":/image/icons/position.svg").pixmap(16,16));
+	posImage->setToolTip("Image position");
 
 	progressLabel_ = new QLabel(this);
 	progressLabel_->setFixedWidth(150);
