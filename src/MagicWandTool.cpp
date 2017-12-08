@@ -106,12 +106,16 @@ void MagicWandTool::toleranceChanged(double tolerance)
 void MagicWandTool::rebuildSelection(double tolerance)
 {
 	auto image = scene()->canvasItem()->pixmap().toImage();
-	auto maxD2 = qRound(3*255*255 * tolerance);
 	auto rgb = image.pixel(pixmapStartPos_);
-	int sr = qRed(rgb), sg = qGreen(rgb), sb = qBlue(rgb);
+	auto r = qRed(rgb), g = qGreen(rgb), b = qBlue(rgb);
 
-	auto bmp = help::flood(image, pixmapStartPos_, [sr,sg,sb,maxD2](QRgb rgb){
-			int dr = sr-qRed(rgb), dg = sg-qGreen(rgb), db = sb-qBlue(rgb);
+	auto rd = r > 127 ? r : 255-r;
+	auto gd = g > 127 ? g : 255-g;
+	auto bd = b > 127 ? b : 255-b;
+	auto maxD2 = qRound((rd*rd + gd*gd + bd*bd) * tolerance);
+
+	auto bmp = help::flood(image, pixmapStartPos_, [r,g,b,maxD2](QRgb rgb){
+			int dr = r-qRed(rgb), dg = g-qGreen(rgb), db = b-qBlue(rgb);
 			return dr*dr + dg*dg + db*db <= maxD2;
 	});
 	selection_.reset(new Selection(bmp, true, scene(), this));
