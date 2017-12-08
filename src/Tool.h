@@ -32,6 +32,7 @@ protected:
 	virtual void onActivate() = 0;
 	virtual void onDeactivate();
 	virtual void keyPressEvent(QKeyEvent *event) {}
+	virtual void keyReleaseEvent(QKeyEvent *event) {}
 	virtual void mousePressEvent(QGraphicsSceneMouseEvent *event) {}
 	virtual void mouseMoveEvent(QGraphicsSceneMouseEvent *event) {}
 	virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *event) {}

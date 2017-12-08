@@ -20,6 +20,7 @@ public:
 protected:
 	void onActivate() override;
 	void keyPressEvent(QKeyEvent* event) override;
+	void keyReleaseEvent(QKeyEvent* event) override;
 	void mousePressEvent(QGraphicsSceneMouseEvent* event) override;
 	void mouseMoveEvent(QGraphicsSceneMouseEvent* event) override;
 	void mouseReleaseEvent(QGraphicsSceneMouseEvent* event) override;
@@ -30,12 +31,15 @@ private slots:
 private:
 	void rebuildSelection(double tolerance);
 	void apply();
+	void updateTolerance();
 
 private:
 	MagicWandToolBar* toolbar_;
 	double maxToleranceScreenDistance_;
+	double toleranceFactor_;
 	bool pressed_;
 	QPointF start_;
+	QPointF last_;
 	QPoint pixmapStartPos_;
 	QScopedPointer<Selection> selection_;
 	GuideLineItem* guideLine_;

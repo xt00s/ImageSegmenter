@@ -18,6 +18,7 @@
 MagicWandTool::MagicWandTool(QAction* action, SegmentationScene* scene, QObject* parent)
 	: Tool(action, scene, parent)
 	, pressed_(false)
+	, toleranceFactor_(1)
 {
 	auto screenSize = QApplication::primaryScreen()->size();
 	maxToleranceScreenDistance_ = qMin(screenSize.width(), screenSize.height()) * 0.9;
@@ -58,6 +59,24 @@ void MagicWandTool::keyPressEvent(QKeyEvent* event)
 	case Qt::Key_Escape:
 		clear();
 		break;
+	case Qt::Key_Shift:
+		toleranceFactor_ = 2;
+		if (pressed_) {
+			updateTolerance();
+		}
+		break;
+	}
+}
+
+void MagicWandTool::keyReleaseEvent(QKeyEvent* event)
+{
+	switch (event->key()) {
+	case Qt::Key_Shift:
+		toleranceFactor_ = 1;
+		if (pressed_) {
+			updateTolerance();
+		}
+		break;
 	}
 }
 
@@ -68,16 +87,12 @@ void MagicWandTool::mousePressEvent(QGraphicsSceneMouseEvent* event)
 	}
 	pixmapStartPos_ = scene()->pixmapPosFromScene(event->scenePos());
 	if (scene()->canvasItem()->pixmapRect().contains(pixmapStartPos_)) {
-		start_ = event->scenePos();
+		last_ = start_ = event->scenePos();
 		scene()->canvasItem()->setClipRegionVisible(false);
-		rebuildSelection(0);
 		guideLine_->show();
 		guideLine_->setLine(QLineF(event->scenePos(), event->scenePos()));
 		pressed_ = true;
-
-		disconnect(toolbar_->toleranceSlider, &Slider::valueChanged, this, &MagicWandTool::toleranceChanged);
 		toolbar_->toleranceSlider->setValue(0);
-		connect(toolbar_->toleranceSlider, &Slider::valueChanged, this, &MagicWandTool::toleranceChanged);
 		toolbar_->finishButton->setEnabled(true);
 	}
 }
@@ -86,7 +101,8 @@ void MagicWandTool::mouseMoveEvent(QGraphicsSceneMouseEvent* event)
 {
 	if (pressed_) {
 		guideLine_->setLine(QLineF(guideLine_->line().p1(), event->scenePos()));
-		toolbar_->toleranceSlider->setValue(QVector2D(event->scenePos() - start_).length() / maxToleranceScreenDistance_);
+		last_ = event->scenePos();
+		updateTolerance();
 	}
 }
 
@@ -98,7 +114,7 @@ void MagicWandTool::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
 
 void MagicWandTool::toleranceChanged(double tolerance)
 {
-	if (!selection_.isNull()) {
+	if (pressed_) {
 		rebuildSelection(tolerance);
 	}
 }
@@ -132,4 +148,10 @@ void MagicWandTool::apply()
 		}
 	}
 	clear();
+}
+
+void MagicWandTool::updateTolerance()
+{
+	auto tolerance = QVector2D(last_ - start_).length() / maxToleranceScreenDistance_ * toleranceFactor_;
+	toolbar_->toleranceSlider->setValue(tolerance);
 }

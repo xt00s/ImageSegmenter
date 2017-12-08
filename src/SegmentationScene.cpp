@@ -61,6 +61,14 @@ void SegmentationScene::keyPressEvent(QKeyEvent *event)
 	}
 }
 
+void SegmentationScene::keyReleaseEvent(QKeyEvent* event)
+{
+	QGraphicsScene::keyReleaseEvent(event);
+	if (!event->isAccepted() && tool_) {
+		tool_->keyReleaseEvent(event);
+	}
+}
+
 void SegmentationScene::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
 	QGraphicsScene::mousePressEvent(event);
