@@ -39,6 +39,8 @@ namespace help
 
 	int scanBitForward(quint64 v);
 	int scanBitReverse(quint64 v);
+
+	std::function<QRgb(const uchar*,int,int)> pixelReader(const QImage& image);
 }
 
 #endif // QTHELP_H

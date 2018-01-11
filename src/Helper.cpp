@@ -239,19 +239,6 @@ namespace help
 		QImage bmp(sz, QImage::Format_MonoLSB);
 		bmp.fill(0);
 
-		std::function<QRgb(const uchar*,int,int)> getPixel;
-		switch (src.format()) {
-		case QImage::Format_RGB32:
-			getPixel = [](const uchar* sl, int x, int) -> QRgb { return 0xff000000 | reinterpret_cast<const QRgb*>(sl)[x]; };
-			break;
-		case QImage::Format_ARGB32:
-		case QImage::Format_ARGB32_Premultiplied:
-			getPixel = [](const uchar* sl, int x, int) -> QRgb { return reinterpret_cast<const QRgb*>(sl)[x]; };
-			break;
-		default:
-			getPixel = [&src](const uchar*, int x, int y) -> QRgb { return src.pixel(x, y); };
-		}
-
 		struct Range {
 			int x;
 			int y;
@@ -259,6 +246,8 @@ namespace help
 			int dir;
 		};
 		QVector<Range> ranges(1, {start.x(), start.y(), sz.width(), 0});
+
+		auto getPixel = pixelReader(src);
 
 		while (!ranges.empty()) {
 			auto r = ranges.takeFirst();
@@ -326,20 +315,14 @@ namespace help
 		auto sz = bmp.size();
 		auto bitsInBlock = sizeof(quint64) * 8;
 		int blocks = sz.width() / bitsInBlock;
-		int l = sz.width(), r = -1, t = -1, b = -1, lb = blocks-1, rb = 0;
-		quint64 lastBlockMask = (1 << (sz.width() % bitsInBlock)) - 1;
+		int l = sz.width(), r = -1, t = -1, b = -1;
+		quint64 lastBlockMask = (quint64(1) << (sz.width() % bitsInBlock)) - 1;
 
-		for (int y = 0, i,j; y < sz.height(); y++) {
+		for (int y = 0, i; y < sz.height(); y++) {
 			auto sl = reinterpret_cast<const quint64*>(bmp.scanLine(y));
-			for (i = 0; i <= lb && !sl[i]; i++);
+			for (i = 0; i < blocks && !sl[i]; i++);
 
-			j = -1;
-			if (i <= lb) {
-				j = scanBitForward(sl[i]);
-				lb = i;
-			} else if (i == blocks) {
-				j = scanBitForward(sl[blocks] & lastBlockMask);
-			}
+			auto j = scanBitForward(sl[i] & (i < blocks ? quint64(-1) : lastBlockMask));
 			if (j < 0) {
 				continue;
 			}
@@ -352,17 +335,12 @@ namespace help
 			}
 			j = scanBitReverse(sl[i = blocks] & lastBlockMask);
 			if (j < 0) {
-				for (i = blocks-1; i >= rb && !sl[i]; i--);
-				if (i >= rb) {
-					j = scanBitReverse(sl[i]);
-					rb = i;
-				}
+				for (i = blocks-1; !sl[i]; i--);
+				j = scanBitReverse(sl[i]);
 			}
-			if (j >= 0) {
-				int newR = i * bitsInBlock + j;
-				if (newR > r) {
-					r = newR;
-				}
+			int newR = i * bitsInBlock + j;
+			if (newR > r) {
+				r = newR;
 			}
 			if (y > b) {
 				b = y;
@@ -405,6 +383,21 @@ namespace help
 		for (i = 0; v; v>>=1, i++);
 		return i-1;
 #endif
+	}
+
+	std::function<QRgb(const uchar*,int,int)> pixelReader(const QImage& image)
+	{
+		switch (image.format()) {
+		case QImage::Format_RGB32:
+			return [](const uchar* sl, int x, int) -> QRgb { return 0xff000000 | reinterpret_cast<const QRgb*>(sl)[x]; };
+			break;
+		case QImage::Format_ARGB32:
+		case QImage::Format_ARGB32_Premultiplied:
+			return [](const uchar* sl, int x, int) -> QRgb { return reinterpret_cast<const QRgb*>(sl)[x]; };
+			break;
+		default:
+			return [&image](const uchar*, int x, int y) -> QRgb { return image.pixel(x, y); };
+		}
 	}
 
 }
