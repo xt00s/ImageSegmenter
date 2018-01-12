@@ -61,6 +61,13 @@ Bitmap::Bitmap(const QPoint& topLeft, const QImage& bmp)
 void Bitmap::draw(QPainter& painter, const QColor& color) const
 {
 	bmp_.setColor(0, QColor(Qt::transparent).rgba());
-	bmp_.setColor(1, color.rgba());
-	painter.drawImage(topLeft_, bmp_);
+	if (color == Qt::transparent && painter.compositionMode() == QPainter::CompositionMode_Source) {
+		bmp_.setColor(1, QColor(Qt::white).rgba());
+		painter.setCompositionMode(QPainter::CompositionMode_DestinationOut);
+		painter.drawImage(topLeft_, bmp_);
+		painter.setCompositionMode(QPainter::CompositionMode_Source);
+	} else {
+		bmp_.setColor(1, color.rgba());
+		painter.drawImage(topLeft_, bmp_);
+	}
 }
