@@ -27,11 +27,12 @@ bool SegmentationView::eventFilter(QObject* watched, QEvent* event)
 			}
 		case QEvent::MouseButtonPress: {
 				auto mouseEvent = static_cast<QMouseEvent*>(event);
-				if (mouseEvent->button() == Qt::RightButton) {
+				if (mouseEvent->button() == Qt::RightButton && QApplication::keyboardModifiers() & Qt::ControlModifier) {
 					panningPos_ = mouseEvent->globalPos();
 					panning_ = true;
 					lastCursor_ = viewport()->cursor();
 					viewport()->setCursor(Qt::ClosedHandCursor);
+					return true;
 				}
 				break;
 			}
@@ -40,6 +41,7 @@ bool SegmentationView::eventFilter(QObject* watched, QEvent* event)
 				if (panning_ && mouseEvent->button() == Qt::RightButton) {
 					panning_ = false;
 					viewport()->setCursor(lastCursor_);
+					return true;
 				}
 				break;
 			}
@@ -50,6 +52,7 @@ bool SegmentationView::eventFilter(QObject* watched, QEvent* event)
 					panningPos_ = mouseEvent->globalPos();
 					horizontalScrollBar()->setValue(horizontalScrollBar()->value() + d.x());
 					verticalScrollBar()->setValue(verticalScrollBar()->value() + d.y());
+					return true;
 				}
 				break;
 			}

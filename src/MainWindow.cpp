@@ -5,6 +5,7 @@
 #include "PolygonTool.h"
 #include "BrushTool.h"
 #include "MagicWandTool.h"
+#include "SegmentingPencilTool.h"
 #include "Helper.h"
 #include <QApplication>
 #include <QFile>
@@ -170,6 +171,7 @@ void MainWindow::setupTools()
 	tools_ << new PolygonTool(ui->actionPolygon, &scene_, this);
 	tools_ << new BrushTool(ui->actionBrush, &scene_, this);
 	tools_ << new MagicWandTool(ui->actionMagicWand, &scene_, this);
+	tools_ << new SegmentingPencilTool(ui->actionSegmentingPencil, &scene_, this);
 
 	for (auto& t : tools_) {
 		if (t->toolbar()) {
@@ -337,6 +339,7 @@ void MainWindow::imageSelected(const QString &imagePath)
 		}
 	}
 	scene_.canvasItem()->setPixmap(QPixmap::fromImage(image), QPixmap::fromImage(mask));
+	scene_.overlayItem()->setSize(image.size());
 	if (scene_.tool()) {
 		scene_.tool()->clear();
 	}

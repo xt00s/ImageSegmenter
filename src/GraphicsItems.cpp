@@ -313,6 +313,94 @@ void CanvasItem::setPixmapOpacity(double opacity)
 
 //-----------------------------------------------------------------------------------
 
+OverlayItem::OverlayItem(QGraphicsItem* parent)
+	: QGraphicsItem(parent)
+{
+}
+
+void OverlayItem::setSize(const QSize& size)
+{
+	prepareGeometryChange();
+	if (pixmap_.size() != size) {
+		pixmap_ = QPixmap(size);
+		shape_ = QPainterPath();
+		shape_.addRect(QRectF(QPointF(), size));
+	}
+	pixmap_.fill(Qt::transparent);
+}
+
+void OverlayItem::beginDrawing()
+{
+	drawingRect_ = QRect();
+	pixmapCopy_ = pixmap_.copy();
+}
+
+void OverlayItem::draw(const Drawable& shape, const QColor& color)
+{
+	QPainter p(&pixmap_);
+	p.setRenderHint(QPainter::Antialiasing, false);
+	shape.draw(p, color);
+	drawingRect_ |= shape.rect();
+	update(shape.rect());
+}
+
+void OverlayItem::endDrawing()
+{
+	if (drawingRect_.isEmpty()) {
+		return;
+	}
+	undoStack_ << qMakePair(drawingRect_.topLeft(), pixmapCopy_.copy(drawingRect_));
+	pixmapCopy_ = QPixmap();
+	drawingRect_ = QRect();
+}
+
+void OverlayItem::undo()
+{
+	if (undoStack_.empty()) {
+		return;
+	}
+	auto& last = undoStack_.last();
+	QPainter p(&pixmap_);
+	p.setCompositionMode(QPainter::CompositionMode_Source);
+	p.drawPixmap(last.first, last.second);
+	update(QRect(last.first, last.second.size()));
+	undoStack_.removeLast();
+}
+
+void OverlayItem::clear()
+{
+	if (undoStack_.empty()) {
+		return;
+	}
+	for (auto& c : undoStack_) {
+		update(QRect(c.first, c.second.size()));
+	}
+	undoStack_.clear();
+	pixmap_.fill(Qt::transparent);
+}
+
+QRectF OverlayItem::boundingRect() const
+{
+	return QRectF(QPointF(), pixmap_.size());
+}
+
+QPainterPath OverlayItem::shape() const
+{
+	return shape_;
+}
+
+QPainterPath OverlayItem::opaqueArea() const
+{
+	return shape();
+}
+
+void OverlayItem::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget)
+{
+	painter->drawPixmap(QPointF(), pixmap_);
+}
+
+//-----------------------------------------------------------------------------------
+
 PolylineItem::PolylineItem(QGraphicsItem* parent)
 	: QGraphicsItem(parent)
 	, darkPen_(QColor(60, 60, 60), 1.7, Qt::DashLine)

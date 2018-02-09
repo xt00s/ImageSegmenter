@@ -4,6 +4,7 @@
 #include <QFileInfo>
 #include <QDir>
 #include <QRegularExpression>
+#include "graph.h"
 
 namespace help
 {
@@ -347,6 +348,63 @@ namespace help
 			}
 		}
 		return l < sz.width() ? QRect(QPoint(l,t), QPoint(r,b)) : QRect();
+	}
+
+	typedef Graph<double,double,double> GraphD;
+
+	QImage segmentIGC(const QImage& src, const QImage& seedMask, const QColor& fColor, const QColor& bColor, double sigma)
+	{
+		auto srcPixel = help::pixelReader(src), seedPixel = help::pixelReader(seedMask);
+		auto frgb = fColor.rgb(), brgb = bColor.rgb();
+		auto s2 = -2 * sigma * sigma;
+		auto weight = [s2](QRgb c1, QRgb c2) {
+			auto dr = qRed(c1)-qRed(c2);
+			auto dg = qGreen(c1)-qGreen(c2);
+			auto db = qBlue(c1)-qBlue(c2);
+			return exp(double(dr * dr + dg * dg + db * db) / s2);
+		};
+		auto S = src.size();
+		auto nodes = S.width() * S.height();
+		GraphD graph(nodes, nodes * 2);
+
+		graph.add_node(nodes);
+		for (int y = 0, i = 0; y < S.height(); y++) {
+			auto seedSL = seedMask.scanLine(y);
+			auto srcSL = src.scanLine(y), srcSL2 = y+1 < S.height() ? src.scanLine(y+1) : 0;
+			for (int x = 0; x < S.width(); x++, i++) {
+				auto seedRgb = seedPixel(seedSL, x, y);
+				auto srcRgb = srcPixel(srcSL,x, y);
+
+				if (seedRgb == frgb) {
+					graph.add_tweights(i, 5, 0);
+				} else if (seedRgb == brgb) {
+					graph.add_tweights(i, 0, 5);
+				} else {
+					graph.add_tweights(i, 0, 0);
+				}
+				if (x+1 < S.width()) {
+					auto w  = weight(srcRgb, srcPixel(srcSL,x+1,y));
+					graph.add_edge(i, i+1, w, w);
+				}
+				if (y+1 < S.height()) {
+					auto w  = weight(srcRgb, srcPixel(srcSL2,x,y+1));
+					graph.add_edge(i, i+S.width(), w, w);
+				}
+			}
+		}
+		graph.maxflow();
+
+		QImage bmp(S, QImage::Format_MonoLSB);
+		bmp.fill(0);
+		for (int y = 0, i = 0; y < S.height(); y++) {
+			auto sl = bmp.scanLine(y);
+			for (int x = 0; x < S.width(); x++, i++) {
+				if (graph.what_segment(i) == GraphD::SOURCE) {
+					qLsbSet(sl, x);
+				}
+			}
+		}
+		return bmp;
 	}
 
 	int scanBitForward(quint64 v)

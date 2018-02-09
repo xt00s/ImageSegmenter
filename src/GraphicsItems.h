@@ -100,6 +100,36 @@ inline bool CanvasItem::isPixmapVisible() const { return pixmapVisible_; }
 inline bool CanvasItem::isMaskVisible() const { return maskVisible_; }
 inline double CanvasItem::pixmapOpacity() const { return pixmapOpacity_; }
 
+class OverlayItem : public QGraphicsItem
+{
+public:
+	OverlayItem(QGraphicsItem* parent = 0);
+
+	void setSize(const QSize& size);
+
+	QPixmap pixmap() const;
+
+	void beginDrawing();
+	void endDrawing();
+	void draw(const Drawable& shape, const QColor& color);
+	void undo();
+	void clear();
+
+	QRectF boundingRect() const override;
+	QPainterPath shape() const override;
+	QPainterPath opaqueArea() const override;
+	void paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget) override;
+
+private:
+	QPixmap pixmap_;
+	QPixmap pixmapCopy_;
+	QPainterPath shape_;
+	QList<QPair<QPoint, QPixmap>> undoStack_;
+	QRect drawingRect_;
+};
+
+inline QPixmap OverlayItem::pixmap() const { return pixmap_; }
+
 class PolylineItem : public QGraphicsItem
 {
 public:

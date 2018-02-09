@@ -68,6 +68,9 @@ void Slider::paint(QPainter& p)
 
 void Slider::mousePressEvent(QMouseEvent* event)
 {
+	if (pressed_ || event->button() != Qt::LeftButton) {
+		return;
+	}
 	if (!overHandle(event->pos())) {
 		pos_ = boundPos(event->pos().x() - handleSize().width()/2);
 		updateValue();
@@ -80,7 +83,9 @@ void Slider::mousePressEvent(QMouseEvent* event)
 
 void Slider::mouseReleaseEvent(QMouseEvent* event)
 {
-	pressed_ = false;
+	if (event->button() == Qt::LeftButton) {
+		pressed_ = false;
+	}
 }
 
 void Slider::mouseMoveEvent(QMouseEvent* event)

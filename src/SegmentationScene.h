@@ -5,6 +5,7 @@
 
 class QUndoCommand;
 class CanvasItem;
+class OverlayItem;
 class Tool;
 
 class SegmentationScene : public QGraphicsScene
@@ -17,6 +18,7 @@ public:
 	void updateSceneRect();
 
 	CanvasItem* canvasItem() const;
+	OverlayItem* overlayItem() const;
 	Tool* tool() const;
 
 	QPoint pixmapPosFromScene(const QPointF& scenePos) const;
@@ -38,10 +40,12 @@ protected:
 private:
 	friend class Tool;
 	CanvasItem* canvasItem_;
+	OverlayItem* overlayItem_;
 	Tool* tool_;
 };
 
 inline CanvasItem* SegmentationScene::canvasItem() const { return canvasItem_; }
+inline OverlayItem*SegmentationScene::overlayItem() const { return overlayItem_; }
 inline Tool* SegmentationScene::tool() const { return tool_; }
 
 #endif // SEGMENTATIONSCENE_H

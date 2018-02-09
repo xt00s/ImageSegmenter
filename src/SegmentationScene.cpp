@@ -13,7 +13,11 @@ SegmentationScene::SegmentationScene(QObject *parent)
 {
 	canvasItem_ = new CanvasItem;
 	canvasItem_->setFlag(QGraphicsItem::ItemClipsChildrenToShape);
+	overlayItem_ = new OverlayItem;
+	overlayItem_->hide();
+	overlayItem_->setZValue(1000);
 	addItem(canvasItem_);
+	addItem(overlayItem_);
 }
 
 void SegmentationScene::setup()

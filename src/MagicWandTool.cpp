@@ -92,6 +92,9 @@ void MagicWandTool::mousePressEvent(QGraphicsSceneMouseEvent* event)
 		guideLine_->show();
 		guideLine_->setLine(QLineF(event->scenePos(), event->scenePos()));
 		pressed_ = true;
+		if (!toolbar_->toleranceSlider->value()) {
+			rebuildSelection(0);
+		}
 		toolbar_->toleranceSlider->setValue(0);
 		toolbar_->finishButton->setEnabled(true);
 	}
@@ -108,13 +111,15 @@ void MagicWandTool::mouseMoveEvent(QGraphicsSceneMouseEvent* event)
 
 void MagicWandTool::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
 {
-	guideLine_->hide();
-	pressed_ = false;
+	if (event->button() == Qt::LeftButton) {
+		guideLine_->hide();
+		pressed_ = false;
+	}
 }
 
 void MagicWandTool::toleranceChanged(double tolerance)
 {
-	if (pressed_) {
+	if (pressed_ || !selection_.isNull()) {
 		rebuildSelection(tolerance);
 	}
 }
@@ -130,7 +135,7 @@ void MagicWandTool::rebuildSelection(double tolerance)
 	auto bd = b > 127 ? b : 255-b;
 	auto maxD2 = qRound((rd*rd + gd*gd + bd*bd) * tolerance);
 
-	auto bmp = help::flood(image, pixmapStartPos_, [r,g,b,maxD2](QRgb rgb){
+	auto bmp = help::flood(image, pixmapStartPos_, [r,g,b,maxD2](QRgb rgb) {
 			int dr = r-qRed(rgb), dg = g-qGreen(rgb), db = b-qBlue(rgb);
 			return dr*dr + dg*dg + db*db <= maxD2;
 	});

@@ -71,9 +71,9 @@ void BrushTool::mouseMoveEvent(QGraphicsSceneMouseEvent* event)
 	brushCursorItem_->setPos(event->scenePos());
 }
 
-void BrushTool::mouseReleaseEvent(QGraphicsSceneMouseEvent*)
+void BrushTool::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
 {
-	if (pressed_) {
+	if (pressed_ && event->button() == Qt::LeftButton) {
 		if (brushCursorItem_->isVisible()) {
 			emit scene()->newCommand(new DrawFragmentCommand(scene()->canvasItem(), canvasCopy_->extract(pressedRect_)));
 			canvasCopy_.reset();

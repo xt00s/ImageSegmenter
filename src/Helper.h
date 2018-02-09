@@ -37,6 +37,8 @@ namespace help
 	QImage flood(const QImage& src, const QPoint& start, const std::function<bool(QRgb)>& test);
 	QRect filledRect(const QImage& bmp);
 
+	QImage segmentIGC(const QImage& src, const QImage& seedMask, const QColor& fColor, const QColor& bColor, double sigma);
+
 	int scanBitForward(quint64 v);
 	int scanBitReverse(quint64 v);
 

@@ -270,6 +270,7 @@
    <addaction name="actionPolygon"/>
    <addaction name="actionBrush"/>
    <addaction name="actionMagicWand"/>
+   <addaction name="actionSegmentingPencil"/>
   </widget>
   <widget class="QStatusBar" name="statusBar">
    <property name="minimumSize">
@@ -430,6 +431,24 @@
    </property>
    <property name="shortcut">
     <string>W</string>
+   </property>
+  </action>
+  <action name="actionSegmentingPencil">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../ImageSegmenter.qrc">
+     <normaloff>:/image/icons/segmenting-pencil.svg</normaloff>:/image/icons/segmenting-pencil.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Segmenting Pencil</string>
+   </property>
+   <property name="toolTip">
+    <string>Segmenting Pencil</string>
+   </property>
+   <property name="shortcut">
+    <string>E</string>
    </property>
   </action>
  </widget>

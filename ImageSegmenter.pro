@@ -29,7 +29,9 @@ HEADERS += \
     src/BrushTool.h \
     src/MagicWandTool.h \
     src/HandlessSlider.h \
-    src/MagicWandToolBar.h
+    src/MagicWandToolBar.h \
+    src/SegmentingPencilTool.h \
+    src/SegmentingPencilToolBar.h
 
 SOURCES += \
     src/Category.cpp \
@@ -56,7 +58,9 @@ SOURCES += \
     src/BrushTool.cpp \
     src/MagicWandTool.cpp \
     src/HandlessSlider.cpp \
-    src/MagicWandToolBar.cpp
+    src/MagicWandToolBar.cpp \
+    src/SegmentingPencilTool.cpp \
+    src/SegmentingPencilToolBar.cpp
 
 FORMS += \
     ui/MainWindow.ui \
@@ -72,6 +76,8 @@ DISTFILES += \
 
 win32:RC_FILE = ImageSegmenter.rc
 win32:QMAKE_CXXFLAGS_WARN_ON -= -w34100
+
+include(lib/maxflow/maxflow.pri)
 
 !exists(version.h) {
     DEFINES += NO_VERSION_HEADER

@@ -29,5 +29,6 @@
         <file>icons/magic-wand.svg</file>
         <file>icons/progress.svg</file>
         <file>icons/check.svg</file>
+        <file>icons/segmenting-pencil.svg</file>
     </qresource>
 </RCC>
