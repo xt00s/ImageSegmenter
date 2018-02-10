@@ -66,7 +66,7 @@ void BrushToolBar::incWidth()
             auto inc = QApplication::keyboardModifiers() & Qt::ControlModifier ? 5 : 1;
             widthCombo->setCurrentText(QString::number(qMin(v + inc, 1000)));
         }
-	}
+    }
 }
 
 void BrushToolBar::decWidth()
@@ -84,5 +84,5 @@ void BrushToolBar::decWidth()
             auto inc = QApplication::keyboardModifiers() & Qt::ControlModifier ? 5 : 1;
             widthCombo->setCurrentText(QString::number(qMax(v - inc, 1)));
         }
-	}
+    }
 }

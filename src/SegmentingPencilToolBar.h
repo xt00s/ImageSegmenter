@@ -15,6 +15,8 @@ public:
 
 	QLabel* bandwidthLabel;
 	QDoubleSpinBox* bandwidthSpinBox;
+	QAction* actionIncreaseBandwidth;
+	QAction* actionDecreaseBandwidth;
 	QToolButton* finishButton;
 };
 

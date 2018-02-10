@@ -19,8 +19,8 @@ SegmentingPencilTool::SegmentingPencilTool(QAction* action, SegmentationScene* s
 	toolbar_ = new SegmentingPencilToolBar;
 	toolbar_->bandwidthSpinBox->setValue(20);
 	toolbar_->finishButton->setEnabled(false);
-	connect(toolbar_->bandwidthSpinBox, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), [this](double){ rebuildSelection(); });
-	connect(toolbar_->finishButton, &QToolButton::clicked, [this](bool){ apply(); });
+	connect(toolbar_->bandwidthSpinBox, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), [this]{ rebuildSelection(); });
+	connect(toolbar_->finishButton, &QToolButton::clicked, [this]{ apply(); });
 }
 
 QToolBar* SegmentingPencilTool::toolbar() const
@@ -111,6 +111,7 @@ void SegmentingPencilTool::rebuildSelection()
 		toolbar_->finishButton->setEnabled(false);
 		return;
 	}
+	help::WaitCursor wait;
 	auto image = scene()->canvasItem()->pixmap().toImage();
 	auto seeds = scene()->overlayItem()->pixmap().toImage();
 	auto sigma = 0.5 + 15 * toolbar_->bandwidthSpinBox->value() / 100;

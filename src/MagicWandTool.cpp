@@ -29,7 +29,7 @@ MagicWandTool::MagicWandTool(QAction* action, SegmentationScene* scene, QObject*
 
 	toolbar_ = new MagicWandToolBar;
 	connect(toolbar_->toleranceSlider, &Slider::valueChanged, this, &MagicWandTool::toleranceChanged);
-	connect(toolbar_->finishButton, &QToolButton::clicked, [this](bool){ apply(); });
+	connect(toolbar_->finishButton, &QToolButton::clicked, [this]{ apply(); });
 	toolbar_->finishButton->setEnabled(false);
 }
 
