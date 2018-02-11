@@ -29,12 +29,15 @@ private:
 	void rebuildSelection();
 	void apply();
 
+	double getWidth() const;
+
 private:
 	SegmentingPencilToolBar* toolbar_;
 	QScopedPointer<Selection> selection_;
 	QVector<bool> drawButtons_;
 	bool pressed_;
 	int pressedButton_;
+	double width_;
 	QPointF lastPos_;
 	QColor drawingColor_;
 	QCursor cursor_;

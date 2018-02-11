@@ -9,6 +9,7 @@
 #include <QGraphicsSceneMouseEvent>
 #include <QKeyEvent>
 #include <QToolButton>
+#include <QGraphicsView>
 
 SegmentingPencilTool::SegmentingPencilTool(QAction* action, SegmentationScene* scene, QObject *parent)
 	: Tool(action, scene, parent)
@@ -80,8 +81,9 @@ void SegmentingPencilTool::mousePressEvent(QGraphicsSceneMouseEvent* event)
 		drawingColor_ = QColor(event->button() == Qt::LeftButton ? Qt::red : Qt::blue);
 		lastPos_ = scene()->overlayItem()->mapFromScene(event->scenePos());
 		drawButtons_ << (event->button() == Qt::LeftButton);
+		width_ = getWidth();
 		scene()->overlayItem()->beginDrawing();
-		scene()->overlayItem()->draw(Circle(lastPos_, .5), drawingColor_);
+		scene()->overlayItem()->draw(Circle(lastPos_, width_ / 2), drawingColor_);
 		pressed_ = true;
 	}
 }
@@ -90,7 +92,7 @@ void SegmentingPencilTool::mouseMoveEvent(QGraphicsSceneMouseEvent* event)
 {
 	if (pressed_) {
 		auto pos = scene()->overlayItem()->mapFromScene(event->scenePos());
-		scene()->overlayItem()->draw(Line(QLineF(lastPos_, pos), 1), drawingColor_);
+		scene()->overlayItem()->draw(Line(QLineF(lastPos_, pos), width_), drawingColor_);
 		lastPos_ = pos;
 	}
 }
@@ -131,4 +133,10 @@ void SegmentingPencilTool::apply()
 		}
 	}
 	clear();
+}
+
+double SegmentingPencilTool::getWidth() const
+{
+	auto mapedUnit = scene()->views()[0]->transform().map(QLineF(0,0,1,0));
+	return qMax(1., ceil(1 / mapedUnit.length()));
 }
