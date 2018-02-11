@@ -52,7 +52,6 @@ bool SegmentationView::eventFilter(QObject* watched, QEvent* event)
 					panningPos_ = mouseEvent->globalPos();
 					horizontalScrollBar()->setValue(horizontalScrollBar()->value() + d.x());
 					verticalScrollBar()->setValue(verticalScrollBar()->value() + d.y());
-					return true;
 				}
 				break;
 			}
