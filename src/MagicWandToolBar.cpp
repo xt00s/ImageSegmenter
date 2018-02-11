@@ -15,6 +15,9 @@ MagicWandToolBar::MagicWandToolBar(QWidget* parent)
 	toleranceSlider->setFixedSize(150, 16);
 	toleranceSlider->setTextFormatter([](double v){ return QString("%1%").arg(v*100,0,'f',1); });
 
+	auto spacer = new QWidget(this);
+	spacer->setFixedWidth(5);
+
 	finishButton = new QToolButton(this);
 	finishButton->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
 	finishButton->setText("Finish");
@@ -23,6 +26,7 @@ MagicWandToolBar::MagicWandToolBar(QWidget* parent)
 
 	addWidget(toleranceLabel);
 	addWidget(toleranceSlider);
+	addWidget(spacer);
 	addSeparator();
 	addWidget(finishButton);
 	setObjectName("magicWandToolbar");
