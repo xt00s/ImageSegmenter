@@ -32,6 +32,7 @@ QToolBar* SegmentingPencilTool::toolbar() const
 void SegmentingPencilTool::clear()
 {
 	scene()->overlayItem()->clear();
+	scene()->canvasItem()->setClipRegionVisible(true);
 	drawButtons_.clear();
 	selection_.reset();
 	toolbar_->finishButton->setEnabled(false);
@@ -82,9 +83,10 @@ void SegmentingPencilTool::mousePressEvent(QGraphicsSceneMouseEvent* event)
 		lastPos_ = scene()->overlayItem()->mapFromScene(event->scenePos());
 		drawButtons_ << (event->button() == Qt::LeftButton);
 		width_ = getWidth();
+		pressed_ = true;
 		scene()->overlayItem()->beginDrawing();
 		scene()->overlayItem()->draw(Circle(lastPos_, width_ / 2), drawingColor_);
-		pressed_ = true;
+		scene()->canvasItem()->setClipRegionVisible(false);
 	}
 }
 
@@ -110,6 +112,9 @@ void SegmentingPencilTool::rebuildSelection()
 {
 	if (!drawButtons_.contains(true) || !drawButtons_.contains(false)) {
 		selection_.reset();
+		if (drawButtons_.empty()) {
+			scene()->canvasItem()->setClipRegionVisible(true);
+		}
 		toolbar_->finishButton->setEnabled(false);
 		return;
 	}
@@ -119,6 +124,7 @@ void SegmentingPencilTool::rebuildSelection()
 	auto sigma = 0.5 + 15 * toolbar_->bandwidthSpinBox->value() / 100;
 	auto bmp = help::segmentIGC(image, seeds, Qt::red, Qt::blue, sigma);
 	selection_.reset(new Selection(bmp, true, scene(), this));
+	scene()->canvasItem()->setClipRegionVisible(false);
 	toolbar_->finishButton->setEnabled(true);
 }
 
