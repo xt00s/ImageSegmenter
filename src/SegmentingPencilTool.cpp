@@ -5,7 +5,8 @@
 #include "UndoCommands.h"
 #include "Drawables.h"
 #include "Helper.h"
-#include <QDoubleSpinBox>
+#include <QSpinBox>
+#include <QCheckBox>
 #include <QGraphicsSceneMouseEvent>
 #include <QKeyEvent>
 #include <QToolButton>
@@ -15,13 +16,20 @@ SegmentingPencilTool::SegmentingPencilTool(QAction* action, SegmentationScene* s
 	: Tool(action, scene, parent)
 	, pressed_(false)
 	, pressedButton_(0)
+	, smoothKernel_(help::diskBitmap(1))
 	, cursor_(QPixmap(":/image/icons/cross_cursor.png"))
 {
 	toolbar_ = new SegmentingPencilToolBar;
 	toolbar_->bandwidthSpinBox->setValue(20);
+	toolbar_->smoothRadiusSpinBox->setValue(1);
 	toolbar_->finishButton->setEnabled(false);
 	connect(toolbar_->bandwidthSpinBox, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), [this]{ rebuildSelection(); });
+	connect(toolbar_->smoothCheckBox, &QCheckBox::toggled, [this]{ resmoothSelection(); });
 	connect(toolbar_->finishButton, &QToolButton::clicked, [this]{ apply(); });
+	connect(toolbar_->smoothRadiusSpinBox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), [this](int radius){
+		smoothKernel_ = help::diskBitmap(radius);
+		resmoothSelection();
+	});
 }
 
 QToolBar* SegmentingPencilTool::toolbar() const
@@ -35,6 +43,7 @@ void SegmentingPencilTool::clear()
 	scene()->canvasItem()->setClipRegionVisible(true);
 	drawButtons_.clear();
 	selection_.reset();
+	segmResult_ = QImage();
 	toolbar_->finishButton->setEnabled(false);
 }
 
@@ -112,6 +121,7 @@ void SegmentingPencilTool::rebuildSelection()
 {
 	if (!drawButtons_.contains(true) || !drawButtons_.contains(false)) {
 		selection_.reset();
+		segmResult_ = QImage();
 		if (drawButtons_.empty()) {
 			scene()->canvasItem()->setClipRegionVisible(true);
 		}
@@ -122,10 +132,17 @@ void SegmentingPencilTool::rebuildSelection()
 	auto image = scene()->canvasItem()->pixmap().toImage();
 	auto seeds = scene()->overlayItem()->pixmap().toImage();
 	auto sigma = 0.5 + 15 * toolbar_->bandwidthSpinBox->value() / 100;
-	auto bmp = help::segmentIGC(image, seeds, Qt::red, Qt::blue, sigma);
-	selection_.reset(new Selection(bmp, true, scene(), this));
+	segmResult_ = help::segmentIGC(image, seeds, Qt::red, Qt::blue, sigma);
+	selection_.reset(new Selection(smoothed(), true, scene(), this));
 	scene()->canvasItem()->setClipRegionVisible(false);
 	toolbar_->finishButton->setEnabled(true);
+}
+
+void SegmentingPencilTool::resmoothSelection()
+{
+	if (!selection_.isNull()) {
+		selection_.reset(new Selection(smoothed(), true, scene(), this));
+	}
 }
 
 void SegmentingPencilTool::apply()
@@ -145,4 +162,13 @@ double SegmentingPencilTool::getWidth() const
 {
 	auto mapedUnit = scene()->views()[0]->transform().map(QLineF(0,0,1,0));
 	return qMax(1., ceil(1 / mapedUnit.length()));
+}
+
+QImage SegmentingPencilTool::smoothed() const
+{
+	if (toolbar_->smoothCheckBox->isChecked()) {
+		auto bmp = help::imclose(segmResult_, smoothKernel_);
+		return help::imopen(bmp, smoothKernel_);
+	}
+	return segmResult_;
 }

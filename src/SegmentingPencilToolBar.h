@@ -5,6 +5,8 @@
 
 class QLabel;
 class QDoubleSpinBox;
+class QCheckBox;
+class QSpinBox;
 class QToolButton;
 
 class SegmentingPencilToolBar : public QToolBar
@@ -17,6 +19,10 @@ public:
 	QDoubleSpinBox* bandwidthSpinBox;
 	QAction* actionIncreaseBandwidth;
 	QAction* actionDecreaseBandwidth;
+	QCheckBox* smoothCheckBox;
+	QAction* actionIncreaseSmoothRadius;
+	QAction* actionDecreaseSmoothRadius;
+	QSpinBox* smoothRadiusSpinBox;
 	QToolButton* finishButton;
 };
 

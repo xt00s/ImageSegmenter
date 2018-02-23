@@ -4,9 +4,6 @@
 #include <QIcon>
 #include <functional>
 
-#define qLsbBit(line, x) ((*((line) + ((x) / 8)) >> ((x) & 7)) & 1)
-#define qLsbSet(line, x) (*((line) + (x) / 8) |= 1 << ((x) & 7))
-
 namespace help
 {
 	struct WaitCursor
@@ -23,6 +20,9 @@ namespace help
 
 	inline QPointF floor(const QPointF& p) { return QPointF(::floor(p.x()), ::floor(p.y())); }
 
+	inline uchar qLsbBit(const uchar* line, int x) { return (*(line + x/8) >> (x & 7)) & 1; }
+	inline void qLsbSet(uchar* line, int x) { *(line + x/8) |= (uchar(1) << (x & 7)); }
+
 	QIcon emptyIcon(QSize size);
 	QPixmap colorPixmap(QSize size, QColor color);
 	QPixmap lightenPixmap(const QPixmap& pixmap, qreal factor);
@@ -38,6 +38,12 @@ namespace help
 	QRect filledRect(const QImage& bmp);
 
 	QImage segmentIGC(const QImage& src, const QImage& seedMask, const QColor& fColor, const QColor& bColor, double sigma);
+
+	QImage diskBitmap(int radius);
+	QImage imerode(const QImage& src, const QImage& kernel);
+	QImage imdilate(const QImage& src, const QImage& kernel);
+	QImage imopen(const QImage& src, const QImage& kernel);
+	QImage imclose(const QImage& src, const QImage& kernel);
 
 	int scanBitForward(quint64 v);
 	int scanBitReverse(quint64 v);

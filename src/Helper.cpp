@@ -5,6 +5,9 @@
 #include <QDir>
 #include <QRegularExpression>
 #include "graph.h"
+#include <memory>
+
+using namespace std;
 
 namespace help
 {
@@ -231,7 +234,7 @@ namespace help
 		return qMove(L);
 	}
 
-	QImage flood(const QImage& src, const QPoint& start, const std::function<bool(QRgb)>& test)
+	QImage flood(const QImage& src, const QPoint& start, const function<bool(QRgb)>& test)
 	{
 		if (!src.valid(start)) {
 			return QImage();
@@ -253,7 +256,7 @@ namespace help
 		while (!ranges.empty()) {
 			auto r = ranges.takeFirst();
 			auto br = bmp.scanLine(r.y);
-			auto sr = src.constScanLine(r.y);
+			auto sr = src.scanLine(r.y);
 			int s = r.x, e;
 			for (;;) {
 				while (s < r.maxX && !test(getPixel(sr, s, r.y))) {
@@ -313,8 +316,8 @@ namespace help
 		if (bmp.format() != QImage::Format_MonoLSB) {
 			return QRect();
 		}
+		const auto bitsInBlock = sizeof(quint64) * 8;
 		auto sz = bmp.size();
-		auto bitsInBlock = sizeof(quint64) * 8;
 		int blocks = sz.width() / bitsInBlock;
 		int l = sz.width(), r = -1, t = -1, b = -1;
 		quint64 lastBlockMask = (quint64(1) << (sz.width() % bitsInBlock)) - 1;
@@ -407,6 +410,254 @@ namespace help
 		return bmp;
 	}
 
+	QImage diskBitmap(int radius)
+	{
+		QImage bmp(radius * 2 + 1, radius * 2 + 1, QImage::Format_MonoLSB);
+		bmp.fill(0);
+		auto r2 = radius * radius;
+		for (int y = -radius; y <= radius; y++) {
+			auto sl = bmp.scanLine(y + radius);
+			auto y2 = y * y;
+			for (int x = -radius; x <= radius; x++) {
+				if ((x * x + y2) <= r2) {
+					qLsbSet(sl, x + radius);
+				}
+			}
+		}
+		return bmp;
+	}
+
+	QImage boundKernel(const QImage& src, const QImage& kernel)
+	{
+		auto r = kernel.rect();
+		auto cx = r.width() / 2, cy = r.height() / 2;
+		r.setLeft(r.left() + (cx - src.width() + 1));
+		r.setRight(r.right() - (cx - src.width() + kernel.width() % 2));
+		r.setTop(r.top() + (cy - src.height() + 1));
+		r.setBottom(r.bottom() - (cy - src.height() + kernel.height() % 2));
+		auto K = r.intersected(kernel.rect());
+		if (K == kernel.rect()) {
+			return kernel;
+		}
+		return kernel.copy(K);
+	}
+
+	struct KernelOffsets
+	{
+		unique_ptr<quint64> kernelData;
+		const quint64* kernel[64];
+		int start[64];
+		int count[64];
+		int bpl;
+	};
+
+	KernelOffsets generateKernelOffsets(const QImage& K)
+	{
+		KernelOffsets KO;
+		KO.bpl = (62 + K.width()) / 64 + 1;
+		KO.kernelData.reset(new quint64[KO.bpl * K.height() * 64]);
+		auto off = (64 * (K.width() / 64 + 1) - K.width() / 2) % 64, coff = 64 - off;
+
+		for (int i = 0; i < 64; i++) {
+			auto d = K.width() / 2 - i;
+			KO.start[i] = -(d > 0 ? (d - 1) / 64 + 1 : d / 64);
+			KO.count[i] = (off + K.width() - 1) / 64 + 1;
+			KO.kernel[i] = KO.kernelData.get() + KO.bpl * K.height() * i;
+			auto M = (quint64(1) << ((K.width() + off) % 64)) - 1;
+			if (!M) {
+				M = -1;
+			}
+			for (int y = 0; y < K.height(); y++) {
+				auto sl = reinterpret_cast<const quint64*>(K.scanLine(y));
+				auto p = const_cast<quint64*>(KO.kernel[i] + KO.bpl * y);
+
+				*p++ = *sl++ << off;
+				for (int x = 1; x < KO.count[i]; x++, sl++) {
+					*p++ = (*sl << off) | (*(sl-1) >> coff);
+				}
+				*(p-1) &= M;
+			}
+			off = (off + 1) % 64;
+			coff = 64 - off;
+		}
+		return KO;
+	}
+
+	QImage imerode(const QImage& src, const QImage& K, const KernelOffsets& KO)
+	{
+		QImage bmp(src.size(), QImage::Format_MonoLSB);
+		bmp.fill(0);
+
+		const auto cx = K.width() / 2, cy = K.height() / 2, bpl = src.bytesPerLine();
+		const auto C = K.width() - cx - 1, L = (src.width() - 1) / 64 + 1, E = cx - 1, F = L - 1;
+		const auto A = qMin(cx, src.width() - C), B = qMax(cx, src.width() - C);
+		const auto M = src.width() % 64 ? ~((quint64(1) << (src.width() % 64)) - 1) : 0;
+		const auto both = (A != cx);
+
+		auto overlap = [bpl, &KO](const quint64* src, const quint64* kernel, int h, int w, quint64 m) -> quint64 {
+			for (int y = 0; y < h; y++) {
+				auto p = src, k = kernel;
+				for (int x = 0; x < (w-1); x++, p++, k++) {
+					if ((*p & *k) != *k) {
+						return 0;
+					}
+				}
+				if (((*p | m) & *k) != *k) {
+					return 0;
+				}
+				src = reinterpret_cast<const quint64*>(reinterpret_cast<const uchar*>(src) + bpl);
+				kernel += KO.bpl;
+			}
+			return 1;
+		};
+
+		for (int y = 0, x; y < src.height(); y++) {
+			auto kTop = qMax(cy - y, 0), kHeight = qMin(cy - y + src.height(), K.height()) - kTop;
+			auto kTopOff = kTop * KO.bpl;
+			auto bmpSL = reinterpret_cast<quint64*>(bmp.scanLine(y));
+			auto srcSL = reinterpret_cast<const quint64*>(src.scanLine(y) - (cy - kTop) * bpl);
+
+			for (x = 0; x < A; x++) {
+				auto block = x / 64, bit = x % 64, loff = (E - x) / 64 + 1;
+				auto sp = srcSL + block + KO.start[bit] + loff;
+				auto kp = KO.kernel[bit] + kTopOff + loff;
+				auto m = block + KO.start[bit] + KO.count[bit] == L ? M : 0;
+				auto b = overlap(sp, kp, kHeight, KO.count[bit] - loff, m);
+				*(bmpSL + block) |= (b << bit);
+			}
+			if (both) {
+				for (; x < B; x++) {
+					auto block = x / 64, bit = x % 64, loff = (E - x) / 64 + 1, roff = (x + C) / 64 - F;
+					auto sp = srcSL + block + KO.start[bit] + loff;
+					auto kp = KO.kernel[bit] + kTopOff + loff;
+					auto m = block + KO.start[bit] + KO.count[bit] == L ? M : 0;
+					auto b = overlap(sp, kp, kHeight, KO.count[bit] - loff - roff, m);
+					*(bmpSL + block) |= (b << bit);
+				}
+			} else {
+				for (; x < B; x++) {
+					auto block = x / 64, bit = x % 64;
+					auto m = block + KO.start[bit] + KO.count[bit] == L ? M : 0;
+					auto b = overlap(srcSL + block + KO.start[bit], KO.kernel[bit] + kTopOff, kHeight, KO.count[bit], m);
+					*(bmpSL + block) |= (b << bit);
+				}
+			}
+			for (; x < src.width(); x++) {
+				auto block = x / 64, bit = x % 64, roff = (x + C) / 64 - F;
+				auto b = overlap(srcSL + block + KO.start[bit], KO.kernel[bit] + kTopOff, kHeight, KO.count[bit] - roff, M);
+				*(bmpSL + block) |= (b << bit);
+			}
+		}
+		return bmp;
+	}
+
+	QImage imdilate(const QImage& src, const QImage& K, const KernelOffsets& KO)
+	{
+		QImage bmp(src.size(), QImage::Format_MonoLSB);
+		bmp.fill(0);
+
+		const auto cx = K.width() / 2, cy = K.height() / 2, bpl = src.bytesPerLine();
+		const auto C = K.width() - cx - 1, L = (src.width() - 1) / 64 + 1, E = cx - 1, F = L - 1;
+		const auto A = qMin(cx, src.width() - C), B = qMax(cx, src.width() - C);
+		const auto M = src.width() % 64 ? ((quint64(1) << (src.width() % 64)) - 1) : -1;
+		const auto both = (A != cx);
+
+		auto unite = [bpl, &KO](quint64* bmp, const quint64* kernel, int h, int w, quint64 m) {
+			for (int y = 0; y < h; y++) {
+				auto p = bmp;
+				auto k = kernel;
+				for (int x = 0; x < (w-1); x++, p++, k++) {
+					*p |= *k;
+				}
+				*p |= (*k & m);
+				bmp = reinterpret_cast<quint64*>(reinterpret_cast<uchar*>(bmp) + bpl);
+				kernel += KO.bpl;
+			}
+		};
+
+		for (int y = 0, x; y < src.height(); y++) {
+			auto kTop = qMax(cy - y, 0), kHeight = qMin(cy - y + src.height(), K.height()) - kTop;
+			auto kTopOff = kTop * KO.bpl;
+			auto srcSL = src.scanLine(y);
+			auto bmpSL = reinterpret_cast<quint64*>(bmp.scanLine(y) - (cy - kTop) * bpl);
+
+			for (x = 0; x < A; x++) {
+				if (qLsbBit(srcSL, x)) {
+					auto block = x / 64, bit = x % 64, loff = (E - x) / 64 + 1;
+					auto bp = bmpSL + block + KO.start[bit] + loff;
+					auto kp = KO.kernel[bit] + kTopOff + loff;
+					auto m = block + KO.start[bit] + KO.count[bit] == L ? M : -1;
+					unite(bp, kp, kHeight, KO.count[bit] - loff, m);
+				}
+			}
+			if (both) {
+				for (; x < B; x++) {
+					if (qLsbBit(srcSL, x)) {
+						auto block = x / 64, bit = x % 64, loff = (E - x) / 64 + 1, roff = (x + C) / 64 - F;
+						auto bp = bmpSL + block + KO.start[bit] + loff;
+						auto kp = KO.kernel[bit] + kTopOff + loff;
+						auto m = block + KO.start[bit] + KO.count[bit] == L ? M : -1;
+						unite(bp, kp, kHeight, KO.count[bit] - loff - roff, m);
+					}
+				}
+			} else {
+				for (; x < B; x++) {
+					if (qLsbBit(srcSL, x)) {
+						auto block = x / 64, bit = x % 64;
+						auto m = block + KO.start[bit] + KO.count[bit] == L ? M : -1;
+						unite(bmpSL + block + KO.start[bit], KO.kernel[bit] + kTopOff, kHeight, KO.count[bit], m);
+					}
+				}
+			}
+			for (; x < src.width(); x++) {
+				if (qLsbBit(srcSL, x)) {
+					auto block = x / 64, bit = x % 64, roff = (x + C) / 64 - F;
+					unite(bmpSL + block + KO.start[bit], KO.kernel[bit] + kTopOff, kHeight, KO.count[bit] - roff, M);
+				}
+			}
+		}
+		return bmp;
+	}
+
+	template <class F>
+	QImage immorth(const QImage& src, const QImage& kernel, const F& f)
+	{
+		if (src.format() != QImage::Format_MonoLSB || kernel.format() != QImage::Format_MonoLSB ||
+				src.isNull() || kernel.isNull()) {
+			return QImage();
+		}
+		auto K = boundKernel(src, kernel);
+		return f(src, K, generateKernelOffsets(K));
+	}
+
+	QImage imerode(const QImage& src, const QImage& kernel)
+	{
+		return immorth(src, kernel, [](const QImage& src, const QImage& K, const KernelOffsets& KO) {
+			return imerode(src, K, KO);
+		});
+	}
+
+	QImage imdilate(const QImage& src, const QImage& kernel)
+	{
+		return immorth(src, kernel, [](const QImage& src, const QImage& K, const KernelOffsets& KO) {
+			return imdilate(src, K, KO);
+		});
+	}
+
+	QImage imopen(const QImage& src, const QImage& kernel)
+	{
+		return immorth(src, kernel, [](const QImage& src, const QImage& K, const KernelOffsets& KO) {
+			return imdilate(imerode(src, K, KO), K, KO);
+		});
+	}
+
+	QImage imclose(const QImage& src, const QImage& kernel)
+	{
+		return immorth(src, kernel, [](const QImage& src, const QImage& K, const KernelOffsets& KO) {
+			return imerode(imdilate(src, K, KO), K, KO);
+		});
+	}
+
 	int scanBitForward(quint64 v)
 	{
 		if (!v) {
@@ -443,7 +694,7 @@ namespace help
 #endif
 	}
 
-	std::function<QRgb(const uchar*,int,int)> pixelReader(const QImage& image)
+	function<QRgb(const uchar*,int,int)> pixelReader(const QImage& image)
 	{
 		switch (image.format()) {
 		case QImage::Format_RGB32:

@@ -5,6 +5,7 @@
 #include <QCursor>
 #include <QVector>
 #include <QColor>
+#include <QImage>
 
 class Selection;
 class SegmentingPencilToolBar;
@@ -27,14 +28,17 @@ protected:
 
 private:
 	void rebuildSelection();
+	void resmoothSelection();
 	void apply();
-
 	double getWidth() const;
+	QImage smoothed() const;
 
 private:
 	SegmentingPencilToolBar* toolbar_;
 	QScopedPointer<Selection> selection_;
 	QVector<bool> drawButtons_;
+	QImage segmResult_;
+	QImage smoothKernel_;
 	bool pressed_;
 	int pressedButton_;
 	double width_;

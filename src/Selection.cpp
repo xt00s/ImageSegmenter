@@ -3,6 +3,8 @@
 #include "GraphicsItems.h"
 #include <QGraphicsScene>
 
+using namespace help;
+
 Selection::Selection(QGraphicsScene* scene, QObject *parent)
 	: QObject(parent)
 	, visible_(true)
