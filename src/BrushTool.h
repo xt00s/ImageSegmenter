@@ -6,6 +6,7 @@
 #include <QCursor>
 
 class BrushToolBar;
+class GuideLineItem;
 
 class BrushTool : public Tool
 {
@@ -19,6 +20,7 @@ public:
 protected:
 	void onActivate() override;
 	void onDeactivate() override;
+	void keyPressEvent(QKeyEvent* event) override;
 	void mousePressEvent(QGraphicsSceneMouseEvent* event) override;
 	void mouseMoveEvent(QGraphicsSceneMouseEvent* event) override;
 	void mouseReleaseEvent(QGraphicsSceneMouseEvent* event) override;
@@ -26,6 +28,7 @@ protected:
 
 private slots:
 	void widthChanged(const QString& width);
+	void defineWidthToggled(bool checked);
 
 private:
 	BrushToolBar* toolbar_;
@@ -34,6 +37,7 @@ private:
 	BrushCursorItem* brushCursorItem_;
 	QScopedPointer<CanvasItem::Fragment> canvasCopy_;
 	QCursor crossCursor_;
+	GuideLineItem* widthGuideLine_;
 };
 
 #endif // BRUSHTOOL_H

@@ -30,5 +30,6 @@
         <file>icons/progress.svg</file>
         <file>icons/check.svg</file>
         <file>icons/segmenting-pencil.svg</file>
+        <file>icons/arrows-up-down.svg</file>
     </qresource>
 </RCC>

@@ -5,6 +5,7 @@
 
 class QLabel;
 class QComboBox;
+class QToolButton;
 
 class BrushToolBar : public QToolBar
 {
@@ -16,6 +17,7 @@ public:
 	QComboBox* widthCombo;
 	QAction* actionIncreaseWidth;
 	QAction* actionDecreaseWidth;
+	QToolButton* defineWidthButton;
 
 private:
 	void incWidth();

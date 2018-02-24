@@ -87,7 +87,6 @@ void MagicWandTool::mousePressEvent(QGraphicsSceneMouseEvent* event)
 	}
 	pixmapStartPos_ = scene()->pixmapPosFromScene(event->scenePos());
 	if (scene()->canvasItem()->pixmapRect().contains(pixmapStartPos_)) {
-		last_ = start_ = event->scenePos();
 		scene()->canvasItem()->setClipRegionVisible(false);
 		guideLine_->show();
 		guideLine_->setLine(QLineF(event->scenePos(), event->scenePos()));
@@ -104,7 +103,6 @@ void MagicWandTool::mouseMoveEvent(QGraphicsSceneMouseEvent* event)
 {
 	if (pressed_) {
 		guideLine_->setLine(QLineF(guideLine_->line().p1(), event->scenePos()));
-		last_ = event->scenePos();
 		updateTolerance();
 	}
 }
@@ -157,6 +155,6 @@ void MagicWandTool::apply()
 
 void MagicWandTool::updateTolerance()
 {
-	auto tolerance = QVector2D(last_ - start_).length() / maxToleranceScreenDistance_ * toleranceFactor_;
+	auto tolerance = guideLine_->line().length() / maxToleranceScreenDistance_ * toleranceFactor_;
 	toolbar_->toleranceSlider->setValue(tolerance);
 }

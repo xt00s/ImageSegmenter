@@ -38,8 +38,6 @@ private:
 	double maxToleranceScreenDistance_;
 	double toleranceFactor_;
 	bool pressed_;
-	QPointF start_;
-	QPointF last_;
 	QPoint pixmapStartPos_;
 	QScopedPointer<Selection> selection_;
 	GuideLineItem* guideLine_;

@@ -3,6 +3,7 @@
 #include <QLabel>
 #include <QComboBox>
 #include <QAction>
+#include <QToolButton>
 
 BrushToolBar::BrushToolBar(QWidget *parent)
     : QToolBar(parent)
@@ -40,10 +41,18 @@ BrushToolBar::BrushToolBar(QWidget *parent)
     actionDecreaseWidth->setObjectName("actionDecreaseWidth");
     actionDecreaseWidth->setShortcuts({QKeySequence("["), QKeySequence("Ctrl+["), QKeySequence("Shift+[")});
 
+    defineWidthButton = new QToolButton(this);
+    defineWidthButton->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
+    defineWidthButton->setCheckable(true);
+    defineWidthButton->setText("&Define width");
+    defineWidthButton->setIcon(QIcon(":/image/icons/arrows-up-down.svg"));
+    defineWidthButton->setFixedHeight(20);
+
 	addWidget(widthLabel);
 	addAction(actionDecreaseWidth);
 	addWidget(widthCombo);
 	addAction(actionIncreaseWidth);
+    addWidget(defineWidthButton);
 	setIconSize(QSize(16, 16));
 	setObjectName("brushToolbar");
 
