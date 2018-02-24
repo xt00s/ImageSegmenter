@@ -5,6 +5,7 @@
 #include "BrushToolBar.h"
 #include <QGraphicsSceneMouseEvent>
 #include <QComboBox>
+#include <QGraphicsView>
 
 BrushTool::BrushTool(QAction* action, SegmentationScene* scene, QObject* parent)
 	: Tool(action, scene, parent)
@@ -32,6 +33,12 @@ void BrushTool::clear()
 void BrushTool::onActivate()
 {
 	scene()->setViewCursor(crossCursor_);
+	auto view = scene()->views()[0];
+	if (view->underMouse()) {
+		auto viewPos = view->mapFromGlobal(QCursor::pos());
+		brushCursorItem_->setPos(view->mapToScene(viewPos));
+		brushCursorItem_->show();
+	}
 }
 
 void BrushTool::onDeactivate()
