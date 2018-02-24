@@ -22,11 +22,11 @@ SegmentingPencilToolBar::SegmentingPencilToolBar()
 	bandwidthSpinBox->setSingleStep(1);
 
 	actionIncreaseBandwidth = new QAction("Increase bandwidth", this);
-	actionIncreaseBandwidth->setIcon(QIcon(":/image/icons/plus-in-circle.svg"));
+	actionIncreaseBandwidth->setIcon(QIcon(":/image/icons/plus.svg"));
 	actionIncreaseBandwidth->setObjectName("actionIncreaseBandwidth");
 
 	actionDecreaseBandwidth = new QAction("Decrease bandwidth", this);
-	actionDecreaseBandwidth->setIcon(QIcon(":/image/icons/minus-in-circle.svg"));
+	actionDecreaseBandwidth->setIcon(QIcon(":/image/icons/minus.svg"));
 	actionDecreaseBandwidth->setObjectName("actionDecreaseBandwidth");
 
 	auto spacer = new QWidget(this);
@@ -37,12 +37,12 @@ SegmentingPencilToolBar::SegmentingPencilToolBar()
 	smoothCheckBox->setChecked(false);
 
 	actionIncreaseSmoothRadius = new QAction("Increase smooth radius", this);
-	actionIncreaseSmoothRadius->setIcon(QIcon(":/image/icons/plus-in-circle.svg"));
+	actionIncreaseSmoothRadius->setIcon(QIcon(":/image/icons/plus.svg"));
 	actionIncreaseSmoothRadius->setObjectName("actionIncreaseSmoothRadius");
 	actionIncreaseSmoothRadius->setEnabled(false);
 
 	actionDecreaseSmoothRadius = new QAction("Decrease smooth radius", this);
-	actionDecreaseSmoothRadius->setIcon(QIcon(":/image/icons/minus-in-circle.svg"));
+	actionDecreaseSmoothRadius->setIcon(QIcon(":/image/icons/minus.svg"));
 	actionDecreaseSmoothRadius->setObjectName("actionDecreaseSmoothRadius");
 	actionDecreaseSmoothRadius->setEnabled(false);
 

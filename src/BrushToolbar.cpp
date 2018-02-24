@@ -32,12 +32,12 @@ BrushToolBar::BrushToolBar(QWidget *parent)
     widthCombo->setEditText("20");
 
     actionIncreaseWidth = new QAction("Increase brush width", this);
-    actionIncreaseWidth->setIcon(QIcon(":/image/icons/plus-in-circle.svg"));
+    actionIncreaseWidth->setIcon(QIcon(":/image/icons/plus.svg"));
     actionIncreaseWidth->setObjectName("actionIncreaseWidth");
     actionIncreaseWidth->setShortcuts({QKeySequence("]"), QKeySequence("Ctrl+]"), QKeySequence("Shift+]")});
 
     actionDecreaseWidth = new QAction("Decrease brush width", this);
-    actionDecreaseWidth->setIcon(QIcon(":/image/icons/minus-in-circle.svg"));
+    actionDecreaseWidth->setIcon(QIcon(":/image/icons/minus.svg"));
     actionDecreaseWidth->setObjectName("actionDecreaseWidth");
     actionDecreaseWidth->setShortcuts({QKeySequence("["), QKeySequence("Ctrl+["), QKeySequence("Shift+[")});
 

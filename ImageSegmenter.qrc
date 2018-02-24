@@ -24,12 +24,12 @@
         <file>icons/image-size.svg</file>
         <file>icons/position.svg</file>
         <file>icons/image-cursor.svg</file>
-        <file>icons/minus-in-circle.svg</file>
-        <file>icons/plus-in-circle.svg</file>
         <file>icons/magic-wand.svg</file>
         <file>icons/progress.svg</file>
         <file>icons/check.svg</file>
         <file>icons/segmenting-pencil.svg</file>
         <file>icons/arrows-up-down.svg</file>
+        <file>icons/plus.svg</file>
+        <file>icons/minus.svg</file>
     </qresource>
 </RCC>
