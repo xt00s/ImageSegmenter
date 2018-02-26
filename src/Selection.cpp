@@ -44,7 +44,7 @@ void Selection::setArea(const QImage& bmp)
 	if (highlightVisible_) {
 		initHighlight();
 	}
-	initOulines();
+	initOutlines();
 	if (visible_ && !outlines_.empty()) {
 		outlineAnimation_.start();
 	}
@@ -72,7 +72,7 @@ void Selection::initHighlight()
 	scene_->addItem(highlight_.data());
 }
 
-void Selection::initOulines()
+void Selection::initOutlines()
 {
 	auto sz = bitmap_.size();
 	QImage map(sz, QImage::Format_MonoLSB);		// left outlines map

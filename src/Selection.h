@@ -36,7 +36,7 @@ public:
 
 private:
 	void initHighlight();
-	void initOulines();
+	void initOutlines();
 	OutlineItem* outlineFromBoundary(const QVector<QPoint>& boundary, QImage& map);
 
 private:
