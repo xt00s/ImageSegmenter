@@ -202,6 +202,25 @@
            <property name="lineWidth">
             <number>1</number>
            </property>
+           <property name="rootIsDecorated">
+            <bool>false</bool>
+           </property>
+           <property name="columnCount">
+            <number>2</number>
+           </property>
+           <attribute name="headerVisible">
+            <bool>false</bool>
+           </attribute>
+           <column>
+            <property name="text">
+             <string notr="true">1</string>
+            </property>
+           </column>
+           <column>
+            <property name="text">
+             <string notr="true">2</string>
+            </property>
+           </column>
           </widget>
          </item>
         </layout>
@@ -455,19 +474,19 @@
  <layoutdefault spacing="6" margin="11"/>
  <customwidgets>
   <customwidget>
-   <class>ImageList</class>
-   <extends>QListWidget</extends>
-   <header>src/imagelist.h</header>
-  </customwidget>
-  <customwidget>
    <class>SchemeTree</class>
    <extends>QTreeWidget</extends>
-   <header>src/schemetree.h</header>
+   <header>src/SchemeTree.h</header>
   </customwidget>
   <customwidget>
    <class>SegmentationView</class>
    <extends>QGraphicsView</extends>
    <header>src/SegmentationView.h</header>
+  </customwidget>
+  <customwidget>
+   <class>ImageList</class>
+   <extends>QTreeWidget</extends>
+   <header>src/ImageList.h</header>
   </customwidget>
  </customwidgets>
  <resources>

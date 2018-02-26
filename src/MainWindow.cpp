@@ -76,6 +76,7 @@ void MainWindow::setup()
 {
 	ui->setupUi(this);
 	ui->schemeTree->setup();
+	ui->imageList->setup();
 	ui->segmentationView->setup();
 	ui->segmentationView->setScene(&scene_);
 	scene_.setup();

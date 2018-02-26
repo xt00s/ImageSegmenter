@@ -18,10 +18,10 @@ enum SchemeTreeRole {
 	ClipperRole
 };
 
-class IconDelegate : public QStyledItemDelegate
+class SchemeTreeIconDelegate : public QStyledItemDelegate
 {
 public:
-	IconDelegate(QObject *parent = 0)
+	SchemeTreeIconDelegate(QObject *parent = 0)
 		: QStyledItemDelegate(parent)
 	{}
 	void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const override
@@ -51,10 +51,10 @@ public:
 	}
 };
 
-class SelectionModel : public QItemSelectionModel
+class SchemeTreeSelectionModel : public QItemSelectionModel
 {
 public:
-	SelectionModel(QAbstractItemModel *model, QObject* parent = 0)
+	SchemeTreeSelectionModel(QAbstractItemModel *model, QObject* parent = 0)
 		: QItemSelectionModel(model, parent)
 	{}
 	void select(const QItemSelection &selection, QItemSelectionModel::SelectionFlags command) override
@@ -258,10 +258,10 @@ Category *SchemeTree::itemCategory(QTreeWidgetItem *item) const
 void SchemeTree::setup()
 {
 	auto oldSelectionModel = selectionModel();
-	setSelectionModel(new SelectionModel(model(), this));
+	setSelectionModel(new SchemeTreeSelectionModel(model(), this));
 	delete oldSelectionModel;
 
-	setItemDelegateForColumn(0, new IconDelegate(this));
+	setItemDelegateForColumn(0, new SchemeTreeIconDelegate(this));
 	int widths[] = { 24, 100, 24, 24 };
 	for (int i = 0; i < columnCount(); i++) {
 		setColumnWidth(i, abs(widths[i]));

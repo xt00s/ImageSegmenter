@@ -2,23 +2,55 @@
 #include "Helper.h"
 #include <QFileInfo>
 #include <QDir>
+#include <QStyledItemDelegate>
+#include <QPainter>
 
-#define SEGM_COLOR QColor(128,128,128)
+#define SEGM_COLOR	QColor(128,128,128)
+#define CURSOR_SIZE QSize(16,16)
+
+enum ImageListRole {
+	PathRole = Qt::UserRole,
+	CurrentRole
+};
+
+class ImageListIconDelegate : public QStyledItemDelegate
+{
+public:
+	ImageListIconDelegate(QObject *parent = 0)
+		: QStyledItemDelegate(parent)
+		, cursor_(QIcon(":/image/icons/image-cursor.svg").pixmap(CURSOR_SIZE))
+	{}
+	void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const override
+	{
+		QStyledItemDelegate::paint(painter, option, index);
+		if (index.data(CurrentRole).toBool()) {
+			auto x = (option.rect.width() - cursor_.width()) / 2;
+			auto y = (option.rect.height() - cursor_.height()) / 2;
+			painter->drawPixmap(option.rect.topLeft() + QPoint(x,y), cursor_);
+		}
+	}
+private:
+	QPixmap cursor_;
+};
 
 ImageList::ImageList(QWidget *parent)
-	: QListWidget(parent)
-	, emptyIcon_(help::emptyIcon(QSize(16, 16)))
-	, selectedIcon_(":/image/icons/image-cursor.svg")
+	: QTreeWidget(parent)
 	, selected_(-1)
 	, segmented_(0)
 {
 	boldFont_.setBold(true);
-	connect(this, SIGNAL(itemDoubleClicked(QListWidgetItem*)), this, SLOT(itemDoubleClicked(QListWidgetItem*)));
+	connect(this, SIGNAL(itemDoubleClicked(QTreeWidgetItem*,int)), this, SLOT(itemDoubleClicked(QTreeWidgetItem*,int)));
+}
+
+void ImageList::setup()
+{
+	setItemDelegateForColumn(0, new ImageListIconDelegate(this));
+	setColumnWidth(0, 20);
 }
 
 void ImageList::open(const QString &path, const QString& outputPath, const QString &schemeName)
 {
-	QListWidget::clear();
+	QTreeWidget::clear();
 	int lastSelected = selected_;
 
 	outputPath_ = outputPath;
@@ -29,16 +61,16 @@ void ImageList::open(const QString &path, const QString& outputPath, const QStri
 	int first = -1;
 	QStringList filters({"*.bmp", "*.png", "*.jpg", "*.jpeg"});
 	for (auto& f : QDir(path).entryInfoList(filters, QDir::NoFilter, QDir::Name)) {
-		auto p = new QListWidgetItem(emptyIcon_, f.baseName(), this);
-		p->setData(Qt::UserRole, f.absoluteFilePath());
-		p->setToolTip(p->data(Qt::UserRole).toString());
+		auto p = new QTreeWidgetItem(invisibleRootItem());
+		p->setText(1, f.baseName());
+		p->setData(0, PathRole, f.absoluteFilePath());
+		p->setToolTip(1, p->data(0, PathRole).toString());
 		if (segmented(p)) {
-			p->setTextColor(SEGM_COLOR);
+			p->setTextColor(1, SEGM_COLOR);
 			segmented_++;
 		} else if (first < 0) {
 			first = row(p);
 		}
-		addItem(p);
 	}
 	select(first < 0 ? 0 : first);
 	if (selected_ < 0 && lastSelected >= 0) {
@@ -51,7 +83,7 @@ void ImageList::clear()
 {
 	int old = selected_;
 	selected_ = -1;
-	QListWidget::clear();
+	QTreeWidget::clear();
 	if (old >= 0) {
 		emit selected(QString());
 	}
@@ -89,30 +121,31 @@ bool ImageList::isNextAvailable() const
 	return selected_ < (count()-1);
 }
 
-void ImageList::itemDoubleClicked(QListWidgetItem *item)
+void ImageList::itemDoubleClicked(QTreeWidgetItem* item, int column)
 {
 	select(row(item));
 }
 
-bool ImageList::segmented(QListWidgetItem *item)
+bool ImageList::segmented(QTreeWidgetItem *item)
 {
-	auto maskPath = help::segmentationMaskFilePath(item->data(Qt::UserRole).toString(), outputPath_, schemeName_);
+	auto maskPath = help::segmentationMaskFilePath(item->data(0, PathRole).toString(), outputPath_, schemeName_);
 	return !maskPath.isEmpty() && QFileInfo::exists(maskPath);
 }
 
-bool ImageList::markedAsSegmented(QListWidgetItem* item)
+bool ImageList::markedAsSegmented(QTreeWidgetItem* item)
 {
-	return item->textColor() == SEGM_COLOR;
+	return item->textColor(1) == SEGM_COLOR;
 }
 
 void ImageList::update(int index)
 {
-	item(index)->setIcon(index == selected_ ? selectedIcon_ : emptyIcon_);
-	item(index)->setFont(index == selected_ ? boldFont_ : QFont());
-	if (segmented(item(index))) {
-		item(index)->setTextColor(SEGM_COLOR);
+	auto p = item(index);
+	p->setData(0, CurrentRole, index == selected_);
+	p->setFont(1, index == selected_ ? boldFont_ : QFont());
+	if (segmented(p)) {
+		p->setTextColor(1, SEGM_COLOR);
 	} else {
-		item(index)->setData(Qt::TextColorRole, QVariant());
+		p->setData(1, Qt::TextColorRole, QVariant());
 	}
 }
 
@@ -127,7 +160,7 @@ void ImageList::select(int index)
 	selected_ = index;
 	setCurrentItem(item(selected_));
 	scrollToItem(item(selected_), QAbstractItemView::PositionAtCenter);
-	emit selected(item(selected_)->data(Qt::UserRole).toString());
+	emit selected(item(selected_)->data(0, PathRole).toString());
 	bool segmChanged = false;
 	if (prev >= 0) {
 		update(prev);
@@ -145,4 +178,3 @@ void ImageList::select(int index)
 		emit progressChanged();
 	}
 }
-
