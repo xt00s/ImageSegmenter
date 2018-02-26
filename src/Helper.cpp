@@ -31,13 +31,6 @@ namespace help
 		QApplication::restoreOverrideCursor();
 	}
 
-	QIcon emptyIcon(QSize size)
-	{
-		QPixmap empty(size);
-		empty.fill(Qt::transparent);
-		return QIcon(empty);
-	}
-
 	QPixmap colorPixmap(QSize size, QColor color)
 	{
 		QPixmap pixmap(size);

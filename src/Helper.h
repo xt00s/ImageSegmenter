@@ -23,7 +23,6 @@ namespace help
 	inline uchar qLsbBit(const uchar* line, int x) { return (*(line + x/8) >> (x & 7)) & 1; }
 	inline void qLsbSet(uchar* line, int x) { *(line + x/8) |= (uchar(1) << (x & 7)); }
 
-	QIcon emptyIcon(QSize size);
 	QPixmap colorPixmap(QSize size, QColor color);
 	QPixmap lightenPixmap(const QPixmap& pixmap, qreal factor);
 	QString correctFileName(const QString& name);
