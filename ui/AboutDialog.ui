@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>400</width>
-    <height>143</height>
+    <height>158</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -97,9 +97,12 @@
         </widget>
        </item>
        <item>
-        <widget class="QLabel" name="qtVersionLabel">
+        <widget class="QLabel" name="licenseLabel">
          <property name="text">
-          <string>Based on Qt 5.7.0 (MSVC 2015, 32 bit)</string>
+          <string>The software is  based on Qt 5.7.0 (x64, license) and licensed under MIT license.</string>
+         </property>
+         <property name="wordWrap">
+          <bool>true</bool>
          </property>
         </widget>
        </item>
@@ -109,19 +112,6 @@
           <string>Copyright 2017 Ruslan Rumiantsau.</string>
          </property>
         </widget>
-       </item>
-       <item>
-        <spacer name="verticalSpacer">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>40</height>
-          </size>
-         </property>
-        </spacer>
        </item>
       </layout>
      </item>
