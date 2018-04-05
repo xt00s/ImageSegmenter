@@ -90,13 +90,15 @@ SchemeTree::SchemeTree(QWidget *parent)
 void SchemeTree::setupShortcuts()
 {
 	for (int i = 0; i < 10; i++) {
-		auto shortcut = new QShortcut(i ? QString::number(i) : "`", this);
-		connect(shortcut, &QShortcut::activated, [this,i]{
+		auto categoryShortcut = new QShortcut(i ? QString::number(i) : "`", this);
+		connect(categoryShortcut, &QShortcut::activated, [this,i]{
 			if (i >= 0 && i < invisibleRootItem()->childCount()) {
 				setCurrentItem(invisibleRootItem()->child(i), 1);
 			}
 		});
 	}
+	auto clipShortcut = new QShortcut(QString("C"), this);
+	connect(clipShortcut, &QShortcut::activated, [this]{ itemClicked(currentItem(), 0); });
 }
 
 bool SchemeTree::open(const QString &path)
