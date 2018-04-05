@@ -31,7 +31,8 @@ HEADERS += \
     src/HandlessSlider.h \
     src/MagicWandToolBar.h \
     src/SegmentingPencilTool.h \
-    src/SegmentingPencilToolBar.h
+    src/SegmentingPencilToolBar.h \
+    src/PolygonToolBar.h
 
 SOURCES += \
     src/Category.cpp \
@@ -60,7 +61,8 @@ SOURCES += \
     src/HandlessSlider.cpp \
     src/MagicWandToolBar.cpp \
     src/SegmentingPencilTool.cpp \
-    src/SegmentingPencilToolBar.cpp
+    src/SegmentingPencilToolBar.cpp \
+    src/PolygonToolBar.cpp
 
 FORMS += \
     ui/MainWindow.ui \

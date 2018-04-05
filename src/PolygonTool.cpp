@@ -1,10 +1,13 @@
 #include "PolygonTool.h"
+#include "PolygonToolBar.h"
 #include "SegmentationScene.h"
 #include "GraphicsItems.h"
 #include "UndoCommands.h"
 #include "Drawables.h"
+#include "Helper.h"
 #include <QKeyEvent>
 #include <QGraphicsSceneMouseEvent>
+#include <QCheckBox>
 
 PolygonTool::PolygonTool(QAction* action, SegmentationScene* scene, QObject* parent)
 	: Tool(action, scene, parent)
@@ -13,6 +16,13 @@ PolygonTool::PolygonTool(QAction* action, SegmentationScene* scene, QObject* par
 	markerItem_->hide();
 	polyItem_ = new PolylineItem(scene->canvasItem());
 	polyItem_->hide();
+
+	toolbar_ = new PolygonToolBar;
+}
+
+QToolBar* PolygonTool::toolbar() const
+{
+	return toolbar_;
 }
 
 void PolygonTool::clear()
@@ -49,14 +59,15 @@ void PolygonTool::mousePressEvent(QGraphicsSceneMouseEvent* event)
 	if (event->button() != Qt::LeftButton) {
 		return;
 	}
-	auto pos = scene()->pixmapPosFromScene(event->scenePos());
-	if (scene()->canvasItem()->pixmapRect().contains(pos)) {
+	auto pixmapPos = scene()->pixmapPosFromScene(event->scenePos());
+	if (scene()->canvasItem()->pixmapRect().contains(pixmapPos)) {
+		auto pos = scene()->canvasItem()->mapFromScene(event->scenePos());
+		auto align = toolbar_->alignToPixelsCheckBox->isChecked();
 		if (!polyItem_->isVisible()) {
-			polyPixmapPos_ = pos;
-			polyItem_->setPos(pos + QPointF(.5, .5));
+			polyItem_->setPos(align ? pixmapPos + QPointF(.5, .5) : pos);
 			polyItem_->begin();
 			polyItem_->show();
-			markerItem_->setPos(pos + QPointF(.5, .5));
+			markerItem_->setPos(align ? pixmapPos + QPointF(.5, .5) : pos);
 			markerItem_->setAcceptHoverEvents(false);
 			markerItem_->show();
 		}
@@ -64,13 +75,13 @@ void PolygonTool::mousePressEvent(QGraphicsSceneMouseEvent* event)
 			if (markerItem_->isHovering()) {
 				if (polyItem_->canClose()) {
 					polyItem_->commit();
-					auto poly = polyItem_->polygon().toPolygon().translated(polyPixmapPos_);
+					auto poly = polyItem_->polygon().translated(polyItem_->pos());
 					emit scene()->newCommand(new DrawCommand(scene()->canvasItem(), new Polygon(poly)));
 					clear();
 				}
 			}
 			else {
-				polyItem_->commitPoint(pos - polyItem_->pos() + QPointF(.5, .5));
+				polyItem_->commitPoint(align ? pixmapPos - help::floor(polyItem_->pos()) : pos - polyItem_->pos());
 				if (!markerItem_->acceptHoverEvents() && polyItem_->canClose())
 					markerItem_->setAcceptHoverEvents(true);
 			}
@@ -81,6 +92,9 @@ void PolygonTool::mousePressEvent(QGraphicsSceneMouseEvent* event)
 void PolygonTool::mouseMoveEvent(QGraphicsSceneMouseEvent* event)
 {
 	if (polyItem_->isVisible()) {
-		polyItem_->setLastPoint(scene()->pixmapPosFromScene(event->scenePos()) - polyItem_->pos() + QPointF(.5, .5));
+		auto pos = scene()->canvasItem()->mapFromScene(event->scenePos());
+		polyItem_->setLastPoint(toolbar_->alignToPixelsCheckBox->isChecked() ?
+									help::floor(pos) - help::floor(polyItem_->pos()) :
+									pos - polyItem_->pos());
 	}
 }

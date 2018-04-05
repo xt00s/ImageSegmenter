@@ -2,9 +2,12 @@
 #include "Helper.h"
 #include <QPainter>
 
-Polygon::Polygon(const QPolygon& polygon)
-	: Drawable(polygon.boundingRect()), polygon_(polygon)
-{}
+Polygon::Polygon(const QPolygonF& polygon)
+	: Drawable(QRect()), polygon_(polygon)
+{
+	auto r = polygon.boundingRect();
+	rect_ = QRect(help::floor(r.topLeft()).toPoint(), help::floor(r.bottomRight()).toPoint());
+}
 
 void Polygon::draw(QPainter& painter, const QColor& color) const
 {

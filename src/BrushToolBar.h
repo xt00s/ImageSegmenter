@@ -9,7 +9,6 @@ class QToolButton;
 
 class BrushToolBar : public QToolBar
 {
-	Q_OBJECT
 public:
 	BrushToolBar(QWidget *parent = 0);
 

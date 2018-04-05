@@ -4,6 +4,7 @@
 #include "Tool.h"
 #include <QPoint>
 
+class PolygonToolBar;
 class PolylineItem;
 class StartMarkerItem;
 
@@ -12,6 +13,7 @@ class PolygonTool : public Tool
 public:
 	PolygonTool(QAction* action, SegmentationScene* scene, QObject *parent = 0);
 
+	QToolBar* toolbar() const override;
 	void clear() override;
 
 protected:
@@ -21,9 +23,9 @@ protected:
 	void mouseMoveEvent(QGraphicsSceneMouseEvent* event) override;
 
 private:
+	PolygonToolBar* toolbar_;
 	PolylineItem* polyItem_;
 	StartMarkerItem* markerItem_;
-	QPoint polyPixmapPos_;
 };
 
 #endif // POLYGONTOOL_H

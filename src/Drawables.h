@@ -27,10 +27,10 @@ inline QRect Drawable::rect() const { return rect_; }
 class Polygon : public Drawable
 {
 public:
-	Polygon(const QPolygon& polygon);
+	Polygon(const QPolygonF& polygon);
 	void draw(QPainter& painter, const QColor& color) const override;
 private:
-	QPolygon polygon_;
+	QPolygonF polygon_;
 };
 
 

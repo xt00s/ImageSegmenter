@@ -9,7 +9,6 @@ class QToolButton;
 
 class MagicWandToolBar : public QToolBar
 {
-	Q_OBJECT
 public:
 	MagicWandToolBar(QWidget *parent = 0);
 

@@ -11,7 +11,6 @@ class QToolButton;
 
 class SegmentingPencilToolBar : public QToolBar
 {
-	Q_OBJECT
 public:
 	SegmentingPencilToolBar();
 
