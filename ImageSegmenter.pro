@@ -32,7 +32,8 @@ HEADERS += \
     src/MagicWandToolBar.h \
     src/SegmentingPencilTool.h \
     src/SegmentingPencilToolBar.h \
-    src/PolygonToolBar.h
+    src/PolygonToolBar.h \
+    src/ZoomDialog.h
 
 SOURCES += \
     src/Category.cpp \
@@ -62,13 +63,15 @@ SOURCES += \
     src/MagicWandToolBar.cpp \
     src/SegmentingPencilTool.cpp \
     src/SegmentingPencilToolBar.cpp \
-    src/PolygonToolBar.cpp
+    src/PolygonToolBar.cpp \
+    src/ZoomDialog.cpp
 
 FORMS += \
     ui/MainWindow.ui \
     ui/OpenFolderDialog.ui \
     ui/NewSchemeDialog.ui \
-    ui/AboutDialog.ui
+    ui/AboutDialog.ui \
+    ui/ZoomDialog.ui
 
 RESOURCES += \
     ImageSegmenter.qrc

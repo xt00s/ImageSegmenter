@@ -1,6 +1,7 @@
 #include "MainWindow.h"
 #include "ui_mainwindow.h"
 #include "OpenFolderDialog.h"
+#include "ZoomDialog.h"
 #include "AboutDialog.h"
 #include "PolygonTool.h"
 #include "BrushTool.h"
@@ -27,11 +28,13 @@ MainWindow::MainWindow(QWidget *parent)
 	: QMainWindow(parent)
 	, ui(new Ui::MainWindow)
 	, zoomSlider_(0)
-	, zoomLabel_(0)
+	, zoomLevelButton_(0)
 	, sizeLabel_(0)
 	, progressLabel_(0)
 	, posLabel_(0)
 	, toolToolbarsSeparator_(0)
+	, keepZoomLevel_(false)
+	, keepingZoom_(1)
 {
 	setup();
 
@@ -52,6 +55,7 @@ MainWindow::MainWindow(QWidget *parent)
 	connect(ui->actionGrayscaleImage, &QAction::triggered, [this] (bool checked) { scene_.canvasItem()->setPixmapGray(checked); });
 	connect(ui->actionAbout, &QAction::triggered, [this] () { AboutDialog().exec(); });
 	connect(zoomSlider_, &ZoomSlider::zoomChanged, this, &MainWindow::zoomChanged);
+	connect(zoomLevelButton_, &QToolButton::clicked, this, &MainWindow::openZoomOptions);
 	connect(&scene_, &SegmentationScene::mousePosChanged, this, &MainWindow::mousePosChanged);
 	connect(&scene_, &SegmentationScene::newCommand, [this] (QUndoCommand* command) { undoStack_.push(command); });
 
@@ -113,10 +117,10 @@ void MainWindow::setupStatusBar()
 	zoomSlider_->setZoomRange(0.1, 32);
 	zoomSlider_->setZoomTicks({.1, .25, .33, .5, .66, .75, 1, 1.25, 1.5, 2, 3, 4, 6, 8, 12, 16, 24, 32});
 
-	zoomLabel_ = new QLabel("100%", this);
-	zoomLabel_->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
-	zoomLabel_->setIndent(5);
-	zoomLabel_->setFixedWidth(50);
+	zoomLevelButton_ = new QToolButton(this);
+	zoomLevelButton_->setToolButtonStyle(Qt::ToolButtonTextOnly);
+	zoomLevelButton_->setText("100%");
+	zoomLevelButton_->setFixedWidth(40);
 
 	auto spacer = new QWidget(this);
 	spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
@@ -154,7 +158,7 @@ void MainWindow::setupStatusBar()
 	statusToolBar->addWidget(sizeLabel_);
 	statusToolBar->addWidget(posImage);
 	statusToolBar->addWidget(posLabel_);
-	statusToolBar->addWidget(zoomLabel_);
+	statusToolBar->addWidget(zoomLevelButton_);
 	statusToolBar->addAction(ui->actionZoomOut);
 	statusToolBar->addWidget(zoomSlider_);
 	statusToolBar->addAction(ui->actionZoomIn);
@@ -346,11 +350,16 @@ void MainWindow::imageSelected(const QString &imagePath)
 	}
 	scene_.updateSceneRect();
 	if (!image.isNull()) {
-		if (ui->segmentationView->viewport()->rect().contains(image.rect())) {
-			ui->segmentationView->setTransform(QTransform::fromScale(1, 1));
+		if (keepZoomLevel_) {
+			zoomSlider_->setZoom(keepingZoom_);
 			ui->segmentationView->centerOn(scene_.canvasItem());
 		} else {
-			ui->segmentationView->fitInView(scene_.canvasItem(), Qt::KeepAspectRatio);
+			if (ui->segmentationView->viewport()->rect().contains(image.rect())) {
+				ui->segmentationView->setTransform(QTransform::fromScale(1, 1));
+				ui->segmentationView->centerOn(scene_.canvasItem());
+			} else {
+				ui->segmentationView->fitInView(scene_.canvasItem(), Qt::KeepAspectRatio);
+			}
 		}
 	}
 	imagePath_ = imagePath;
@@ -369,7 +378,7 @@ void MainWindow::imageSelected(const QString &imagePath)
 
 void MainWindow::zoomChanged(double zoom)
 {
-	zoomLabel_->setText(QString::number(zoom * 100, 'f', 0) + '%');
+	zoomLevelButton_->setText(QString::number(int(zoom * 100)) + '%');
 	ui->segmentationView->setTransform(QTransform::fromScale(zoom, zoom));
 }
 
@@ -404,6 +413,19 @@ void MainWindow::openFolder()
 	OpenFolderDialog dialog(this);
 	if (dialog.exec()) {
 		open(dialog.schemePath(), dialog.folderPath(), dialog.outputPath());
+	}
+}
+
+void MainWindow::openZoomOptions()
+{
+	ZoomDialog dialog(this);
+	dialog.setZoom(zoomSlider_->zoom());
+	dialog.setKeepZoomLevel(keepZoomLevel_);
+	dialog.setKeepingZoom(keepZoomLevel_ ? keepingZoom_ : zoomSlider_->zoom());
+	if (dialog.exec()) {
+		zoomSlider_->setZoom(dialog.zoom());
+		keepZoomLevel_ = dialog.keepZoomLevel();
+		keepingZoom_ = dialog.keepingZoom();
 	}
 }
 

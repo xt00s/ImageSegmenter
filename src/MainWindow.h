@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include <QLabel>
+#include <QToolButton>
 #include <QUndoStack>
 #include <QMap>
 #include "SegmentationScene.h"
@@ -26,8 +27,9 @@ private slots:
 	void zoomChanged(double value);
 	void zoomShifted(int delta);
 	void mousePosChanged(const QPoint& pos);
-	void openFolder();
 	void progressChanged();
+	void openFolder();
+	void openZoomOptions();
 
 private:
 	void setup();
@@ -49,7 +51,7 @@ private:
 private:
 	Ui::MainWindow *ui;
 	ZoomSlider* zoomSlider_;
-	QLabel* zoomLabel_;
+	QToolButton* zoomLevelButton_;
 	QLabel* sizeLabel_;
 	QLabel* posLabel_;
 	QLabel* progressLabel_;
@@ -60,6 +62,8 @@ private:
 	QList<Tool*> tools_;
 	QMap<Tool*, QAction*> toolToolbarActions_;
 	QAction* toolToolbarsSeparator_;
+	bool keepZoomLevel_;
+	double keepingZoom_;
 };
 
 #endif // MAINWINDOW_H

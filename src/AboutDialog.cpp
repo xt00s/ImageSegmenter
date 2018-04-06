@@ -1,4 +1,4 @@
-#include "src/AboutDialog.h"
+#include "AboutDialog.h"
 #include "ui_AboutDialog.h"
 #include <QApplication>
 #include <QSysInfo>
