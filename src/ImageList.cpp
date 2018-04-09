@@ -4,6 +4,8 @@
 #include <QDir>
 #include <QStyledItemDelegate>
 #include <QPainter>
+#include <QMenu>
+#include <QAction>
 
 #define SEGM_COLOR	QColor(128,128,128)
 #define CURSOR_SIZE QSize(16,16)
@@ -37,15 +39,28 @@ ImageList::ImageList(QWidget *parent)
 	: QTreeWidget(parent)
 	, selected_(-1)
 	, segmented_(0)
+	, contextMenu_(0)
+	, createEmptyMaskAction_(0)
+	, removeMaskAction_(0)
 {
+	createContextMenu();
 	boldFont_.setBold(true);
-	connect(this, SIGNAL(itemDoubleClicked(QTreeWidgetItem*,int)), this, SLOT(itemDoubleClicked(QTreeWidgetItem*,int)));
+	connect(this, &QTreeWidget::itemDoubleClicked, this, &ImageList::itemDoubleClicked);
+	connect(this, &QTreeWidget::customContextMenuRequested, this, &ImageList::showContextMenu);
 }
 
 void ImageList::setup()
 {
 	setItemDelegateForColumn(0, new ImageListIconDelegate(this));
 	setColumnWidth(0, 20);
+	setContextMenuPolicy(Qt::CustomContextMenu);
+}
+
+void ImageList::createContextMenu()
+{
+	contextMenu_ = new QMenu(this);
+	createEmptyMaskAction_ = contextMenu_->addAction("Create Empty Mask", this, &ImageList::createEmptyMask);
+	removeMaskAction_ = contextMenu_->addAction("Remove Mask", this, &ImageList::removeMask);
 }
 
 void ImageList::open(const QString &path, const QString& outputPath, const QString &schemeName)
@@ -124,6 +139,38 @@ bool ImageList::isNextAvailable() const
 void ImageList::itemDoubleClicked(QTreeWidgetItem* item, int column)
 {
 	select(row(item));
+}
+
+void ImageList::showContextMenu(const QPoint& pos)
+{
+	auto item = itemAt(pos);
+	if (!item)
+		return;
+	createEmptyMaskAction_->setEnabled(!markedAsSegmented(item));
+	createEmptyMaskAction_->setData(pos);
+	removeMaskAction_->setEnabled(markedAsSegmented(item));
+	removeMaskAction_->setData(pos);
+	contextMenu_->popup(mapToGlobal(pos));
+}
+
+void ImageList::createEmptyMask()
+{
+	auto item = itemAt(createEmptyMaskAction_->data().toPoint());
+	if (item && !markedAsSegmented(item)) {
+		emit createEmptyMaskRequested(item->data(0, PathRole).toString());
+		update(row(item));
+	}
+	createEmptyMaskAction_->setData(QVariant());
+}
+
+void ImageList::removeMask()
+{
+	auto item = itemAt(removeMaskAction_->data().toPoint());
+	if (item && markedAsSegmented(item)) {
+		emit removeMaskRequested(item->data(0, PathRole).toString());
+		update(row(item));
+	}
+	removeMaskAction_->setData(QVariant());
 }
 
 bool ImageList::segmented(QTreeWidgetItem *item)

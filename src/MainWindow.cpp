@@ -40,6 +40,8 @@ MainWindow::MainWindow(QWidget *parent)
 
 	connect(ui->imageList, &ImageList::selected, this, &MainWindow::imageSelected);
 	connect(ui->imageList, &ImageList::progressChanged, this, &MainWindow::progressChanged);
+	connect(ui->imageList, &ImageList::createEmptyMaskRequested, this, &MainWindow::createEmptyMask);
+	connect(ui->imageList, &ImageList::removeMaskRequested, this, &MainWindow::removeMask);
 	connect(ui->actionNext, &QAction::triggered, ui->imageList, &ImageList::next);
 	connect(ui->actionPrevious, &QAction::triggered, ui->imageList, &ImageList::prev);
 	connect(ui->actionZoomIn, &QAction::triggered, zoomSlider_, &ZoomSlider::zoomIn);
@@ -314,6 +316,33 @@ void MainWindow::saveMask()
 								 QMessageBox::Ok);
 		}
 	}
+}
+
+void MainWindow::createEmptyMask(const QString& imagePath)
+{
+	help::WaitCursor wait;
+
+	QSize size;
+	if (imagePath == imagePath_) {
+		size = scene_.canvasItem()->pixmapSize();
+	} else {
+		QImage image(imagePath);
+		if (image.isNull()) {
+			QMessageBox::warning(this, "", QString("Can't read image '%1'").arg(imagePath), QMessageBox::Ok);
+			return;
+		}
+		size = image.size();
+	}
+	auto maskPath = help::segmentationMaskFilePath(imagePath, outputPath_, ui->schemeTree->scheme()->name());
+	QPixmap mask(size);
+	mask.fill(Qt::black);
+	mask.save(maskPath);
+}
+
+void MainWindow::removeMask(const QString& imagePath)
+{
+	auto maskPath = help::segmentationMaskFilePath(imagePath, outputPath_, ui->schemeTree->scheme()->name());
+	QFile::remove(maskPath);
 }
 
 void MainWindow::imageSelected(const QString &imagePath)
