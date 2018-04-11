@@ -64,8 +64,6 @@ private:
 	QList<Tool*> tools_;
 	QMap<Tool*, QAction*> toolToolbarActions_;
 	QAction* toolToolbarsSeparator_;
-	bool keepZoomLevel_;
-	double keepingZoom_;
 };
 
 #endif // MAINWINDOW_H

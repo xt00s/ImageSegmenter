@@ -174,6 +174,11 @@ void SchemeTree::resetCategoryStates()
 	}
 }
 
+void SchemeTree::resetCategorySelection()
+{
+	setCurrentItem(invisibleRootItem()->child(1), 1);
+}
+
 Category *SchemeTree::currentCategory() const
 {
 	auto c = currentItem();

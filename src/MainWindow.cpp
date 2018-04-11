@@ -2,11 +2,13 @@
 #include "ui_mainwindow.h"
 #include "OpenFolderDialog.h"
 #include "ZoomDialog.h"
+#include "OptionsDialog.h"
 #include "AboutDialog.h"
 #include "PolygonTool.h"
 #include "BrushTool.h"
 #include "MagicWandTool.h"
 #include "SegmentingPencilTool.h"
+#include "Options.h"
 #include "Helper.h"
 #include <QApplication>
 #include <QFile>
@@ -33,8 +35,6 @@ MainWindow::MainWindow(QWidget *parent)
 	, progressLabel_(0)
 	, posLabel_(0)
 	, toolToolbarsSeparator_(0)
-	, keepZoomLevel_(false)
-	, keepingZoom_(1)
 {
 	setup();
 
@@ -55,7 +55,8 @@ MainWindow::MainWindow(QWidget *parent)
 	connect(ui->actionShowImage, &QAction::triggered, [this] (bool checked) { scene_.canvasItem()->setPixmapVisible(checked); });
 	connect(ui->actionShowSegmentationMask, &QAction::triggered, [this] (bool checked) { scene_.canvasItem()->setMaskVisible(checked); });
 	connect(ui->actionGrayscaleImage, &QAction::triggered, [this] (bool checked) { scene_.canvasItem()->setPixmapGray(checked); });
-	connect(ui->actionAbout, &QAction::triggered, [this] () { AboutDialog().exec(); });
+	connect(ui->actionOptions, &QAction::triggered, [this] { OptionsDialog().exec(); });
+	connect(ui->actionAbout, &QAction::triggered, [this] { AboutDialog().exec(); });
 	connect(zoomSlider_, &ZoomSlider::zoomChanged, this, &MainWindow::zoomChanged);
 	connect(zoomLevelButton_, &QToolButton::clicked, this, &MainWindow::openZoomOptions);
 	connect(&scene_, &SegmentationScene::mousePosChanged, this, &MainWindow::mousePosChanged);
@@ -228,6 +229,7 @@ void MainWindow::setupOtherActions()
 	ui->toolBar->addWidget(new QLabel(" Opacity: ", this));
 	ui->toolBar->addWidget(opacitySlider);
 	ui->toolBar->addSeparator();
+	ui->toolBar->addAction(ui->actionOptions);
 	ui->toolBar->addAction(ui->actionAbout);
 }
 
@@ -379,8 +381,8 @@ void MainWindow::imageSelected(const QString &imagePath)
 	}
 	scene_.updateSceneRect();
 	if (!image.isNull()) {
-		if (keepZoomLevel_) {
-			zoomSlider_->setZoom(keepingZoom_);
+		if (Options::get().keepZoomLevel) {
+			zoomSlider_->setZoom(Options::get().keepingZoom);
 			ui->segmentationView->centerOn(scene_.canvasItem());
 		} else {
 			if (ui->segmentationView->viewport()->rect().contains(image.rect())) {
@@ -399,6 +401,14 @@ void MainWindow::imageSelected(const QString &imagePath)
 	ui->actionNext->setEnabled(ui->imageList->isNextAvailable());
 	ui->actionPrevious->setEnabled(ui->imageList->isPrevAvailable());
 	posLabel_->setText("");
+
+	if (Options::get().resetToolSelection) {
+		tools_[0]->activate();
+	}
+	if (Options::get().resetCategorySelection) {
+		ui->schemeTree->resetCategorySelection();
+	}
+
 	setToolsEnabled(!image.isNull());
 	updateZoomFromView();
 	updateSizeLabel();
@@ -448,13 +458,14 @@ void MainWindow::openFolder()
 void MainWindow::openZoomOptions()
 {
 	ZoomDialog dialog(this);
+	auto& options = Options::get();
 	dialog.setZoom(zoomSlider_->zoom());
-	dialog.setKeepZoomLevel(keepZoomLevel_);
-	dialog.setKeepingZoom(keepZoomLevel_ ? keepingZoom_ : zoomSlider_->zoom());
+	dialog.setKeepZoomLevel(options.keepZoomLevel);
+	dialog.setKeepingZoom(options.keepZoomLevel ? options.keepingZoom : zoomSlider_->zoom());
 	if (dialog.exec()) {
 		zoomSlider_->setZoom(dialog.zoom());
-		keepZoomLevel_ = dialog.keepZoomLevel();
-		keepingZoom_ = dialog.keepingZoom();
+		options.keepZoomLevel = dialog.keepZoomLevel();
+		options.keepingZoom = dialog.keepingZoom();
 	}
 }
 
@@ -462,7 +473,7 @@ void MainWindow::progressChanged()
 {
 	if (ui->imageList->count()) {
 		progressLabel_->setText(QString("%1% (%2 of %3)")
-								.arg(double(ui->imageList->segmentedCount()) / ui->imageList->count() * 100, 0, 'f', 0)
+								.arg(int(double(ui->imageList->segmentedCount()) / ui->imageList->count() * 100))
 								.arg(ui->imageList->segmentedCount())
 								.arg(ui->imageList->count()));
 	} else {

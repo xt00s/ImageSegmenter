@@ -470,6 +470,21 @@
     <string>E</string>
    </property>
   </action>
+  <action name="actionOptions">
+   <property name="icon">
+    <iconset resource="../ImageSegmenter.qrc">
+     <normaloff>:/image/icons/options.svg</normaloff>:/image/icons/options.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Options</string>
+   </property>
+   <property name="toolTip">
+    <string>Options</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+O</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <customwidgets>

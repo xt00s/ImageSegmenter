@@ -15,6 +15,7 @@ public:
 	bool open(const QString& path);
 	void clear();
 	void resetCategoryStates();
+	void resetCategorySelection();
 
 	Category* currentCategory() const;
 	Scheme* scheme() const;

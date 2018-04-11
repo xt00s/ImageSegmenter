@@ -31,5 +31,6 @@
         <file>icons/arrows-up-down.svg</file>
         <file>icons/plus.svg</file>
         <file>icons/minus.svg</file>
+        <file>icons/options.svg</file>
     </qresource>
 </RCC>

@@ -33,7 +33,9 @@ HEADERS += \
     src/SegmentingPencilTool.h \
     src/SegmentingPencilToolBar.h \
     src/PolygonToolBar.h \
-    src/ZoomDialog.h
+    src/ZoomDialog.h \
+    src/Options.h \
+    src/OptionsDialog.h
 
 SOURCES += \
     src/Category.cpp \
@@ -64,14 +66,17 @@ SOURCES += \
     src/SegmentingPencilTool.cpp \
     src/SegmentingPencilToolBar.cpp \
     src/PolygonToolBar.cpp \
-    src/ZoomDialog.cpp
+    src/ZoomDialog.cpp \
+    src/Options.cpp \
+    src/OptionsDialog.cpp
 
 FORMS += \
     ui/MainWindow.ui \
     ui/OpenFolderDialog.ui \
     ui/NewSchemeDialog.ui \
     ui/AboutDialog.ui \
-    ui/ZoomDialog.ui
+    ui/ZoomDialog.ui \
+    ui/OptionsDialog.ui
 
 RESOURCES += \
     ImageSegmenter.qrc
