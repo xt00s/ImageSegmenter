@@ -159,6 +159,10 @@ void ImageList::createEmptyMask()
 	if (item && !markedAsSegmented(item)) {
 		emit createEmptyMaskRequested(item->data(0, PathRole).toString());
 		update(row(item));
+		if (markedAsSegmented(item)) {
+			segmented_++;
+			emit progressChanged();
+		}
 	}
 	createEmptyMaskAction_->setData(QVariant());
 }
@@ -169,6 +173,10 @@ void ImageList::removeMask()
 	if (item && markedAsSegmented(item)) {
 		emit removeMaskRequested(item->data(0, PathRole).toString());
 		update(row(item));
+		if (!markedAsSegmented(item)) {
+			segmented_--;
+			emit progressChanged();
+		}
 	}
 	removeMaskAction_->setData(QVariant());
 }
