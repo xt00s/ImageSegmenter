@@ -40,7 +40,7 @@ void HandlessSlider::paint(QPainter& p)
 
 QSize HandlessSlider::handleSize() const
 {
-    return QSize(1, contentsRect().height());
+    return {1, contentsRect().height()};
 }
 
 QRect HandlessSlider::handleSpaceRect() const

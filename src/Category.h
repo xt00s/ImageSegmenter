@@ -14,7 +14,7 @@ public:
     void setName(const QString& name);
 
     QColor color() const;
-    void setColor(QColor color);
+    void setColor(const QColor& color);
 
     bool isVisible() const;
     void setVisible(bool visible);
@@ -42,7 +42,7 @@ private:
 inline QString Category::name() const { return name_; }
 inline void Category::setName(const QString &name) { name_ = name; }
 inline QColor Category::color() const { return color_; }
-inline void Category::setColor(QColor color) { color_ = color; }
+inline void Category::setColor(const QColor& color) { color_ = color; }
 inline bool Category::isVisible() const { return visible_; }
 inline void Category::setVisible(bool visible) { visible_ = visible; }
 inline bool Category::isLocked() const { return locked_; }

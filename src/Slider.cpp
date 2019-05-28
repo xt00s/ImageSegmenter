@@ -7,6 +7,7 @@ Slider::Slider(QWidget *parent)
     , pressed_(false)
     , pos_(0)
     , value_(0)
+    , pressedPos_(0)
 {
     setMouseTracking(true);
 }
@@ -139,21 +140,22 @@ double Slider::valueFromPos(int pos, int minPos, int maxPos) const
 {
     if (pos == minPos) {
         return 0;
-    } else if (pos == maxPos) {
-        return 1;
-    } else {
-        return minPos >= maxPos ? 0 : double(pos - minPos) / (maxPos - minPos);
     }
+    if (pos == maxPos) {
+        return 1;
+    }
+    return minPos >= maxPos ? 0 : double(pos - minPos) / (maxPos - minPos);
+
 }
 
 int Slider::posFromValue(double value, int minPos, int maxPos) const
 {
-    return value * (maxPos - minPos) + minPos;
+    return int(value * (maxPos - minPos) + minPos);
 }
 
 QSize Slider::handleSize() const
 {
-    return QSize(8, contentsRect().height());
+    return {8, contentsRect().height()};
 }
 
 QRect Slider::handleSpaceRect() const
@@ -168,5 +170,5 @@ bool Slider::overHandle(const QPoint& pos) const
 
 QSize Slider::sizeHint() const
 {
-    return QSize(16,100);
+    return {16,100};
 }

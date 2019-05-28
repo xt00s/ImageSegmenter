@@ -11,7 +11,7 @@ class StartMarkerItem;
 class PolygonTool : public Tool
 {
 public:
-    PolygonTool(QAction* action, SegmentationScene* scene, QObject *parent = 0);
+    PolygonTool(QAction* action, SegmentationScene* scene, QObject *parent = nullptr);
 
     QToolBar* toolbar() const override;
     void clear() override;

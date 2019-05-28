@@ -91,7 +91,7 @@ void MagicWandTool::mousePressEvent(QGraphicsSceneMouseEvent* event)
         guideLine_->show();
         guideLine_->setLine(QLineF(event->scenePos(), event->scenePos()));
         pressed_ = true;
-        if (!toolbar_->toleranceSlider->value()) {
+        if (toolbar_->toleranceSlider->value() == 0) {
             rebuildSelection(0);
         }
         toolbar_->toleranceSlider->setValue(0);

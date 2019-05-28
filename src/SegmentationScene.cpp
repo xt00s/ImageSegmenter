@@ -9,7 +9,7 @@
 
 SegmentationScene::SegmentationScene(QObject *parent)
     : QGraphicsScene(parent)
-    , tool_(0)
+    , tool_(nullptr)
 {
     canvasItem_ = new CanvasItem;
     canvasItem_->setFlag(QGraphicsItem::ItemClipsChildrenToShape);

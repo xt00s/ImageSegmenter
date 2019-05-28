@@ -8,7 +8,7 @@ class QCheckBox;
 class PolygonToolBar : public QToolBar
 {
 public:
-    PolygonToolBar(QWidget* parent = 0);
+    PolygonToolBar(QWidget* parent = nullptr);
 
     QCheckBox* alignToPixelsCheckBox;
 };

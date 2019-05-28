@@ -12,7 +12,7 @@ class MagicWandToolBar;
 class MagicWandTool : public Tool
 {
 public:
-    MagicWandTool(QAction* action, SegmentationScene* scene, QObject *parent = 0);
+    MagicWandTool(QAction* action, SegmentationScene* scene, QObject *parent = nullptr);
 
     QToolBar* toolbar() const override;
     void clear() override;

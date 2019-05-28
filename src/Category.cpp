@@ -2,7 +2,9 @@
 #include "Helper.h"
 
 Category::Category()
-    : index_(-1), visible_(true), locked_(false)
+    : index_(-1)
+    , visible_(true)
+    , locked_(false)
 {}
 
 Category* Category::fromJson(const QJsonObject &json)

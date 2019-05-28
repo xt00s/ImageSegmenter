@@ -25,7 +25,7 @@ void Tool::activate()
 void Tool::deactivate()
 {
     if (scene()->tool_ == this) {
-        scene()->tool_ = 0;
+        scene()->tool_ = nullptr;
         action_->setChecked(false);
         onDeactivate();
         emit deactivated();

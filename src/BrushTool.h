@@ -12,7 +12,7 @@ class BrushTool : public Tool
 {
     Q_OBJECT
 public:
-    BrushTool(QAction* action, SegmentationScene* scene, QObject *parent = 0);
+    BrushTool(QAction* action, SegmentationScene* scene, QObject *parent = nullptr);
 
     QToolBar* toolbar() const override;
     void clear() override;

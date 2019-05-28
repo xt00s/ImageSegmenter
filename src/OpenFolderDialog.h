@@ -14,8 +14,8 @@ class OpenFolderDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit OpenFolderDialog(QWidget *parent = 0);
-    ~OpenFolderDialog();
+    explicit OpenFolderDialog(QWidget *parent = nullptr);
+    ~OpenFolderDialog() override;
 
     QString schemePath() const;
     QString folderPath() const;

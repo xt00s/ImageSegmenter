@@ -16,7 +16,6 @@ OptionsDialog::~OptionsDialog()
     delete ui;
 }
 
-
 void OptionsDialog::accept()
 {
     Options::get().resetToolSelection = ui->resetToolSelectionCheckBox->isChecked();

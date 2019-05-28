@@ -18,15 +18,15 @@ namespace help
         ~DefaultCursor();
     };
 
-    inline QPointF floor(const QPointF& p) { return QPointF(::floor(p.x()), ::floor(p.y())); }
+    inline QPointF floor(const QPointF& p) { return {::floor(p.x()), ::floor(p.y())}; }
 
     inline uchar qLsbBit(const uchar* line, int x) { return (*(line + x/8) >> (x & 7)) & 1; }
     inline void qLsbSet(uchar* line, int x) { *(line + x/8) |= (uchar(1) << (x & 7)); }
 
-    QPixmap colorPixmap(QSize size, QColor color);
+    QPixmap colorPixmap(QSize size, const QColor& color);
     QPixmap lightenPixmap(const QPixmap& pixmap, qreal factor);
     QString correctFileName(const QString& name);
-    QString segmentationMaskFilePath(const QString& imagePath, const QString outputPath, const QString& scheme);
+    QString segmentationMaskFilePath(const QString& imagePath, const QString& outputPath, const QString& scheme);
 
     QPixmap rgb2gray(const QPixmap& pixmap);
 

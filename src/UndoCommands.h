@@ -10,7 +10,7 @@ class Category;
 class DrawCommand : public QUndoCommand
 {
 public:
-    DrawCommand(CanvasItem* canvas, Drawable* shape, QUndoCommand *parent = 0);
+    DrawCommand(CanvasItem* canvas, Drawable* shape, QUndoCommand *parent = nullptr);
 
     void undo() override;
     void redo() override;
@@ -26,7 +26,7 @@ private:
 class DrawFragmentCommand : public QUndoCommand
 {
 public:
-    DrawFragmentCommand(CanvasItem* canvas, CanvasItem::Fragment* original, QUndoCommand *parent = 0);
+    DrawFragmentCommand(CanvasItem* canvas, CanvasItem::Fragment* original, QUndoCommand *parent = nullptr);
 
     void undo() override;
     void redo() override;

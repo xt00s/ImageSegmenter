@@ -21,7 +21,7 @@ enum SchemeTreeRole {
 class SchemeTreeIconDelegate : public QStyledItemDelegate
 {
 public:
-    SchemeTreeIconDelegate(QObject *parent = 0)
+    SchemeTreeIconDelegate(QObject *parent = nullptr)
         : QStyledItemDelegate(parent)
     {}
     void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const override
@@ -54,7 +54,7 @@ public:
 class SchemeTreeSelectionModel : public QItemSelectionModel
 {
 public:
-    SchemeTreeSelectionModel(QAbstractItemModel *model, QObject* parent = 0)
+    SchemeTreeSelectionModel(QAbstractItemModel *model, QObject* parent = nullptr)
         : QItemSelectionModel(model, parent)
     {}
     void select(const QItemSelection &selection, QItemSelectionModel::SelectionFlags command) override
@@ -111,14 +111,14 @@ bool SchemeTree::open(const QString &path)
     for (;;) {
         QFile file(path);
         if (!file.open(QFile::ReadOnly)) {
-            errorString_ = QString("Can't open the file '%1': %2").arg(path).arg(file.errorString());
+            errorString_ = QString("Can't open the file '%1': %2").arg(path, file.errorString());
             failed = true;
             break;
         }
-        QJsonParseError error;
+        QJsonParseError error{};
         auto json = QJsonDocument::fromJson(file.readAll(), &error);
         if (error.error != QJsonParseError::NoError) {
-            errorString_ = QString("Invalid json file '%1': %2").arg(path).arg(error.errorString());
+            errorString_ = QString("Invalid json file '%1': %2").arg(path, error.errorString());
             failed = true;
             break;
         }
@@ -137,7 +137,7 @@ bool SchemeTree::open(const QString &path)
     }
     if (failed) {
         if (had) {
-            emit schemeChanged(0);
+            emit schemeChanged(nullptr);
         }
         scheme_.reset();
         return false;
@@ -182,7 +182,7 @@ void SchemeTree::resetCategorySelection()
 Category *SchemeTree::currentCategory() const
 {
     auto c = currentItem();
-    return c ? itemCategory(c) : 0;
+    return c ? itemCategory(c) : nullptr;
 }
 
 void SchemeTree::itemClicked(QTreeWidgetItem *item, int column)
@@ -198,7 +198,7 @@ void SchemeTree::itemClicked(QTreeWidgetItem *item, int column)
                     }
                 }
                 item->setData(0, ClipperRole, !clipper);
-                emit clipChanged(clipper ? 0 : c);
+                emit clipChanged(clipper ? nullptr : c);
                 break;
             }
         case 2:
@@ -233,10 +233,10 @@ void SchemeTree::selectionChanged(const QItemSelection& selected, const QItemSel
             cur->setFont(1, f);
             emit this->selected(itemCategory(cur));
         } else {
-            emit this->selected(0);
+            emit this->selected(nullptr);
         }
     } else {
-        emit this->selected(0);
+        emit this->selected(nullptr);
     }
     QTreeWidget::selectionChanged(selected, deselected);
 }

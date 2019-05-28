@@ -23,8 +23,8 @@ BrushToolBar::BrushToolBar(QWidget *parent)
         {500,50,1000}
     };
     QStringList widths;
-    for (int r = 0; r < _countof(ranges); r++) {
-        for (int i = ranges[r][0]; i < ranges[r][2]; i += ranges[r][1]) {
+    for (auto& range : ranges) {
+        for (int i = range[0]; i < range[2]; i += range[1]) {
             widths << QString::number(i);
         }
     }

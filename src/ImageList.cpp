@@ -18,7 +18,7 @@ enum ImageListRole {
 class ImageListIconDelegate : public QStyledItemDelegate
 {
 public:
-    ImageListIconDelegate(QObject *parent = 0)
+    ImageListIconDelegate(QObject *parent = nullptr)
         : QStyledItemDelegate(parent)
         , cursor_(QIcon(":/image/icons/image-cursor.svg").pixmap(CURSOR_SIZE))
     {}
@@ -39,9 +39,9 @@ ImageList::ImageList(QWidget *parent)
     : QTreeWidget(parent)
     , selected_(-1)
     , segmented_(0)
-    , contextMenu_(0)
-    , createEmptyMaskAction_(0)
-    , removeMaskAction_(0)
+    , contextMenu_(nullptr)
+    , createEmptyMaskAction_(nullptr)
+    , removeMaskAction_(nullptr)
 {
     createContextMenu();
     boldFont_.setBold(true);

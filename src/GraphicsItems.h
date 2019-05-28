@@ -12,7 +12,7 @@ class Selection;
 class CanvasItem : public QGraphicsItem
 {
 public:
-    CanvasItem(QGraphicsItem* parent = 0);
+    CanvasItem(QGraphicsItem* parent = nullptr);
 
     QRect pixmapRect() const;
     QSize pixmapSize() const;
@@ -59,14 +59,14 @@ public:
         QRect rect() const { return rect_; }
         Fragment* extract(const QRect& rect) const;
     private:
-        Fragment(const QRect& rect, const Category* category = 0) : rect_(rect), category_(category) {}
+        Fragment(const QRect& rect, const Category* category = nullptr) : rect_(rect), category_(category) {}
         friend class CanvasItem;
         QRect rect_;
         const Category* category_;
         QVector<QPixmap> layerFragements_;
     };
 
-    Fragment* extractFragment(const QRect& rect, const Category* category = 0) const;
+    Fragment* extractFragment(const QRect& rect, const Category* category = nullptr) const;
     void restoreFragment(const Fragment& fragment);
 
 private:
@@ -103,7 +103,7 @@ inline double CanvasItem::pixmapOpacity() const { return pixmapOpacity_; }
 class OverlayItem : public QGraphicsItem
 {
 public:
-    OverlayItem(QGraphicsItem* parent = 0);
+    OverlayItem(QGraphicsItem* parent = nullptr);
 
     void setSize(const QSize& size);
 
@@ -133,7 +133,7 @@ inline QPixmap OverlayItem::pixmap() const { return pixmap_; }
 class PolylineItem : public QGraphicsItem
 {
 public:
-    PolylineItem(QGraphicsItem *parent = 0);
+    PolylineItem(QGraphicsItem *parent = nullptr);
 
     void begin();
     void setLastPoint(const QPointF& p);
@@ -159,8 +159,8 @@ inline QPolygonF PolylineItem::polygon() const { return polygon_; }
 class OutlineItem : public QGraphicsItem
 {
 public:
-    OutlineItem(const QVector<QPointF>& outline, QGraphicsItem *parent = 0);
-    OutlineItem(const QPolygonF& outline, QGraphicsItem *parent = 0);
+    OutlineItem(const QVector<QPointF>& outline, QGraphicsItem *parent = nullptr);
+    OutlineItem(const QPolygonF& outline, QGraphicsItem *parent = nullptr);
 
     QRectF boundingRect() const override;
     void paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget) override;
@@ -180,7 +180,7 @@ inline int OutlineItem::dashOffset() const { return dashOffset_; }
 class StartMarkerItem : public QGraphicsItem
 {
 public:
-    StartMarkerItem(QGraphicsItem *parent = 0);
+    StartMarkerItem(QGraphicsItem *parent = nullptr);
 
     bool isHovering() const;
     void clear();
@@ -190,8 +190,8 @@ public:
     void paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget) override;
 
 protected:
-    void hoverEnterEvent(QGraphicsSceneHoverEvent *event);
-    void hoverLeaveEvent(QGraphicsSceneHoverEvent *event);
+    void hoverEnterEvent(QGraphicsSceneHoverEvent *event) override;
+    void hoverLeaveEvent(QGraphicsSceneHoverEvent *event) override;
 
 private:
     bool hovering_;
@@ -202,7 +202,7 @@ inline bool StartMarkerItem::isHovering() const { return hovering_; }
 class BrushCursorItem : public QGraphicsItem
 {
 public:
-    BrushCursorItem(QGraphicsItem *parent = 0);
+    BrushCursorItem(QGraphicsItem *parent = nullptr);
 
     qreal width() const;
     void setWidth(qreal width);
@@ -219,8 +219,8 @@ inline qreal BrushCursorItem::width() const { return width_; }
 class GuideLineItem : public QGraphicsItem
 {
 public:
-    GuideLineItem(QGraphicsItem *parent = 0);
-    GuideLineItem(const QLineF& line, QGraphicsItem *parent = 0);
+    GuideLineItem(QGraphicsItem *parent = nullptr);
+    GuideLineItem(const QLineF& line, QGraphicsItem *parent = nullptr);
 
     QLineF line() const;
     void setLine(const QLineF& line);

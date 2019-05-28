@@ -9,19 +9,18 @@
 
 CanvasItem::CanvasItem(QGraphicsItem* parent)
     : QGraphicsItem(parent)
-    , scheme_(0)
-    , category_(0)
+    , scheme_(nullptr)
+    , category_(nullptr)
     , maskVisible_(true)
     , pixmapVisible_(true)
     , pixmapGray_(false)
     , pixmapOpacity_(1)
     , clipRegionVisible_(true)
-{
-}
+{}
 
 QRectF CanvasItem::boundingRect() const
 {
-    return QRectF(QPointF(), pixmap_.size());
+    return {QPointF(), pixmap_.size()};
 }
 
 QPainterPath CanvasItem::shape() const
@@ -41,7 +40,7 @@ void CanvasItem::setPixmap(const QPixmap& pixmap, const QPixmap& mask)
     pixmapG_ = pixmapGray_ ? help::rgb2gray(pixmap) : QPixmap();
     shape_ = QPainterPath();
     shape_.addRect(QRectF(QPointF(), pixmap.size()));
-    setClipRegion(0);
+    setClipRegion(nullptr);
     initLayers(mask);
 }
 
@@ -109,10 +108,10 @@ CanvasItem::Fragment* CanvasItem::extractFragment(const QRect& rect, const Categ
 {
     auto r = rect == QRect() ? pixmap_.rect() : rect.intersected(pixmap_.rect());
     if (r.isEmpty()) {
-        return 0;
+        return nullptr;
     }
     if (category && category->index() < 0)
-        category = 0;
+        category = nullptr;
     auto f = new Fragment(r, category);
     if (category) {
         f->layerFragements_ << layers_[category->index()].copy(r);
@@ -137,7 +136,7 @@ CanvasItem::Fragment* CanvasItem::Fragment::extract(const QRect& rect) const
         rr = QRect(vr.topLeft() - rect_.topLeft(), vr.size());
     }
     if (rr.isEmpty()) {
-        return 0;
+        return nullptr;
     }
     auto f = new Fragment(vr, category_);
     f->layerFragements_.reserve(layerFragements_.count());
@@ -381,7 +380,7 @@ void OverlayItem::clear()
 
 QRectF OverlayItem::boundingRect() const
 {
-    return QRectF(QPointF(), pixmap_.size());
+    return {QPointF(), pixmap_.size()};
 }
 
 QPainterPath OverlayItem::shape() const

@@ -14,9 +14,9 @@ class Selection : public QObject
     Q_OBJECT
     Q_PROPERTY(int outlineDashOffset READ outlineDashOffset  WRITE setOutlineDashOffset)
 public:
-    Selection(QGraphicsScene* scene, QObject *parent = 0);
-    Selection(const QImage& bmp, bool highlightVisible, QGraphicsScene* scene, QObject *parent = 0);
-    ~Selection();
+    Selection(QGraphicsScene* scene, QObject *parent = nullptr);
+    Selection(const QImage& bmp, bool highlightVisible, QGraphicsScene* scene, QObject *parent = nullptr);
+    ~Selection() override;
 
     void setArea(const QImage& bmp);
 

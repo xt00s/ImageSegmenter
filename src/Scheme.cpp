@@ -12,7 +12,7 @@ Category *Scheme::findCategory(const QString &name) const
     for (auto& c : categories_)
         if (c->name().toLower() == lower)
             return c;
-    return 0;
+    return nullptr;
 }
 
 Scheme* Scheme::fromJson(const QJsonObject &json)

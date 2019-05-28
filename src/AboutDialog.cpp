@@ -14,11 +14,11 @@ AboutDialog::AboutDialog(QWidget *parent) :
     ui->setupUi(this);
     ui->appNameLabel->setText(QApplication::applicationName() + " " + QApplication::applicationVersion());
     ui->buildDateLabel->setText(QString("Built on ") + BUILD_DATE_TIME);
-    ui->licenseLabel->setText(QString("The software is based on Qt %1 (%2, %3) and licensed under %4.")
-                              .arg(QT_VERSION_STR)
-                              .arg(QSysInfo::buildCpuArchitecture())
-                              .arg(R"(<a href="http://doc.qt.io/qt-5/lgpl.html">license</a>)")
-                              .arg(R"(<a href="https://opensource.org/licenses/MIT">MIT license</a>)"));
+    ui->licenseLabel->setText(QString("The software is based on Qt %1 (%2, %3) and licensed under %4.").arg(
+                                  QT_VERSION_STR,
+                                  QSysInfo::buildCpuArchitecture(),
+                                  R"(<a href="http://doc.qt.io/qt-5/lgpl.html">license</a>)",
+                                  R"(<a href="https://opensource.org/licenses/MIT">MIT license</a>)"));
     ui->licenseLabel->setOpenExternalLinks(true);
     setFixedSize(400, 143);
 }

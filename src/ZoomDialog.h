@@ -12,8 +12,8 @@ class ZoomDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit ZoomDialog(QWidget *parent = 0);
-    ~ZoomDialog();
+    explicit ZoomDialog(QWidget *parent = nullptr);
+    ~ZoomDialog() override;
 
     double zoom() const;
     void setZoom(double zoom);

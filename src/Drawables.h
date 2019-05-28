@@ -14,7 +14,7 @@ class Drawable
 {
 public:
     Drawable(const QRect& rect);
-    virtual ~Drawable() {}
+    virtual ~Drawable() = default;
     QRect rect() const;
     virtual void draw(QPainter& painter, const QColor& color) const = 0;
 protected:

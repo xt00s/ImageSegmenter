@@ -15,7 +15,7 @@
 class ColorDelegate : public QStyledItemDelegate
 {
 public:
-    ColorDelegate(QObject *parent = 0)
+    ColorDelegate(QObject *parent = nullptr)
         : QStyledItemDelegate(parent)
     {}
     void paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const override
@@ -112,8 +112,7 @@ bool NewSchemeDialog::save()
     QFile file(ui->pathEdit->text());
     if (!file.open(QFile::WriteOnly)) {
         auto message = QString("Can't open file '%1': %2")
-                .arg(ui->pathEdit->text())
-                .arg(file.errorString());
+                .arg(ui->pathEdit->text(), file.errorString());
         QMessageBox::warning(this, "", message, QMessageBox::Ok);
         return false;
     }

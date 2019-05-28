@@ -4,9 +4,9 @@
 #include <QApplication>
 
 SegmentationView::SegmentationView(QWidget *parent)
-    : QGraphicsView(parent), panning_(false)
-{
-}
+    : QGraphicsView(parent)
+    , panning_(false)
+{}
 
 void SegmentationView::setup()
 {

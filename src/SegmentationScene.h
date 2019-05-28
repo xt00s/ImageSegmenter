@@ -12,7 +12,7 @@ class SegmentationScene : public QGraphicsScene
 {
     Q_OBJECT
 public:
-    SegmentationScene(QObject *parent = 0);
+    SegmentationScene(QObject *parent = nullptr);
 
     void setup();
     void updateSceneRect();

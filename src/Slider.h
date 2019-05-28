@@ -11,7 +11,7 @@ class Slider : public QWidget
     Q_PROPERTY(QColor valueGrooveColor READ valueGrooveColor WRITE setValueGrooveColor)
 
 public:
-    Slider(QWidget *parent = 0);
+    Slider(QWidget *parent = nullptr);
 
     double value() const;
     void setValue(double value);

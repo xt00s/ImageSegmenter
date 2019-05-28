@@ -29,12 +29,12 @@
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
-    , zoomSlider_(0)
-    , zoomLevelButton_(0)
-    , sizeLabel_(0)
-    , progressLabel_(0)
-    , posLabel_(0)
-    , toolToolbarsSeparator_(0)
+    , zoomSlider_(nullptr)
+    , zoomLevelButton_(nullptr)
+    , sizeLabel_(nullptr)
+    , progressLabel_(nullptr)
+    , posLabel_(nullptr)
+    , toolToolbarsSeparator_(nullptr)
 {
     setup();
 
@@ -314,7 +314,7 @@ void MainWindow::saveMask()
         QImageWriter writer(maskPath);
         if (!writer.write(scene_.canvasItem()->mask().toImage())) {
             QMessageBox::warning(this, "",
-                                 QString("Can't write mask '%1: %2'").arg(maskPath).arg(writer.errorString()),
+                                 QString("Can't write mask '%1: %2'").arg(maskPath, writer.errorString()),
                                  QMessageBox::Ok);
         }
     }
@@ -358,7 +358,7 @@ void MainWindow::imageSelected(const QString &imagePath)
         if (!reader.read(&image)) {
             help::DefaultCursor noWait;
             QMessageBox::warning(this, "",
-                                 QString("Can't read image '%1': %2").arg(imagePath).arg(reader.errorString()),
+                                 QString("Can't read image '%1': %2").arg(imagePath, reader.errorString()),
                                  QMessageBox::Ok);
         }
         else {
@@ -368,7 +368,7 @@ void MainWindow::imageSelected(const QString &imagePath)
                 if (!reader.read(&mask)) {
                     help::DefaultCursor noWait;
                     QMessageBox::warning(this, "",
-                                         QString("Can't read mask '%1': %2").arg(imagePath).arg(reader.errorString()),
+                                         QString("Can't read mask '%1': %2").arg(imagePath, reader.errorString()),
                                          QMessageBox::Ok);
                 }
             }
@@ -499,7 +499,7 @@ void MainWindow::open(const QString& schemePath, const QString& folderPath, cons
         }
     }
     outputPath_ = error.isEmpty() ? outputPath : QString();
-    ui->imageList->setEnabled(ui->schemeTree->scheme() != 0);
+    ui->imageList->setEnabled(ui->schemeTree->scheme() != nullptr);
     ui->actionNext->setEnabled(ui->imageList->isNextAvailable());
     ui->actionPrevious->setEnabled(ui->imageList->isPrevAvailable());
     if (!error.isEmpty()) {

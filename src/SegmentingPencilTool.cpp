@@ -14,6 +14,7 @@
 
 SegmentingPencilTool::SegmentingPencilTool(QAction* action, SegmentationScene* scene, QObject *parent)
     : Tool(action, scene, parent)
+    , width_(0)
     , pressed_(false)
     , pressedButton_(0)
     , smoothKernel_(help::diskBitmap(1))

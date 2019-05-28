@@ -7,10 +7,10 @@
 class HandlessSlider : public Slider
 {
 public:
-    typedef std::function<QString(double)> TextFormatter;
+    using TextFormatter = std::function<QString (double)>;
 
 public:
-    HandlessSlider(QWidget *parent = 0);
+    HandlessSlider(QWidget *parent = nullptr);
 
     bool textVisible() const;
     void setTextVisible(bool textVisible);

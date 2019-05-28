@@ -10,7 +10,7 @@ class QToolButton;
 class BrushToolBar : public QToolBar
 {
 public:
-    BrushToolBar(QWidget *parent = 0);
+    BrushToolBar(QWidget *parent = nullptr);
 
     QLabel* widthLabel;
     QComboBox* widthCombo;

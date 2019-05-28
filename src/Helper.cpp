@@ -1,3 +1,5 @@
+#include <memory>
+
 #include "Helper.h"
 #include <QApplication>
 #include <QPainter>
@@ -31,7 +33,7 @@ namespace help
         QApplication::restoreOverrideCursor();
     }
 
-    QPixmap colorPixmap(QSize size, QColor color)
+    QPixmap colorPixmap(QSize size, const QColor& color)
     {
         QPixmap pixmap(size);
         pixmap.fill(Qt::transparent);
@@ -58,7 +60,7 @@ namespace help
         return QString(name).remove(re);
     }
 
-    QString segmentationMaskFilePath(const QString &imagePath, const QString outputPath, const QString &scheme)
+    QString segmentationMaskFilePath(const QString &imagePath, const QString& outputPath, const QString &scheme)
     {
         auto corrected = correctFileName(scheme);
         if (corrected.isEmpty()) {
@@ -285,17 +287,16 @@ namespace help
                             ranges.append({s, r.y+1, e, -1});
                         }
                         break;
-                    } else {
-                        if (r.x-s > 1) {
-                            ranges.append({s, r.y + r.dir, r.x-1, r.dir * -1});
-                        }
-                        if (e-r.maxX > 1) {
-                            ranges.append({r.maxX+1, r.y + r.dir, e, r.dir * -1});
-                        }
-                        int newY = r.y - r.dir;
-                        if (newY >= 0 && newY < sz.height()) {
-                            ranges.append({s, r.y - r.dir, e, r.dir});
-                        }
+                    }
+                    if (r.x-s > 1) {
+                        ranges.append({s, r.y + r.dir, r.x-1, r.dir * -1});
+                    }
+                    if (e-r.maxX > 1) {
+                        ranges.append({r.maxX+1, r.y + r.dir, e, r.dir * -1});
+                    }
+                    int newY = r.y - r.dir;
+                    if (newY >= 0 && newY < sz.height()) {
+                        ranges.append({s, r.y - r.dir, e, r.dir});
                     }
                 }
                 s = e+1;
@@ -307,7 +308,7 @@ namespace help
     QRect filledRect(const QImage& bmp)
     {
         if (bmp.format() != QImage::Format_MonoLSB) {
-            return QRect();
+            return {};
         }
         const auto bitsInBlock = sizeof(quint64) * 8;
         auto sz = bmp.size();
@@ -346,7 +347,7 @@ namespace help
         return l < sz.width() ? QRect(QPoint(l,t), QPoint(r,b)) : QRect();
     }
 
-    typedef Graph<double,double,double> GraphD;
+    using GraphD = Graph<double,double,double>;
 
     QImage segmentIGC(const QImage& src, const QImage& seedMask, const QColor& fColor, const QColor& bColor, double sigma)
     {
@@ -366,7 +367,7 @@ namespace help
         graph.add_node(nodes);
         for (int y = 0, i = 0; y < S.height(); y++) {
             auto seedSL = seedMask.scanLine(y);
-            auto srcSL = src.scanLine(y), srcSL2 = y+1 < S.height() ? src.scanLine(y+1) : 0;
+            auto srcSL = src.scanLine(y), srcSL2 = y+1 < S.height() ? src.scanLine(y+1) : nullptr;
             for (int x = 0; x < S.width(); x++, i++) {
                 auto seedRgb = seedPixel(seedSL, x, y);
                 auto srcRgb = srcPixel(srcSL,x, y);
@@ -437,8 +438,8 @@ namespace help
 
     struct KernelOffsets
     {
-        unique_ptr<quint64> kernelData;
-        const quint64* kernel[64];
+        unique_ptr<quint64[]> kernelData;
+        quint64* kernel[64];
         int start[64];
         int count[64];
         int bpl;
@@ -446,9 +447,9 @@ namespace help
 
     KernelOffsets generateKernelOffsets(const QImage& K)
     {
-        KernelOffsets KO;
+        KernelOffsets KO{};
         KO.bpl = (62 + K.width()) / 64 + 1;
-        KO.kernelData.reset(new quint64[KO.bpl * K.height() * 64]);
+        KO.kernelData = make_unique<quint64[]>(KO.bpl * K.height() * 64);
         auto off = (64 * (K.width() / 64 + 1) - K.width() / 2) % 64, coff = 64 - off;
 
         for (int i = 0; i < 64; i++) {
@@ -462,7 +463,7 @@ namespace help
             }
             for (int y = 0; y < K.height(); y++) {
                 auto sl = reinterpret_cast<const quint64*>(K.scanLine(y));
-                auto p = const_cast<quint64*>(KO.kernel[i] + KO.bpl * y);
+                auto p = KO.kernel[i] + KO.bpl * y;
 
                 *p++ = *sl++ << off;
                 for (int x = 1; x < KO.count[i]; x++, sl++) {

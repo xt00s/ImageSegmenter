@@ -11,7 +11,7 @@ namespace Ui {
 class CategoryList : public QTreeWidget
 {
 public:
-    CategoryList(QWidget *parent = 0);
+    CategoryList(QWidget *parent = nullptr);
     void setup();
 protected:
     void leaveEvent(QEvent* event) override;
@@ -24,8 +24,8 @@ class NewSchemeDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit NewSchemeDialog(QWidget *parent = 0);
-    ~NewSchemeDialog();
+    explicit NewSchemeDialog(QWidget *parent = nullptr);
+    ~NewSchemeDialog() override;
 
     void accept() override;
     QString savedPath() const;

@@ -7,7 +7,7 @@ class ZoomSlider : public Slider
 {
     Q_OBJECT
 public:
-    explicit ZoomSlider(QWidget *parent = 0);
+    explicit ZoomSlider(QWidget *parent = nullptr);
 
     void setZoomRange(double min, double max);
     void setZoomTicks(const QVector<double>& ticks);

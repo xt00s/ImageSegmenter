@@ -10,7 +10,7 @@ class QToolButton;
 class MagicWandToolBar : public QToolBar
 {
 public:
-    MagicWandToolBar(QWidget *parent = 0);
+    MagicWandToolBar(QWidget *parent = nullptr);
 
     QLabel* toleranceLabel;
     HandlessSlider* toleranceSlider;

@@ -9,7 +9,7 @@ class SchemeTree : public QTreeWidget
 {
     Q_OBJECT
 public:
-    SchemeTree(QWidget *parent = 0);
+    SchemeTree(QWidget *parent = nullptr);
 
     void setup();
     bool open(const QString& path);

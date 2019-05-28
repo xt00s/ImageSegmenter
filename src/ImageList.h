@@ -10,7 +10,7 @@ class ImageList : public QTreeWidget
 {
     Q_OBJECT
 public:
-    ImageList(QWidget *parent = 0);
+    ImageList(QWidget *parent = nullptr);
 
     void setup();
     void open(const QString& path, const QString& outputPath, const QString &schemeName);

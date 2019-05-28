@@ -7,7 +7,7 @@ class SegmentationView : public QGraphicsView
 {
     Q_OBJECT
 public:
-    SegmentationView(QWidget *parent = 0);
+    SegmentationView(QWidget *parent = nullptr);
 
     void setup();
 

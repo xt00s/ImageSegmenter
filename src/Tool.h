@@ -14,7 +14,7 @@ class Tool : public QObject
 {
     Q_OBJECT
 public:
-    Tool(QAction* action, SegmentationScene* scene, QObject *parent = 0);
+    Tool(QAction* action, SegmentationScene* scene, QObject *parent = nullptr);
 
     void activate();
     void deactivate();
@@ -48,7 +48,7 @@ private:
 };
 
 inline QAction* Tool::action() const { return action_; }
-inline QToolBar* Tool::toolbar() const { return 0; }
+inline QToolBar* Tool::toolbar() const { return nullptr; }
 inline SegmentationScene* Tool::scene() const { return scene_; }
 
 #endif // TOOLS_H
