@@ -6,6 +6,7 @@
 #include <QPainter>
 #include <QMenu>
 #include <QAction>
+#include <QHeaderView>
 
 #define SEGM_COLOR	QColor(128,128,128)
 #define CURSOR_SIZE QSize(16,16)
@@ -52,6 +53,7 @@ ImageList::ImageList(QWidget *parent)
 void ImageList::setup()
 {
     setItemDelegateForColumn(0, new ImageListIconDelegate(this));
+    header()->setMinimumSectionSize(20);
     setColumnWidth(0, 20);
     setContextMenuPolicy(Qt::CustomContextMenu);
 }

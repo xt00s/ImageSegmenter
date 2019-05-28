@@ -269,6 +269,8 @@ void SchemeTree::setup()
     delete oldSelectionModel;
 
     setItemDelegateForColumn(0, new SchemeTreeIconDelegate(this));
+    header()->setMinimumSectionSize(24);
+
     int widths[] = { 24, 100, 24, 24 };
     for (int i = 0; i < columnCount(); i++) {
         setColumnWidth(i, abs(widths[i]));
