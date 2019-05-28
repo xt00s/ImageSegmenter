@@ -12,17 +12,17 @@ class QToolButton;
 class SegmentingPencilToolBar : public QToolBar
 {
 public:
-	SegmentingPencilToolBar();
+    SegmentingPencilToolBar();
 
-	QLabel* bandwidthLabel;
-	QDoubleSpinBox* bandwidthSpinBox;
-	QAction* actionIncreaseBandwidth;
-	QAction* actionDecreaseBandwidth;
-	QCheckBox* smoothCheckBox;
-	QAction* actionIncreaseSmoothRadius;
-	QAction* actionDecreaseSmoothRadius;
-	QSpinBox* smoothRadiusSpinBox;
-	QToolButton* finishButton;
+    QLabel* bandwidthLabel;
+    QDoubleSpinBox* bandwidthSpinBox;
+    QAction* actionIncreaseBandwidth;
+    QAction* actionDecreaseBandwidth;
+    QCheckBox* smoothCheckBox;
+    QAction* actionIncreaseSmoothRadius;
+    QAction* actionDecreaseSmoothRadius;
+    QSpinBox* smoothRadiusSpinBox;
+    QToolButton* finishButton;
 };
 
 #endif // SEGMENTINGPENCILTOOLBAR_H

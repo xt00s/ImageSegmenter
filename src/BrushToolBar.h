@@ -10,17 +10,17 @@ class QToolButton;
 class BrushToolBar : public QToolBar
 {
 public:
-	BrushToolBar(QWidget *parent = 0);
+    BrushToolBar(QWidget *parent = 0);
 
-	QLabel* widthLabel;
-	QComboBox* widthCombo;
-	QAction* actionIncreaseWidth;
-	QAction* actionDecreaseWidth;
-	QToolButton* defineWidthButton;
+    QLabel* widthLabel;
+    QComboBox* widthCombo;
+    QAction* actionIncreaseWidth;
+    QAction* actionDecreaseWidth;
+    QToolButton* defineWidthButton;
 
 private:
-	void incWidth();
-	void decWidth();
+    void incWidth();
+    void decWidth();
 };
 
 #endif // BRUSHTOOLBAR_H

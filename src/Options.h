@@ -5,15 +5,15 @@
 class Options
 {
 public:
-	bool keepZoomLevel;
-	double keepingZoom;
-	bool resetToolSelection;
-	bool resetCategorySelection;
+    bool keepZoomLevel;
+    double keepingZoom;
+    bool resetToolSelection;
+    bool resetCategorySelection;
 
-	static Options& get();
+    static Options& get();
 
 private:
-	Options();
+    Options();
 };
 
 #endif // OPTIONS_H

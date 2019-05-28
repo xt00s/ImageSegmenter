@@ -5,22 +5,22 @@
 
 class SegmentationView : public QGraphicsView
 {
-	Q_OBJECT
+    Q_OBJECT
 public:
-	SegmentationView(QWidget *parent = 0);
+    SegmentationView(QWidget *parent = 0);
 
-	void setup();
+    void setup();
 
 signals:
-	void zoomShifted(int delta);
+    void zoomShifted(int delta);
 
 protected:
-	bool eventFilter(QObject *watched, QEvent *event) override;
+    bool eventFilter(QObject *watched, QEvent *event) override;
 
 private:
-	bool panning_;
-	QPoint panningPos_;
-	QCursor lastCursor_;
+    bool panning_;
+    QPoint panningPos_;
+    QCursor lastCursor_;
 };
 
 #endif // SEGMENTATIONVIEW_H

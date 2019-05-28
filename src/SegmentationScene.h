@@ -10,38 +10,38 @@ class Tool;
 
 class SegmentationScene : public QGraphicsScene
 {
-	Q_OBJECT
+    Q_OBJECT
 public:
-	SegmentationScene(QObject *parent = 0);
+    SegmentationScene(QObject *parent = 0);
 
-	void setup();
-	void updateSceneRect();
+    void setup();
+    void updateSceneRect();
 
-	CanvasItem* canvasItem() const;
-	OverlayItem* overlayItem() const;
-	Tool* tool() const;
+    CanvasItem* canvasItem() const;
+    OverlayItem* overlayItem() const;
+    Tool* tool() const;
 
-	QPoint pixmapPosFromScene(const QPointF& scenePos) const;
-	void setViewCursor(const QCursor& cursor);
-	void unsetViewCursor();
+    QPoint pixmapPosFromScene(const QPointF& scenePos) const;
+    void setViewCursor(const QCursor& cursor);
+    void unsetViewCursor();
 
 signals:
-	void mousePosChanged(const QPoint& pos);
-	void newCommand(QUndoCommand* command);
+    void mousePosChanged(const QPoint& pos);
+    void newCommand(QUndoCommand* command);
 
 protected:
-	void keyPressEvent(QKeyEvent *event) override;
-	void keyReleaseEvent(QKeyEvent *event) override;
-	void mousePressEvent(QGraphicsSceneMouseEvent *event) override;
-	void mouseMoveEvent(QGraphicsSceneMouseEvent *event) override;
-	void mouseReleaseEvent(QGraphicsSceneMouseEvent *event) override;
-	bool eventFilter(QObject* watched, QEvent* event) override;
+    void keyPressEvent(QKeyEvent *event) override;
+    void keyReleaseEvent(QKeyEvent *event) override;
+    void mousePressEvent(QGraphicsSceneMouseEvent *event) override;
+    void mouseMoveEvent(QGraphicsSceneMouseEvent *event) override;
+    void mouseReleaseEvent(QGraphicsSceneMouseEvent *event) override;
+    bool eventFilter(QObject* watched, QEvent* event) override;
 
 private:
-	friend class Tool;
-	CanvasItem* canvasItem_;
-	OverlayItem* overlayItem_;
-	Tool* tool_;
+    friend class Tool;
+    CanvasItem* canvasItem_;
+    OverlayItem* overlayItem_;
+    Tool* tool_;
 };
 
 inline CanvasItem* SegmentationScene::canvasItem() const { return canvasItem_; }

@@ -12,39 +12,39 @@ class SegmentationScene;
 
 class Tool : public QObject
 {
-	Q_OBJECT
+    Q_OBJECT
 public:
-	Tool(QAction* action, SegmentationScene* scene, QObject *parent = 0);
+    Tool(QAction* action, SegmentationScene* scene, QObject *parent = 0);
 
-	void activate();
-	void deactivate();
-	virtual void clear() = 0;
+    void activate();
+    void deactivate();
+    virtual void clear() = 0;
 
-	QAction* action() const;
-	virtual QToolBar* toolbar() const;
-	SegmentationScene* scene() const;
+    QAction* action() const;
+    virtual QToolBar* toolbar() const;
+    SegmentationScene* scene() const;
 
 signals:
-	void activated();
-	void deactivated();
+    void activated();
+    void deactivated();
 
 protected:
-	virtual void onActivate() = 0;
-	virtual void onDeactivate();
-	virtual void keyPressEvent(QKeyEvent *event) {}
-	virtual void keyReleaseEvent(QKeyEvent *event) {}
-	virtual void mousePressEvent(QGraphicsSceneMouseEvent *event) {}
-	virtual void mouseMoveEvent(QGraphicsSceneMouseEvent *event) {}
-	virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *event) {}
-	virtual void leaveEvent(QEvent* event) {}
+    virtual void onActivate() = 0;
+    virtual void onDeactivate();
+    virtual void keyPressEvent(QKeyEvent *event) {}
+    virtual void keyReleaseEvent(QKeyEvent *event) {}
+    virtual void mousePressEvent(QGraphicsSceneMouseEvent *event) {}
+    virtual void mouseMoveEvent(QGraphicsSceneMouseEvent *event) {}
+    virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *event) {}
+    virtual void leaveEvent(QEvent* event) {}
 
 private slots:
-	void actionTriggered();
+    void actionTriggered();
 
 private:
-	friend class SegmentationScene;
-	QAction* action_;
-	SegmentationScene* scene_;
+    friend class SegmentationScene;
+    QAction* action_;
+    SegmentationScene* scene_;
 };
 
 inline QAction* Tool::action() const { return action_; }

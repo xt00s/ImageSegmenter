@@ -11,44 +11,44 @@ class OutlineItem;
 
 class Selection : public QObject
 {
-	Q_OBJECT
-	Q_PROPERTY(int outlineDashOffset READ outlineDashOffset  WRITE setOutlineDashOffset)
+    Q_OBJECT
+    Q_PROPERTY(int outlineDashOffset READ outlineDashOffset  WRITE setOutlineDashOffset)
 public:
-	Selection(QGraphicsScene* scene, QObject *parent = 0);
-	Selection(const QImage& bmp, bool highlightVisible, QGraphicsScene* scene, QObject *parent = 0);
-	~Selection();
+    Selection(QGraphicsScene* scene, QObject *parent = 0);
+    Selection(const QImage& bmp, bool highlightVisible, QGraphicsScene* scene, QObject *parent = 0);
+    ~Selection();
 
-	void setArea(const QImage& bmp);
+    void setArea(const QImage& bmp);
 
-	QImage filledArea() const;
-	QRect filledAreaRect() const;
+    QImage filledArea() const;
+    QRect filledAreaRect() const;
 
-	bool visible() const;
-	void setVisible(bool visible);
+    bool visible() const;
+    void setVisible(bool visible);
 
-	int outlineDashOffset() const;
-	void setOutlineDashOffset(int outlineDashOffset);
+    int outlineDashOffset() const;
+    void setOutlineDashOffset(int outlineDashOffset);
 
-	bool highlightVisible() const;
-	void setHighlightVisible(bool visible);
+    bool highlightVisible() const;
+    void setHighlightVisible(bool visible);
 
-	bool empty() const;
-
-private:
-	void initHighlight();
-	void initOutlines();
-	OutlineItem* outlineFromBoundary(const QVector<QPoint>& boundary, QImage& map);
+    bool empty() const;
 
 private:
-	bool visible_;
-	bool highlightVisible_;
-	int outlineDashOffset_;
-	QGraphicsScene* scene_;
-	QImage bitmap_;
-	mutable QRect filledAreaRect_;
-	QScopedPointer<QGraphicsPixmapItem> highlight_;
-	QList<OutlineItem*> outlines_;
-	QPropertyAnimation outlineAnimation_;
+    void initHighlight();
+    void initOutlines();
+    OutlineItem* outlineFromBoundary(const QVector<QPoint>& boundary, QImage& map);
+
+private:
+    bool visible_;
+    bool highlightVisible_;
+    int outlineDashOffset_;
+    QGraphicsScene* scene_;
+    QImage bitmap_;
+    mutable QRect filledAreaRect_;
+    QScopedPointer<QGraphicsPixmapItem> highlight_;
+    QList<OutlineItem*> outlines_;
+    QPropertyAnimation outlineAnimation_;
 };
 
 inline bool Selection::visible() const { return visible_; }

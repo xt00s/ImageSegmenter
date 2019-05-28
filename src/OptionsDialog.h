@@ -4,21 +4,21 @@
 #include <QDialog>
 
 namespace Ui {
-class OptionsDialog;
+    class OptionsDialog;
 }
 
 class OptionsDialog : public QDialog
 {
-	Q_OBJECT
+    Q_OBJECT
 
 public:
-	explicit OptionsDialog(QWidget *parent = 0);
-	~OptionsDialog();
+    explicit OptionsDialog(QWidget *parent = 0);
+    ~OptionsDialog();
 
-	void accept() override;
+    void accept() override;
 
 private:
-	Ui::OptionsDialog *ui;
+    Ui::OptionsDialog *ui;
 };
 
 #endif // OPTIONSDIALOG_H

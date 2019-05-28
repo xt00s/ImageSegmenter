@@ -82,7 +82,8 @@ RESOURCES += \
     ImageSegmenter.qrc
 
 DISTFILES += \
-    ImageSegmenter.qss
+    ImageSegmenter.qss \
+    ImageSegmenter.rc
 
 win32:RC_FILE = ImageSegmenter.rc
 win32:QMAKE_CXXFLAGS_WARN_ON -= -w34100

@@ -8,33 +8,33 @@
 class Category
 {
 public:
-	Category();
+    Category();
 
-	QString name() const;
-	void setName(const QString& name);
+    QString name() const;
+    void setName(const QString& name);
 
-	QColor color() const;
-	void setColor(QColor color);
+    QColor color() const;
+    void setColor(QColor color);
 
-	bool isVisible() const;
-	void setVisible(bool visible);
+    bool isVisible() const;
+    void setVisible(bool visible);
 
-	bool isLocked() const;
-	void setLocked(bool locked);
+    bool isLocked() const;
+    void setLocked(bool locked);
 
-	int index() const;
+    int index() const;
 
-	static Category* fromJson(const QJsonObject& json);
-	QJsonObject toJson() const;
+    static Category* fromJson(const QJsonObject& json);
+    QJsonObject toJson() const;
 
 private:
-	friend class Scheme;
-	Q_DISABLE_COPY(Category)
-	int index_;
-	QString name_;
-	QColor color_;
-	bool visible_;
-	bool locked_;
+    friend class Scheme;
+    Q_DISABLE_COPY(Category)
+    int index_;
+    QString name_;
+    QColor color_;
+    bool visible_;
+    bool locked_;
 };
 
 // inlines

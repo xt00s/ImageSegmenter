@@ -8,9 +8,9 @@ class QCheckBox;
 class PolygonToolBar : public QToolBar
 {
 public:
-	PolygonToolBar(QWidget* parent = 0);
+    PolygonToolBar(QWidget* parent = 0);
 
-	QCheckBox* alignToPixelsCheckBox;
+    QCheckBox* alignToPixelsCheckBox;
 };
 
 #endif // POLYGONTOOLBAR_H

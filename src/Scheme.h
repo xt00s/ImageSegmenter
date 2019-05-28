@@ -9,27 +9,27 @@
 class Scheme
 {
 public:
-	~Scheme();
+    ~Scheme();
 
-	QString name() const;
-	void setName(const QString& name);
+    QString name() const;
+    void setName(const QString& name);
 
-	QList<Category*> categories() const;
-	int categoryCount() const;
-	Category* categoryAt(int i) const;
-	void addCategory(Category* category);
-	void removeCategory(Category* category);
-	Category* findCategory(const QString& name) const;
+    QList<Category*> categories() const;
+    int categoryCount() const;
+    Category* categoryAt(int i) const;
+    void addCategory(Category* category);
+    void removeCategory(Category* category);
+    Category* findCategory(const QString& name) const;
 
-	static Scheme* fromJson(const QJsonObject& json);
-	QJsonObject toJson() const;
-
-private:
-	void updateIndexes();
+    static Scheme* fromJson(const QJsonObject& json);
+    QJsonObject toJson() const;
 
 private:
-	QString name_;
-	QList<Category*> categories_;
+    void updateIndexes();
+
+private:
+    QString name_;
+    QList<Category*> categories_;
 };
 
 // inlines

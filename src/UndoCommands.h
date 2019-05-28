@@ -10,31 +10,31 @@ class Category;
 class DrawCommand : public QUndoCommand
 {
 public:
-	DrawCommand(CanvasItem* canvas, Drawable* shape, QUndoCommand *parent = 0);
+    DrawCommand(CanvasItem* canvas, Drawable* shape, QUndoCommand *parent = 0);
 
-	void undo() override;
-	void redo() override;
+    void undo() override;
+    void redo() override;
 
 private:
-	CanvasItem* canvas_;
-	const Category* category_;
-	QScopedPointer<Drawable> shape_;
-	QScopedPointer<CanvasItem::Fragment> fragment_;
+    CanvasItem* canvas_;
+    const Category* category_;
+    QScopedPointer<Drawable> shape_;
+    QScopedPointer<CanvasItem::Fragment> fragment_;
 };
 
 
 class DrawFragmentCommand : public QUndoCommand
 {
 public:
-	DrawFragmentCommand(CanvasItem* canvas, CanvasItem::Fragment* original, QUndoCommand *parent = 0);
+    DrawFragmentCommand(CanvasItem* canvas, CanvasItem::Fragment* original, QUndoCommand *parent = 0);
 
-	void undo() override;
-	void redo() override;
+    void undo() override;
+    void redo() override;
 
 private:
-	CanvasItem* canvas_;
-	QScopedPointer<CanvasItem::Fragment> shape_;
-	QScopedPointer<CanvasItem::Fragment> original_;
+    CanvasItem* canvas_;
+    QScopedPointer<CanvasItem::Fragment> shape_;
+    QScopedPointer<CanvasItem::Fragment> original_;
 };
 
 #endif // UNDOCOMMANDS_H

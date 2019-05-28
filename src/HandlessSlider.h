@@ -7,29 +7,29 @@
 class HandlessSlider : public Slider
 {
 public:
-	typedef std::function<QString(double)> TextFormatter;
+    typedef std::function<QString(double)> TextFormatter;
 
 public:
-	HandlessSlider(QWidget *parent = 0);
+    HandlessSlider(QWidget *parent = 0);
 
-	bool textVisible() const;
-	void setTextVisible(bool textVisible);
+    bool textVisible() const;
+    void setTextVisible(bool textVisible);
 
-	void setTextFormatter(const TextFormatter& formatter);
+    void setTextFormatter(const TextFormatter& formatter);
 
-	QFont textFont() const;
-	void setTextFont(const QFont& textFont);
+    QFont textFont() const;
+    void setTextFont(const QFont& textFont);
 
 protected:
-	void paint(QPainter& p) override;
-	QSize handleSize() const override;
-	QRect handleSpaceRect() const override;
+    void paint(QPainter& p) override;
+    QSize handleSize() const override;
+    QRect handleSpaceRect() const override;
 
 private:
-	bool textVisible_;
-	TextFormatter textFormatter_;
-	TextFormatter defaultTextFormatter_;
-	QFont textFont_;
+    bool textVisible_;
+    TextFormatter textFormatter_;
+    TextFormatter defaultTextFormatter_;
+    QFont textFont_;
 };
 
 inline bool HandlessSlider::textVisible() const { return textVisible_; }

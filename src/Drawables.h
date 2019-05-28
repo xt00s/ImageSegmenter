@@ -13,12 +13,12 @@ class QImage;
 class Drawable
 {
 public:
-	Drawable(const QRect& rect);
-	virtual ~Drawable() {}
-	QRect rect() const;
-	virtual void draw(QPainter& painter, const QColor& color) const = 0;
+    Drawable(const QRect& rect);
+    virtual ~Drawable() {}
+    QRect rect() const;
+    virtual void draw(QPainter& painter, const QColor& color) const = 0;
 protected:
-	QRect rect_;
+    QRect rect_;
 };
 
 inline Drawable::Drawable(const QRect& rect) : rect_(rect) {}
@@ -27,42 +27,42 @@ inline QRect Drawable::rect() const { return rect_; }
 class Polygon : public Drawable
 {
 public:
-	Polygon(const QPolygonF& polygon);
-	void draw(QPainter& painter, const QColor& color) const override;
+    Polygon(const QPolygonF& polygon);
+    void draw(QPainter& painter, const QColor& color) const override;
 private:
-	QPolygonF polygon_;
+    QPolygonF polygon_;
 };
 
 
 class Line : public Drawable
 {
 public:
-	Line(const QLineF& line, qreal width);
-	void draw(QPainter &painter, const QColor &color) const override;
+    Line(const QLineF& line, qreal width);
+    void draw(QPainter &painter, const QColor &color) const override;
 private:
-	QLineF line_;
-	qreal width_;
+    QLineF line_;
+    qreal width_;
 };
 
 
 class Circle : public Drawable
 {
 public:
-	Circle(const QPointF& center, qreal radius);
-	void draw(QPainter& painter, const QColor& color) const override;
+    Circle(const QPointF& center, qreal radius);
+    void draw(QPainter& painter, const QColor& color) const override;
 private:
-	QPointF center_;
-	qreal radius_;
+    QPointF center_;
+    qreal radius_;
 };
 
 class Bitmap : public Drawable
 {
 public:
-	Bitmap(const QPoint& topLeft, const QImage& bmp);
-	void draw(QPainter& painter, const QColor& color) const override;
+    Bitmap(const QPoint& topLeft, const QImage& bmp);
+    void draw(QPainter& painter, const QColor& color) const override;
 private:
-	QPoint topLeft_;
-	mutable QImage bmp_;
+    QPoint topLeft_;
+    mutable QImage bmp_;
 };
 
 #endif // DRAWABLE_H
