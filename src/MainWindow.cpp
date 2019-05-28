@@ -491,6 +491,7 @@ void MainWindow::open(const QString& schemePath, const QString& folderPath, cons
     }
     else {
         help::WaitCursor wait;
+        outputPath_ = outputPath;
         if (!ui->schemeTree->open(schemePath)) {
             ui->imageList->clear();
             error = ui->schemeTree->errorString();
@@ -498,11 +499,11 @@ void MainWindow::open(const QString& schemePath, const QString& folderPath, cons
             ui->imageList->open(folderPath, outputPath, ui->schemeTree->scheme()->name());
         }
     }
-    outputPath_ = error.isEmpty() ? outputPath : QString();
     ui->imageList->setEnabled(ui->schemeTree->scheme() != nullptr);
     ui->actionNext->setEnabled(ui->imageList->isNextAvailable());
     ui->actionPrevious->setEnabled(ui->imageList->isPrevAvailable());
     if (!error.isEmpty()) {
+        outputPath_.clear();
         QMessageBox::warning(this, "", error, QMessageBox::Ok);
     }
 }
